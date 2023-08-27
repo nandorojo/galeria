@@ -9,7 +9,6 @@ export default function App() {
         style={{
           width: 300,
           height: 300,
-          backgroundColor: "red",
         }}
         name='hi'
       />
