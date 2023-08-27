@@ -39,6 +39,12 @@ public class GaleriaModule: Module {
       Prop("name") { (view: GaleriaView, prop: String) in
         print(prop)
       }
+      // Defines a setter for the `name` prop.
+      Prop("src") { (view: GaleriaView, prop: String?) in
+        if let url = prop {
+          view.imageView.setupImageViewer(url: URL(string: url)!)
+        }
+      }
     }
   }
 }

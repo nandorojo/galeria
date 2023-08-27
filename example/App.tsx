@@ -1,11 +1,18 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
 
-import * as Galeria from 'galeria';
+import * as Galeria from "galeria";
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>{Galeria.hello()}</Text>
+      <Galeria.GaleriaView
+        style={{
+          width: 300,
+          height: 300,
+          backgroundColor: "red",
+        }}
+        name='hi'
+      />
     </View>
   );
 }
@@ -13,8 +20,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
