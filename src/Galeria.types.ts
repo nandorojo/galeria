@@ -5,6 +5,12 @@ export type ChangeEventPayload = {
 };
 
 export type GaleriaViewProps = {
-  name: string;
   style?: ViewStyle;
-};
+  src: string;
+} & (
+  | {}
+  | {
+      urls: string[];
+      initialIndex: number;
+    }
+);

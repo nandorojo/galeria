@@ -1,16 +1,18 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import * as Galeria from "galeria";
+import * as g from "galeria";
+
+const Galeria = g.GaleriaView;
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Galeria.GaleriaView
+      <Galeria
         style={{
-          width: 300,
-          height: 300,
+          width: 200 * 1.2,
+          height: 130 * 1.2,
         }}
-        name='hi'
+        src='https://raw.githubusercontent.com/michaelhenry/MHFacebookImageViewer/master/Example/Demo/Assets.xcassets/cat1.imageset/cat1.jpg'
       />
     </View>
   );
@@ -19,7 +21,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "black",
     alignItems: "center",
     justifyContent: "center",
   },

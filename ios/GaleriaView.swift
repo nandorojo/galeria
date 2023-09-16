@@ -5,27 +5,69 @@ import SDWebImage
 
 class GaleriaView: ExpoView {
     lazy var imageView:UIImageView = {
-        let iv = UIImageView()
-        
-        // Setup Image Viewer With URL
-        iv.setupImageViewer(url: URL(string: "https://res.cloudinary.com/dn29xlaeh/image/upload/q_75,w_768,fl_lossy/beatgig-prod/aig6jybsqxey3jdr6hlr")!)
+        let iv = SDAnimatedImageView(frame: .zero)
+
+        if let src = src {
+            // Set an image with low resolution using SDWebImage
+            iv.sd_setImage(with: URL(string: src)!, placeholderImage: nil)
+            
+            // Setup Image Viewer With URL
+            iv.setupImageViewer(url: URL(string: src)!)
+        }
         return iv
     }()
-    
 
-  required init(appContext: AppContext? = nil) {
-    super.init(appContext: appContext)
+    var src: String? {
+        didSet {
+            if let src = src {
+                // Set an image with low resolution using SDWebImage
+                imageView.sd_setImage(with: URL(string: src)!, placeholderImage: nil)
+                
+                // Setup Image Viewer With URL
+                imageView.setupImageViewer(url: URL(string: src)!)
+            }
+        }
+    }
 
-    // change self background color
-    self.backgroundColor = .black
+    required init(appContext: AppContext? = nil) {
+        super.init(appContext: appContext)
 
-    addSubview(imageView)
- 
-    imageView.translatesAutoresizingMaskIntoConstraints = false
-    imageView.topAnchor.constraint(equalTo: self.layoutMarginsGuide.topAnchor, constant: 20).isActive = true
-    imageView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 20).isActive = true
-    imageView.widthAnchor.constraint(equalToConstant: 100).isActive = true
-    imageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
-  }
+        self.addSubview(imageView)
+
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+        imageView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
+        imageView.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
+        imageView.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
+    }  
 }
  
+struct Data {
+    
+    static let imageNames:[String] = [
+        "cat1",
+        "cat2",
+        "cat3",
+        "cat4",
+        "cat5",
+        "cat1",
+        "cat2",
+        "cat3",
+        "cat4",
+        "cat5",
+        "cat1",
+        "cat2",
+        "cat3",
+        "cat4",
+        "cat5",
+        "cat1",
+        "cat2",
+        "cat3",
+        "cat4",
+        "cat5",
+    ]
+     
+    static let imageUrls:[URL] = Self.imageNames.compactMap {
+        URL(string: "https://raw.githubusercontent.com/michaelhenry/MHFacebookImageViewer/master/Example/Demo/Assets.xcassets/\($0).imageset/\($0).jpg")! }
+}
+
