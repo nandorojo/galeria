@@ -7,5 +7,12 @@ const NativeView: React.ComponentType<GaleriaViewProps> =
   requireNativeViewManager("Galeria");
 
 export default function GaleriaView(props: GaleriaViewProps) {
-  return <NativeView initialIndex={0} {...props} src={props.src} />;
+  return (
+    <NativeView
+      initialIndex={0}
+      urls={[props.src]}
+      {...props}
+      src={props.src}
+    />
+  );
 }

@@ -28,15 +28,23 @@
   "author": "Fernando Rojo <frojo@sas.upenn.edu> (https://github.com/nandorojo)",
   "license": "MIT",
   "homepage": "https://github.com/nandorojo/galeria#readme",
-  "dependencies": {},
+  "dependencies": {
+    "framer-motion": "^10.16.4"
+  },
   "devDependencies": {
     "@types/react": "^18.0.25",
     "expo-module-scripts": "^3.0.11",
-    "expo-modules-core": "^1.5.7"
+    "expo-modules-core": "^1.5.7",
+    "react-native": "^0.72.4",
+    "react-native-web": "^0.19.8"
   },
   "peerDependencies": {
     "expo": "*",
     "react": "*",
     "react-native": "*"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false
   }
 }
