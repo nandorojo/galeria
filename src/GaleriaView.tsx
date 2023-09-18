@@ -18,7 +18,7 @@ import {
   useMotionValue,
   useTransform,
 } from 'framer-motion'
-import { Modal, useWindowDimensions } from 'react-native'
+import { Dimensions, Modal, useWindowDimensions } from 'react-native'
 import { GaleriaContext } from './context'
 
 const useClientEffect =
@@ -41,7 +41,6 @@ function OpenPopup() {
   const id = useId()
   const isDragging = useMotionValue(false)
   const carousel = urls.length > 1 && urls
-  const layoutId = (src: string) => src
 
   const images = carousel || [src].filter(Boolean)
 
@@ -73,13 +72,34 @@ function OpenPopup() {
     clamp: true,
   })
 
-  const { width } = useWindowDimensions()
-
   const [imageIndex = initialIndex, setIndex] = useState<number>()
+
+  useEffect(
+    function arrowKeys() {
+      const listener = (e: KeyboardEvent) => {
+        let nextIndex = imageIndex
+        if (e.key === 'ArrowRight') {
+          nextIndex = Math.min(imageIndex + 1, images.length - 1)
+        } else if (e.key === 'ArrowLeft') {
+          nextIndex = Math.max(imageIndex - 1, 0)
+        }
+
+        scrollRef.current?.scrollTo({
+          left: nextIndex * Dimensions.get('window').width,
+          behavior: 'smooth',
+        })
+      }
+      document.addEventListener('keydown', listener)
+      return () => {
+        document.removeEventListener('keydown', listener)
+      }
+    },
+    [imageIndex, images.length],
+  )
 
   console.log('[popup]', { imageIndex, initialIndex })
 
-  if (!open || width <= 0 || images.length < 1) {
+  if (!open || images.length < 1) {
     return null
   }
 
@@ -123,7 +143,6 @@ function OpenPopup() {
           >
             {images.map((image, i) => {
               const isActiveItem = i === imageIndex
-              const framerId = isActiveItem ? layoutId(image) : undefined
               return (
                 <ViewabilityTracker
                   onEnter={(entry) => {
@@ -134,7 +153,9 @@ function OpenPopup() {
                   scrollRef={scrollRef}
                 >
                   <motion.img
-                    layoutId={framerId}
+                    layout={isActiveItem}
+                    {...(isActiveItem && { layoutId: image })}
+                    layoutScroll
                     src={image}
                     style={{
                       width: '100%',
