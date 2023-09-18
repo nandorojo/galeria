@@ -29,12 +29,13 @@
   "license": "MIT",
   "homepage": "https://github.com/nandorojo/galeria#readme",
   "dependencies": {
-    "framer-motion": "^10.16.4"
+    "framer-motion": "^10.9.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
     "expo-module-scripts": "^3.0.11",
     "expo-modules-core": "^1.5.7",
+    "prettier": "^3.0.3",
     "react-native": "^0.72.4",
     "react-native-web": "^0.19.8"
   },
