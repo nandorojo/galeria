@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import { Galeria } from 'galeria'
 
@@ -11,20 +11,22 @@ const urls = [
 export default function App() {
   return (
     <View style={styles.container}>
-      {urls.map((url, i) => {
-        return (
-          <Galeria
-            style={{
-              width: 200 * 1.2,
-              height: 130 * 1.2,
-            }}
-            key={url}
-            initialIndex={i}
-            src={url}
-            urls={urls}
-          />
-        )
-      })}
+      <Galeria urls={urls}>
+        {urls.map((url, i) => {
+          return (
+            <Galeria.Image
+              style={{
+                width: 200 * 1.2,
+                height: 130 * 1.2,
+              }}
+              key={url}
+              index={i}
+              src={url}
+            />
+          )
+        })}
+        <Galeria.Popup />
+      </Galeria>
     </View>
   )
 }

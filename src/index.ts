@@ -1,4 +1,2 @@
-import GaleriaView from './GaleriaView'
-import { GaleriaViewProps } from './Galeria.types'
-
-export { GaleriaView as Galeria, GaleriaViewProps }
+export { default as Galeria } from './GaleriaView'
+export { GaleriaViewProps } from './Galeria.types'
