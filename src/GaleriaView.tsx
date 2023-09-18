@@ -24,21 +24,20 @@ import { GaleriaContext } from './context'
 const useClientEffect =
   typeof window === 'undefined' ? useEffect : useLayoutEffect
 
-function Popup() {
+function Popup({ disableTransition }: { disableTransition?: 'web' }) {
   const { open } = useContext(GaleriaContext)
 
   // necessary to reset the state
   // also, let's not render unnecessary hooks, etc
-  if (open) return <OpenPopup />
+  if (open) return <OpenPopup disableTransition={Boolean(disableTransition)} />
 
   return null
 }
 
-function OpenPopup() {
-  const { open, setOpen, urls, initialIndex, theme, src } =
+function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
+  const { open, setOpen, urls, initialIndex, theme, src, ids } =
     useContext(GaleriaContext)
 
-  const id = useId()
   const isDragging = useMotionValue(false)
   const carousel = urls.length > 1 && urls
 
@@ -99,121 +98,121 @@ function OpenPopup() {
 
   console.log('[popup]', { imageIndex, initialIndex })
 
+  const width = useWindowDimensions().width
+
   if (!open || images.length < 1) {
     return null
   }
 
   return (
-    <>
-      {
-        <Modal
-          visible={open}
-          transparent
-          onRequestClose={() => setOpen({ open: false })}
-        >
-          <motion.div
-            initial={{
-              opacity: 0,
-            }}
-            animate={{
-              opacity: 1,
-            }}
-            transition={{ type: 'timing', duration: 0.3 }}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              zIndex: -1,
-              background: theme === 'dark' ? 'black' : 'white',
-              opacity: backdropOpacity,
-            }}
-          ></motion.div>
-          <motion.div
-            style={{
-              width: '100%',
-              flexDirection: 'row',
-              display: 'flex',
-              alignItems: 'center',
-              height: '100vh',
-              overflowX: 'auto',
-              overflowY: 'hidden',
-              scrollSnapType: 'x mandatory',
-              scrollbarWidth: 'none',
-            }}
-            ref={scrollRef}
-          >
-            {images.map((image, i) => {
-              const isActiveItem = i === imageIndex
-              return (
-                <ViewabilityTracker
-                  onEnter={(entry) => {
-                    if (open) setIndex(i)
-                    console.log('[onEnter]', id, i, entry.intersectionRatio)
-                  }}
-                  key={image}
-                  scrollRef={scrollRef}
-                >
-                  <motion.img
-                    layout={isActiveItem}
-                    {...(isActiveItem && { layoutId: image })}
-                    layoutScroll
-                    src={image}
-                    style={{
-                      width: '100%',
-                      scrollSnapAlign: 'center',
-                      ...(!isActiveItem && {
-                        opacity: backdropOpacity,
-                      }),
-                    }}
-                    drag={carousel ? 'y' : true}
-                    onDragStart={(e, info) => {
-                      isDragging.set(true)
-                    }}
-                    onDrag={(e, info) => {
-                      const parentHeight =
-                        scrollRef.current?.clientHeight || window.innerHeight
-                      const percentDragged = Math.abs(
-                        info.offset.y / parentHeight,
-                      )
-                      dragPercentProgress.set(percentDragged)
-                      console.log('[onDrag]', Math.round(percentDragged * 100))
-                    }}
-                    dragSnapToOrigin
-                    onDragEnd={(e, info) => {
-                      const parentHeight =
-                        scrollRef.current?.clientHeight || window.innerHeight
-                      const percentDragged = Math.abs(
-                        info.offset.y / parentHeight,
-                      )
-                      isDragging.set(false)
-                      if (percentDragged > 3 || info.velocity.y > 500) {
-                        animate(dragPercentProgress, 40, { duration: 0.5 })
-                        setOpen({ open: false })
-                      } else {
-                        animate(dragPercentProgress, 0, { duration: 0.5 })
-                      }
-                    }}
-                    onClick={() => {
-                      // run on next tick to transition back
-                      if (!isDragging.get())
-                        setTimeout(() => setOpen({ open: false }))
-                    }}
-                  />
-                </ViewabilityTracker>
-              )
-            })}
-          </motion.div>
-        </Modal>
-      }
-    </>
+    <Modal
+      visible={open}
+      transparent
+      onRequestClose={() => setOpen({ open: false })}
+    >
+      <motion.div
+        initial={
+          !disableTransition && {
+            opacity: 0,
+          }
+        }
+        animate={{
+          opacity: 1,
+        }}
+        transition={{ type: 'timing' }}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: -1,
+          background: theme === 'dark' ? 'black' : 'white',
+          opacity: backdropOpacity,
+        }}
+      ></motion.div>
+      <motion.div
+        style={{
+          width: '100%',
+          flexDirection: 'row',
+          display: 'flex',
+          alignItems: 'center',
+          height: '100vh',
+          overflowX: 'auto',
+          overflowY: 'hidden',
+          scrollSnapType: 'x mandatory',
+          scrollbarWidth: 'none',
+        }}
+        onClick={() => {
+          // run on next tick to transition back
+          if (!isDragging.get()) setTimeout(() => setOpen({ open: false }))
+        }}
+        ref={scrollRef}
+      >
+        {images.map((image, i) => {
+          const isActiveItem = i === imageIndex
+          return (
+            <ViewabilityTracker
+              onEnter={(entry) => {
+                if (open) setIndex(i)
+              }}
+              key={image}
+              scrollRef={scrollRef}
+            >
+              <motion.img
+                {...(isActiveItem &&
+                  !disableTransition && {
+                    layoutId: getLayoutId(ids?.[i], i),
+                  })}
+                layoutScroll
+                src={image}
+                style={{
+                  width: '100%',
+                  scrollSnapAlign: 'center',
+                  ...(!isActiveItem && {
+                    opacity: backdropOpacity,
+                  }),
+                  height: 'auto',
+                }}
+                drag={carousel ? 'y' : true}
+                onDragStart={(e, info) => {
+                  isDragging.set(true)
+                }}
+                onDrag={(e, info) => {
+                  const parentHeight =
+                    scrollRef.current?.clientHeight || window.innerHeight
+                  const percentDragged = Math.abs(info.offset.y / parentHeight)
+                  dragPercentProgress.set(percentDragged)
+                  console.log('[onDrag]', Math.round(percentDragged * 100))
+                }}
+                dragSnapToOrigin
+                onDragEnd={(e, info) => {
+                  const parentHeight =
+                    scrollRef.current?.clientHeight || window.innerHeight
+                  const percentDragged = Math.abs(info.offset.y / parentHeight)
+                  isDragging.set(false)
+                  if (percentDragged > 3 || info.velocity.y > 500) {
+                    animate(dragPercentProgress, 40, { duration: 0.5 })
+                    setOpen({ open: false })
+                  } else {
+                    animate(dragPercentProgress, 0, { duration: 0.5 })
+                  }
+                }}
+              />
+            </ViewabilityTracker>
+          )
+        })}
+      </motion.div>
+    </Modal>
   )
 }
 
-function Image({ style, src, index }: GaleriaViewProps) {
+const getLayoutId = (id: string | undefined, index: number) =>
+  id || `index-${index}`
+
+function Image({ style, src, index = 0, id }: GaleriaViewProps) {
   const { setOpen } = useContext(GaleriaContext)
 
   return (
     <motion.img
-      layoutId={src}
+      layoutId={getLayoutId(id, index)}
       src={src}
       style={style as object}
       onClick={() => {
@@ -221,6 +220,7 @@ function Image({ style, src, index }: GaleriaViewProps) {
           open: true,
           src,
           initialIndex: index ?? 0,
+          id,
         })
       }}
     />
@@ -232,6 +232,7 @@ const Galeria: typeof Native = Object.assign(
     children,
     urls,
     theme = 'light',
+    ids,
   }: ComponentProps<typeof Native>) {
     const [openState, setOpen] = useState({
       open: false,
@@ -244,7 +245,6 @@ const Galeria: typeof Native = Object.assign(
           src: string
           initialIndex: number
         })
-    const id = useId()
     return (
       <GaleriaContext.Provider
         value={{
@@ -262,9 +262,12 @@ const Galeria: typeof Native = Object.assign(
                 src: '',
                 initialIndex: 0,
               }),
+          ids,
         }}
       >
-        <LayoutGroup id={id}>{children}</LayoutGroup>
+        <LayoutGroup inherit={false} id={useId()}>
+          {children}
+        </LayoutGroup>
       </GaleriaContext.Provider>
     )
   },

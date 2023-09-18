@@ -8,4 +8,5 @@ export type GaleriaViewProps = {
   style?: ImageStyle
   src: string
   index?: number
+  id?: string
 }

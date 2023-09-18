@@ -13,12 +13,15 @@ const Galeria = Object.assign(
     children: React.ReactNode
     theme?: 'dark' | 'light'
     urls?: string[]
+    ids?: string[]
   }) {
     return <>{children}</>
   },
   {
     Image: NativeView,
-    Popup: React.Fragment as React.FC,
+    Popup: React.Fragment as React.FC<{
+      disableTransition?: 'web'
+    }>,
   },
 )
 

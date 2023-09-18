@@ -10,22 +10,22 @@ const urls = [
 ]
 export default function App() {
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap' }}>
       <Galeria urls={urls}>
         {urls.map((url, i) => {
           return (
             <Galeria.Image
               style={{
-                width: 200 * 1.2,
-                height: 130 * 1.2,
+                height: 200,
+                width: 200,
+                objectFit: 'cover',
               }}
-              key={url}
               index={i}
               src={url}
             />
           )
         })}
-        <Galeria.Popup />
+        <Galeria.Popup disableTransition="web" />
       </Galeria>
     </View>
   )
@@ -33,9 +33,8 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: 'black',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
 })
