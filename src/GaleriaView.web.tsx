@@ -12,8 +12,10 @@ import { unstable_createElement } from 'react-native-web'
 import {
   AnimatePresence,
   LayoutGroup,
+  animate,
   motion,
   useMotionValue,
+  useTransform,
 } from 'framer-motion'
 import { Modal, ScrollView, View } from 'react-native'
 
@@ -64,7 +66,7 @@ export default function GaleriaView({
   const id = useId()
   const isDragging = useMotionValue(false)
   const carousel = 'urls' in props && props.urls.length > 1 && props.urls
-  const layoutId = (src: string) => [src, id].join('-')
+  const layoutId = (src: string) => src
 
   const images = carousel || [src]
 
@@ -77,28 +79,29 @@ export default function GaleriaView({
         const scrollerParentWidth =
           scroller.parentElement?.clientWidth || window.innerWidth
         scroller.scrollLeft = initialIndex * scrollerParentWidth
-
-        // const getClosestIndex = (e: Event) => {
-        //   const scrollerParentWidth =
-        //     scroller.parentElement?.clientWidth || window.innerWidth
-        //   const scrollLeft = scroller.scrollLeft
-        //   const index = Math.round(scrollLeft / scrollerParentWidth)
-        //   setIndex(index)
-        //   console.log('[scrollend]', index)
-        // }
-
-        // scroller.addEventListener('scrollend', getClosestIndex)
-
-        // return () => {
-        //   scroller?.removeEventListener('scrollend', getClosestIndex)
-        // }
       }
     },
     [open],
   )
 
+  console.log('[imageIndex]', id, imageIndex)
+
+  if (__DEV__) {
+    if (new Set(images).size !== images.length) {
+      console.error(
+        `GaleriaView: duplicate images found in urls prop. This will cause unexpected behavior.`,
+      )
+    }
+  }
+
+  const dragPercentProgress = useMotionValue(0)
+
+  const backdropOpacity = useTransform(dragPercentProgress, [0, 0.4], [1, 0], {
+    clamp: true,
+  })
+
   return (
-    <>
+    <LayoutGroup id={id}>
       <motion.img
         layoutId={layoutId(src)}
         src={src}
@@ -109,78 +112,99 @@ export default function GaleriaView({
           setOpen(true)
         }}
       />
-      <Modal visible={open} transparent onRequestClose={() => setOpen(false)}>
-        <motion.div
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          transition={{ type: 'timing', duration: 0.3 }}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: -1,
-            background: theme === 'dark' ? 'black' : 'white',
-          }}
-        ></motion.div>
-        <motion.div
-          style={{
-            width: '100%',
-            flexDirection: 'row',
-            display: 'flex',
-            alignItems: 'center',
-            height: '100vh',
-            overflowX: 'auto',
-            overflowY: 'hidden',
-            scrollSnapType: 'x mandatory',
-            scrollbarWidth: 'none',
-          }}
-          drag={carousel ? 'y' : true}
-          onDragStart={(e, info) => {
-            isDragging.set(true)
-          }}
-          dragSnapToOrigin
-          onDragEnd={(e, info) => {
-            const distanceDragged = Math.max(
-              Math.abs(info.offset.y),
-              carousel ? Math.abs(info.offset.x) : 0,
-            )
-            isDragging.set(false)
-            if (distanceDragged > 150 || info.velocity.y > 500) {
-              setOpen(false)
-            }
-          }}
-          onClick={() => {
-            // run on next tick to transition back
-            if (!isDragging.get()) setTimeout(() => setOpen(false))
-          }}
-          ref={scrollRef}
-        >
-          {images.map((image, i) => {
-            return (
-              <ViewabilityTracker
-                onEnter={() => {
-                  setIndex(i)
-                }}
-                key={image}
-              >
-                <motion.img
-                  layoutId={imageIndex === i ? layoutId(image) : undefined}
-                  src={image}
-                  style={{
-                    width: '100%',
-                    scrollSnapAlign: 'center',
-                    pointerEvents: 'none',
+      {open && (
+        <Modal visible={open} transparent onRequestClose={() => setOpen(false)}>
+          <motion.div
+            initial={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            transition={{ type: 'timing', duration: 0.3 }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: -1,
+              background: theme === 'dark' ? 'black' : 'white',
+              opacity: backdropOpacity,
+            }}
+          ></motion.div>
+          <motion.div
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              display: 'flex',
+              alignItems: 'center',
+              height: '100vh',
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              scrollSnapType: 'x mandatory',
+              scrollbarWidth: 'none',
+            }}
+            ref={scrollRef}
+          >
+            {images.map((image, i) => {
+              const isActiveItem = i === imageIndex
+              const framerId = isActiveItem ? layoutId(image) : undefined
+              return (
+                <ViewabilityTracker
+                  onEnter={(entry) => {
+                    if (open) setIndex(i)
+                    console.log('[onEnter]', id, i, entry.intersectionRatio)
                   }}
-                />
-              </ViewabilityTracker>
-            )
-          })}
-        </motion.div>
-      </Modal>
-    </>
+                  key={image}
+                  scrollRef={scrollRef}
+                >
+                  <motion.img
+                    layoutId={framerId}
+                    // reset the instance if it's hidden
+                    key={framerId}
+                    src={image}
+                    style={{
+                      width: '100%',
+                      scrollSnapAlign: 'center',
+                    }}
+                    drag={carousel ? 'y' : true}
+                    onDragStart={(e, info) => {
+                      isDragging.set(true)
+                    }}
+                    onDrag={(e, info) => {
+                      const parentHeight =
+                        scrollRef.current?.clientHeight || window.innerHeight
+                      const percentDragged = Math.abs(
+                        info.offset.y / parentHeight,
+                      )
+                      dragPercentProgress.set(percentDragged)
+                      console.log('[onDrag]', Math.round(percentDragged * 100))
+                    }}
+                    dragSnapToOrigin
+                    onDragEnd={(e, info) => {
+                      const parentHeight =
+                        scrollRef.current?.clientHeight || window.innerHeight
+                      const percentDragged = Math.abs(
+                        info.offset.y / parentHeight,
+                      )
+                      isDragging.set(false)
+                      if (percentDragged > 5 || info.velocity.y > 500) {
+                        animate(dragPercentProgress, 40, { duration: 0.5 })
+                        setOpen(false)
+                      } else {
+                        animate(dragPercentProgress, 0, { duration: 0.5 })
+                      }
+                    }}
+                    onClick={() => {
+                      // run on next tick to transition back
+                      if (!isDragging.get()) setTimeout(() => setOpen(false))
+                    }}
+                  />
+                </ViewabilityTracker>
+              )
+            })}
+          </motion.div>
+        </Modal>
+      )}
+    </LayoutGroup>
   )
 }
 
@@ -188,33 +212,40 @@ const ViewabilityTracker = ({
   children,
   itemVisiblePercentThreshold = 100,
   onEnter,
+  scrollRef,
 }: {
   children: JSX.Element
-  onEnter?: () => void
+  onEnter?: (entry: IntersectionObserverEntry) => void
   itemVisiblePercentThreshold?: number
+  scrollRef: React.RefObject<HTMLDivElement>
 }) => {
   const ref = useRef<any>(null)
 
   const enter = useRef(onEnter)
-  useEffect(() => (enter.current = onEnter))
+  useEffect(() => {
+    enter.current = onEnter
+  })
 
   useEffect(() => {
     let observer: IntersectionObserver
-    if (enter.current) {
-      observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            enter.current?.()
-          }
-        },
+    observer = new IntersectionObserver(
+      ([entry]) => {
+        const isVisibleWithinRoot =
+          entry.boundingClientRect.top >= (entry.rootBounds?.top || 0) &&
+          entry.boundingClientRect.bottom <= (entry.rootBounds?.bottom || 0)
 
-        {
-          threshold: itemVisiblePercentThreshold / 100,
-        },
-      )
+        if (entry.isIntersecting && isVisibleWithinRoot) {
+          enter.current?.(entry)
+        }
+      },
 
-      if (ref.current) observer.observe(ref.current)
-    }
+      {
+        threshold: itemVisiblePercentThreshold / 100,
+        root: scrollRef.current,
+      },
+    )
+
+    if (ref.current) observer.observe(ref.current)
 
     return () => {
       observer?.disconnect()
