@@ -15,9 +15,10 @@ export default function App() {
         {urls.map((url, i) => {
           return (
             <Galeria.Image
+              key={url}
               style={{
-                height: 200,
-                width: 200,
+                height: 245,
+                width: '100%',
                 objectFit: 'cover',
               }}
               index={i}

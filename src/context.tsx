@@ -10,6 +10,6 @@ export const GaleriaContext = createContext({
       | { open: true; src: string; initialIndex: number; id?: string }
       | { open: false },
   ) => {},
-  theme: 'light' as 'dark' | 'light',
+  theme: 'dark' as 'dark' | 'light',
   src: '',
 })

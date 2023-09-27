@@ -6,25 +6,35 @@ import SDWebImage
 class GaleriaView: ExpoView {
     lazy var imageView:UIImageView = {
         let iv = SDAnimatedImageView(frame: .zero)
-
-        if let src = src {
-            // Set an image with low resolution using SDWebImage
-            iv.sd_setImage(with: URL(string: src)!, placeholderImage: nil)
-            
-            // Setup Image Viewer With URL
-            iv.setupImageViewer(url: URL(string: src)!)
-        }
+        setupImageView()
         return iv
     }()
 
     var src: String? {
         didSet {
-            if let src = src {
-                // Set an image with low resolution using SDWebImage
-                imageView.sd_setImage(with: URL(string: src)!, placeholderImage: nil)
-                
-                // Setup Image Viewer With URL
-                imageView.setupImageViewer(url: URL(string: src)!)
+            setupImageView()
+        }
+    }
+
+    var urls: [String]? {
+        didSet {
+            setupImageView()
+        }
+    }
+
+    var initialIndex: Int? {
+        didSet {
+            setupImageView()
+        }
+    }
+
+    func setupImageView() {
+        if let src = self.src {
+            imageView.sd_setImage(with: URL(string: src)!, placeholderImage: nil)
+            if let urls = self.urls, let initialIndex = self.initialIndex {
+                imageView.setupImageViewer(urls: urls.map { URL(string: $0)! }, initialIndex: initialIndex)
+            } else {
+               imageView.setupImageViewer(url: URL(string: src)!)
             }
         }
     }
@@ -41,33 +51,3 @@ class GaleriaView: ExpoView {
         imageView.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
     }  
 }
- 
-struct Data {
-    
-    static let imageNames:[String] = [
-        "cat1",
-        "cat2",
-        "cat3",
-        "cat4",
-        "cat5",
-        "cat1",
-        "cat2",
-        "cat3",
-        "cat4",
-        "cat5",
-        "cat1",
-        "cat2",
-        "cat3",
-        "cat4",
-        "cat5",
-        "cat1",
-        "cat2",
-        "cat3",
-        "cat4",
-        "cat5",
-    ]
-     
-    static let imageUrls:[URL] = Self.imageNames.compactMap {
-        URL(string: "https://raw.githubusercontent.com/michaelhenry/MHFacebookImageViewer/master/Example/Demo/Assets.xcassets/\($0).imageset/\($0).jpg")! }
-}
-

@@ -1,5 +1,3 @@
-// Copyright 2022-present 650 Industries. All rights reserved.
-
 import ExpoModulesCore 
 open class GaleriaModule: Module {
   public func definition() -> ModuleDefinition {
@@ -21,8 +19,8 @@ open class GaleriaModule: Module {
         view.urls = urls
       }
 
-      Prop("initialIndex") { (view, initialIndex: Int?) in
-        view.initialIndex = initialIndex
+      Prop("index") { (view, index: Int?) in
+        view.initialIndex = index
       }
     }
   }

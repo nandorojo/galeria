@@ -1,10 +1,15 @@
 import { requireNativeViewManager } from 'expo-modules-core'
-import * as React from 'react'
 
 import { GaleriaViewProps } from './Galeria.types'
+import { Fragment, useContext } from 'react'
+import { GaleriaContext } from './context'
 
-const NativeView: React.ComponentType<GaleriaViewProps> =
-  requireNativeViewManager('Galeria')
+const NativeImage = requireNativeViewManager<
+  GaleriaViewProps & {
+    urls?: string[]
+    theme: 'dark' | 'light'
+  }
+>('Galeria')
 
 const Galeria = Object.assign(
   function Galeria({
@@ -18,8 +23,11 @@ const Galeria = Object.assign(
     return <>{children}</>
   },
   {
-    Image: NativeView,
-    Popup: React.Fragment as React.FC<{
+    Image(props: GaleriaViewProps) {
+      const { theme = 'dark', urls } = useContext(GaleriaContext)
+      return <NativeImage theme={theme} urls={urls} {...props} />
+    },
+    Popup: (() => null) as React.FC<{
       disableTransition?: 'web'
     }>,
   },
