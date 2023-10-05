@@ -11,20 +11,39 @@ const NativeImage = requireNativeViewManager<
   }
 >('Galeria')
 
+const array = []
+const noop = () => {}
+
 const Galeria = Object.assign(
   function Galeria({
     children,
+    urls = array,
+    theme = 'dark',
   }: {
     children: React.ReactNode
     theme?: 'dark' | 'light'
     urls?: string[]
     ids?: string[]
   }) {
-    return <>{children}</>
+    return (
+      <GaleriaContext.Provider
+        value={{
+          urls,
+          theme,
+          initialIndex: 0,
+          open: false,
+          src: '',
+          setOpen: noop,
+          ids: undefined,
+        }}
+      >
+        {children}
+      </GaleriaContext.Provider>
+    )
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme = 'dark', urls } = useContext(GaleriaContext)
+      const { theme, urls } = useContext(GaleriaContext)
       return <NativeImage theme={theme} urls={urls} {...props} />
     },
     Popup: (() => null) as React.FC<{
