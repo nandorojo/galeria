@@ -10,7 +10,7 @@ import {
 } from 'react'
 
 import { GaleriaViewProps } from './Galeria.types'
-import type Native from './GaleriaView.native'
+import type Native from './GaleriaView.ios'
 import {
   LayoutGroup,
   animate,
