@@ -10,6 +10,12 @@ class GaleriaView: ExpoView {
         return iv
     }()
 
+    var theme: String? {
+        didSet {
+            setupImageView()
+        }
+    }
+
     var src: String? {
         didSet {
             setupImageView()
@@ -29,12 +35,18 @@ class GaleriaView: ExpoView {
     }
 
     func setupImageView() {
-        if let src = self.src {
-            imageView.sd_setImage(with: URL(string: src)!, placeholderImage: nil)
+        var viewerTheme: ImageViewerTheme = .dark
+        if let theme = self.theme {
+            viewerTheme = Theme(rawValue: theme)?.toImageViewerTheme() ?? .dark
+        }
+        if let src = self.src, let url = URL(string: src) {
+            imageView.sd_setImage(with: url, placeholderImage: nil)
+            
             if let urls = self.urls, let initialIndex = self.initialIndex {
-                imageView.setupImageViewer(urls: urls.map { URL(string: $0)! }, initialIndex: initialIndex)
+                let urlObjects = urls.compactMap { URL(string: $0) }
+                imageView.setupImageViewer(urls: urlObjects, initialIndex: initialIndex, options: [.theme(viewerTheme)])
             } else {
-               imageView.setupImageViewer(url: URL(string: src)!)
+                imageView.setupImageViewer(url: url, options: [.theme(viewerTheme)])
             }
         }
     }
@@ -50,4 +62,19 @@ class GaleriaView: ExpoView {
         imageView.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
         imageView.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
     }  
+}
+
+
+enum Theme: String, Enumerable {
+  case dark
+  case light
+  
+  func toImageViewerTheme() -> ImageViewerTheme {
+    switch self {
+        case .dark:
+            return .dark
+        case .light:
+            return .light
+    }
+  }
 }

@@ -10,8 +10,15 @@ const urls = [
 ]
 export default function App() {
   return (
-    <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap' }}>
-      <Galeria urls={urls}>
+    <View
+      style={{
+        flex: 1,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        backgroundColor: 'black',
+      }}
+    >
+      <Galeria urls={urls} theme="dark">
         {urls.map((url, i) => {
           return (
             <Galeria.Image

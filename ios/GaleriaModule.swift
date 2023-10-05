@@ -22,6 +22,11 @@ open class GaleriaModule: Module {
       Prop("index") { (view, index: Int?) in
         view.initialIndex = index
       }
+
+      Prop("theme") { (view, theme: String?) in
+        view.theme = theme
+      }
     }
   }
 }
+
