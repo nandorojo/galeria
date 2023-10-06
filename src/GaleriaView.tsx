@@ -151,7 +151,7 @@ function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
           return (
             <ViewabilityTracker
               onEnter={(entry) => {
-                if (open) setIndex(i)
+                if (open && images.length > 1) setIndex(i)
               }}
               key={image}
               scrollRef={scrollRef}
@@ -204,8 +204,11 @@ function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
   )
 }
 
-const getLayoutId = (id: string | undefined, index: number) =>
-  id || `index-${index}`
+const getLayoutId = (id: string | undefined, index: number) => {
+  const finalId = id || `index-${index}`
+  console.log('[getLayoutId]', finalId)
+  return finalId
+}
 
 function Image({ style, src, index = 0, id }: GaleriaViewProps) {
   const { setOpen } = useContext(GaleriaContext)

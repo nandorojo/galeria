@@ -18,7 +18,7 @@ export default function App() {
         backgroundColor: 'black',
       }}
     >
-      <Galeria urls={urls} theme="dark">
+      <Galeria urls={urls} ids={urls} theme="dark">
         {urls.map((url, i) => {
           return (
             <Galeria.Image
@@ -28,13 +28,30 @@ export default function App() {
                 width: '100%',
                 objectFit: 'cover',
               }}
+              id={url}
               index={i}
               src={url}
             />
           )
         })}
-        <Galeria.Popup disableTransition="web" />
+        <Galeria.Popup />
       </Galeria>
+
+      {urls.map((url, i) => {
+        return (
+          <Galeria key={url} theme="light">
+            <Galeria.Image
+              style={{
+                height: 245,
+                width: '100%',
+                objectFit: 'cover',
+              }}
+              src={url}
+            />
+            <Galeria.Popup />
+          </Galeria>
+        )
+      })}
     </View>
   )
 }
