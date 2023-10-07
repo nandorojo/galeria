@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native'
+import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { Galeria } from 'galeria'
 
@@ -13,53 +13,45 @@ export default function App() {
     <View
       style={{
         flex: 1,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
         backgroundColor: 'black',
       }}
     >
-      <Galeria urls={urls} ids={urls} theme="dark">
+      <ScrollView>
+        <Galeria urls={urls} ids={urls} theme="dark">
+          {urls.map((url, i) => {
+            return (
+              <Galeria.Image
+                key={url}
+                style={{
+                  height: 245,
+                  width: '100%',
+                  objectFit: 'cover',
+                }}
+                id={url}
+                index={i}
+                src={url}
+              />
+            )
+          })}
+          <Galeria.Popup />
+        </Galeria>
+
         {urls.map((url, i) => {
           return (
-            <Galeria.Image
-              key={url}
-              style={{
-                height: 245,
-                width: '100%',
-                objectFit: 'cover',
-              }}
-              id={url}
-              index={i}
-              src={url}
-            />
+            <Galeria key={url} theme="light">
+              <Galeria.Image
+                style={{
+                  height: 245,
+                  width: '100%',
+                  objectFit: 'cover',
+                }}
+                src={url}
+              />
+              <Galeria.Popup />
+            </Galeria>
           )
         })}
-        <Galeria.Popup />
-      </Galeria>
-
-      {urls.map((url, i) => {
-        return (
-          <Galeria key={url} theme="light">
-            <Galeria.Image
-              style={{
-                height: 245,
-                width: '100%',
-                objectFit: 'cover',
-              }}
-              src={url}
-            />
-            <Galeria.Popup />
-          </Galeria>
-        )
-      })}
+      </ScrollView>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'black',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-})
