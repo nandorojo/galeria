@@ -1,6 +1,6 @@
 {
-  "name": "galeria",
-  "version": "0.1.0",
+  "name": "@nandorojo/galeria",
+  "version": "0.1.1",
   "description": "A native galeria.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
