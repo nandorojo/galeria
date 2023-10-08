@@ -18,7 +18,7 @@ import {
   useMotionValue,
   useTransform,
 } from 'framer-motion'
-import { Dimensions, Modal, useWindowDimensions } from 'react-native'
+import { Dimensions, Modal } from 'react-native'
 import { GaleriaContext } from './context'
 
 const useClientEffect =
@@ -49,9 +49,12 @@ function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
     function setInitialScrollIndex() {
       const scroller = scrollRef.current
       if (open && scroller) {
-        const scrollerParentWidth =
-          scroller.parentElement?.clientWidth || window.innerWidth
-        scroller.scrollLeft = initialIndex * scrollerParentWidth
+        const elementToScrollTo: HTMLDivElement | null = document.querySelector(
+          `[data-galeria-index="${initialIndex}"]`,
+        )
+        if (elementToScrollTo) {
+          scroller.scrollLeft = elementToScrollTo.offsetLeft
+        }
       }
     },
     [open, initialIndex],
@@ -97,8 +100,6 @@ function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
   )
 
   console.log('[popup]', { imageIndex, initialIndex })
-
-  const width = useWindowDimensions().width
 
   if (!open || images.length < 1) {
     return null
@@ -151,17 +152,22 @@ function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
           return (
             <ViewabilityTracker
               onEnter={(entry) => {
+                console.log('[onEnter]', i)
                 if (open && images.length > 1) setIndex(i)
               }}
               key={image}
               scrollRef={scrollRef}
             >
               <motion.img
+                layout={false}
+                layoutId={getLayoutId(ids?.[i], i)}
                 {...(isActiveItem &&
                   !disableTransition && {
                     layoutId: getLayoutId(ids?.[i], i),
+                    layout: true,
                   })}
                 layoutScroll
+                data-galeria-index={i}
                 src={image}
                 style={{
                   width: '100%',
@@ -170,6 +176,8 @@ function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
                     opacity: backdropOpacity,
                   }),
                   height: 'auto',
+                  maxHeight: '100%',
+                  objectFit: 'contain',
                 }}
                 drag={carousel ? 'y' : true}
                 onDragStart={(e, info) => {

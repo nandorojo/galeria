@@ -1,8 +1,8 @@
 // Learn more https://docs.expo.io/guides/customizing-metro
-const { getDefaultConfig } = require('expo/metro-config');
-const path = require('path');
+const { getDefaultConfig } = require('expo/metro-config')
+const path = require('path')
 
-const config = getDefaultConfig(__dirname);
+const config = getDefaultConfig(__dirname)
 
 // npm v7+ will install ../node_modules/react-native because of peerDependencies.
 // To prevent the incompatible react-native bewtween ./node_modules/react-native and ../node_modules/react-native,
@@ -10,20 +10,22 @@ const config = getDefaultConfig(__dirname);
 config.resolver.blockList = [
   ...Array.from(config.resolver.blockList ?? []),
   new RegExp(path.resolve('..', 'node_modules', 'react-native')),
-];
+]
 
 config.resolver.nodeModulesPaths = [
   path.resolve(__dirname, './node_modules'),
   path.resolve(__dirname, '../node_modules'),
-];
+]
 
-config.watchFolders = [path.resolve(__dirname, '..')];
+config.resolver.assetExts.push('mjs')
+
+config.watchFolders = [path.resolve(__dirname, '..')]
 
 config.transformer.getTransformOptions = async () => ({
   transform: {
     experimentalImportSupport: false,
     inlineRequires: true,
   },
-});
+})
 
-module.exports = config;
+module.exports = config

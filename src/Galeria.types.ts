@@ -1,3 +1,5 @@
+import type { motion } from 'framer-motion'
+import { ComponentProps } from 'react'
 import { ImageStyle } from 'react-native'
 
 export type ChangeEventPayload = {
@@ -9,4 +11,5 @@ export type GaleriaViewProps = {
   src: string
   index?: number
   id?: string
+  __web?: ComponentProps<(typeof motion)['img']>
 }
