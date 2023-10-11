@@ -39,7 +39,7 @@ function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
     useContext(GaleriaContext)
 
   const isDragging = useMotionValue(false)
-  const carousel = urls.length > 1 && urls
+  const carousel = urls.length > 0 && urls
 
   const images = carousel || [src].filter(Boolean)
 
