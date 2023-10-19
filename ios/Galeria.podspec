@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.dependency 'ImageViewer.swift/Fetcher', '~> 3.0'
   # expo image & its deps
   s.dependency 'ExpoImage'
-  s.dependency 'SDWebImage', '~> 5.17.0'
+  s.dependency 'SDWebImage'
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {

@@ -18,6 +18,7 @@ config.resolver.nodeModulesPaths = [
 ]
 
 config.resolver.assetExts.push('mjs')
+config.resolver.assetExts.push('cjs')
 
 config.watchFolders = [path.resolve(__dirname, '..')]
 

@@ -12,4 +12,5 @@ export type GaleriaViewProps = {
   index?: number
   id?: string
   __web?: ComponentProps<(typeof motion)['img']>
+  recyclingKey?: string
 }

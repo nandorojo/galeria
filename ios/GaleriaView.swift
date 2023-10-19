@@ -4,11 +4,19 @@ import ImageViewer_swift
 import SDWebImage
 
 class GaleriaView: ExpoView {
-    lazy var imageView:UIImageView = {
+    lazy var imageView: SDAnimatedImageView = {
         let iv = SDAnimatedImageView(frame: .zero)
         setupImageView()
         return iv
     }()
+
+    var recyclingKey: String? {
+        didSet {
+            if recyclingKey != oldValue {
+                imageView.image = nil
+            }
+        }
+    }
 
     var theme: String? {
         didSet {

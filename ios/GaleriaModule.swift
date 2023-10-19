@@ -26,6 +26,10 @@ open class GaleriaModule: Module {
       Prop("theme") { (view, theme: String?) in
         view.theme = theme
       }
+
+      Prop("recyclingKey") { (view, recyclingKey: String?) in
+        view.recyclingKey = recyclingKey
+      }
     }
   }
 }
