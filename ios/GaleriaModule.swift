@@ -11,10 +11,6 @@ open class GaleriaModule: Module {
         "onLoad"
       )
 
-      Prop("src") { (view, src: String) in
-        view.src = src
-      }
-
       Prop("urls") { (view, urls: [String]?) in
         view.urls = urls
       }
@@ -25,10 +21,6 @@ open class GaleriaModule: Module {
 
       Prop("theme") { (view, theme: String?) in
         view.theme = theme
-      }
-
-      Prop("recyclingKey") { (view, recyclingKey: String?) in
-        view.recyclingKey = recyclingKey
       }
     }
   }
