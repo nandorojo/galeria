@@ -14,7 +14,7 @@
     "expo-constants": "~15.4.5",
     "expo-image": "~1.10.6",
     "expo-linking": "~6.2.2",
-    "expo-router": "~3.4.8",
+    "expo-router": "^3.4.8",
     "expo-splash-screen": "~0.26.4",
     "expo-status-bar": "~1.11.1",
     "react": "18.2.0",

@@ -6218,7 +6218,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-router@npm:~3.4.8":
+"expo-router@npm:^3.4.8":
   version: 3.4.8
   resolution: "expo-router@npm:3.4.8"
   dependencies:
@@ -6772,7 +6772,7 @@ __metadata:
     expo-constants: "npm:~15.4.5"
     expo-image: "npm:~1.10.6"
     expo-linking: "npm:~6.2.2"
-    expo-router: "npm:~3.4.8"
+    expo-router: "npm:^3.4.8"
     expo-splash-screen: "npm:~0.26.4"
     expo-status-bar: "npm:~1.11.1"
     react: "npm:18.2.0"
