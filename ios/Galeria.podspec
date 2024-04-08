@@ -19,7 +19,6 @@ Pod::Spec.new do |s|
   s.dependency 'ImageViewer.swift', '~> 3.0'
   s.dependency 'ImageViewer.swift/Fetcher', '~> 3.0'
   # expo image & its deps
-  s.dependency 'ExpoImage'
   s.dependency 'SDWebImage'
 
   # Swift/Objective-C compatibility

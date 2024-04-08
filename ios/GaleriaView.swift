@@ -4,7 +4,19 @@ import ImageViewer_swift
 import SDWebImage
 
 class GaleriaView: ExpoView {
+    // Debugging method to print subviews
+    func printSubviews() {
+        print("Debugging Subviews of GaleriaView:")
+        self.subviews.enumerated().forEach { index, subview in
+            print("Subview \(index): \(subview), Class: \(type(of: subview))")
+            // Optionally, if you want to go deeper into the hierarchy:
+            subview.subviews.enumerated().forEach { subIndex, subSubview in
+                print("  Sub-Subview \(subIndex): \(subSubview), Class: \(type(of: subSubview))")
+            }
+        }
+    }
     lazy var imageView: SDAnimatedImageView = {
+        printSubviews()
         let iv = SDAnimatedImageView(frame: .zero)
         setupImageView()
         return iv

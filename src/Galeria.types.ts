@@ -1,16 +1,13 @@
 import type { motion } from 'framer-motion'
-import { ComponentProps } from 'react'
-import { ImageStyle } from 'react-native'
+import type { ComponentProps } from 'react'
 
 export type ChangeEventPayload = {
   value: string
 }
 
 export type GaleriaViewProps = {
-  style?: ImageStyle
-  src: string
   index?: number
   id?: string
-  __web?: ComponentProps<(typeof motion)['img']>
-  recyclingKey?: string
+  children: React.ReactElement
+  __web: ComponentProps<(typeof motion)['div']>
 }

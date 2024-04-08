@@ -1,9 +1,12 @@
-import { createContext } from 'react'
+import { ContextType, createContext } from 'react'
 
 export const GaleriaContext = createContext({
   initialIndex: 0,
   open: false,
-  urls: [] as string[],
+  urls: [] as unknown as [string, ...string[]],
+  /**
+   * @deprecated
+   */
   ids: undefined as string[] | undefined,
   setOpen: (
     info:
@@ -13,3 +16,5 @@ export const GaleriaContext = createContext({
   theme: 'dark' as 'dark' | 'light',
   src: '',
 })
+
+export type GaleriaContext = ContextType<typeof GaleriaContext>

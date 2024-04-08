@@ -17,14 +17,13 @@ const noop = () => {}
 const Galeria = Object.assign(
   function Galeria({
     children,
-    urls = array,
+    urls,
     theme = 'dark',
+    ids,
   }: {
     children: React.ReactNode
-    theme?: 'dark' | 'light'
-    urls?: string[]
-    ids?: string[]
-  }) {
+  } & Pick<GaleriaContext, 'urls'> &
+    Partial<Pick<GaleriaContext, 'theme' | 'ids'>>) {
     return (
       <GaleriaContext.Provider
         value={{
@@ -34,7 +33,7 @@ const Galeria = Object.assign(
           open: false,
           src: '',
           setOpen: noop,
-          ids: undefined,
+          ids,
         }}
       >
         {children}

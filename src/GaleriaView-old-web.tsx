@@ -35,12 +35,13 @@ function Popup({ disableTransition }: { disableTransition?: 'web' }) {
 }
 
 function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
-  const { open, setOpen, urls, initialIndex, theme, ids } =
+  const { open, setOpen, urls, initialIndex, theme, src, ids } =
     useContext(GaleriaContext)
 
   const isDragging = useMotionValue(false)
+  const carousel = urls.length > 0 && urls
 
-  const images = urls
+  const images = carousel || [src].filter(Boolean)
 
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -217,13 +218,11 @@ const getLayoutId = (id: string | undefined, index: number) => {
   return finalId
 }
 
-function Image({ __web, index = 0, id, children }: GaleriaViewProps) {
+function Image({ style, src, index = 0, id }: GaleriaViewProps) {
   const { setOpen } = useContext(GaleriaContext)
 
   const [openedCount, setOpenedCount] = useState(-1)
   const prevOpenedCount = useRef(openedCount)
-
-  const layoutId = openedCount > -1 ? getLayoutId(id, index) : undefined
 
   useEffect(
     function triggerOpen() {
@@ -243,26 +242,6 @@ function Image({ __web, index = 0, id, children }: GaleriaViewProps) {
       })
     },
     [openedCount],
-  )
-
-  return (
-    <motion.div
-      {...__web}
-      layoutId={layoutId}
-      key={`${openedCount > -1}`}
-      onClick={() => {
-        // ideally we could just open the gallery here
-        // but we can't because that requires this node always having a layoutId
-        // so instead we change the key to trigger a re-render
-        // i tried flushsync but it appeared to match useLayoutEffect rather than useEffect which wasn't desired
-        setOpenedCount((next) => {
-          // we use a number each time so that useEffect is fired for each open
-          return Math.max(0, next + 1)
-        })
-      }}
-    >
-      {children}
-    </motion.div>
   )
 
   return (
@@ -289,54 +268,55 @@ function Image({ __web, index = 0, id, children }: GaleriaViewProps) {
   )
 }
 
-function Root({
-  children,
-  urls,
-  theme = 'light',
-  ids,
-}: ComponentProps<typeof Native>) {
-  const [openState, setOpen] = useState({
-    open: false,
-  } as
-    | {
-        open: false
-      }
-    | {
-        open: true
-        src: string
-        initialIndex: number
-      })
-  return (
-    <GaleriaContext.Provider
-      value={{
-        setOpen,
-        urls,
-        theme,
-        ...(openState.open
-          ? {
-              open: true,
-              src: openState.src,
-              initialIndex: openState.initialIndex,
-            }
-          : {
-              open: false,
-              src: '',
-              initialIndex: 0,
-            }),
-        ids,
-      }}
-    >
-      <LayoutGroup inherit={false} id={useId()}>
-        {children}
-      </LayoutGroup>
-    </GaleriaContext.Provider>
-  )
-}
-
-const Galeria: typeof Native = Object.assign(Root, {
-  Image,
-  Popup,
-})
+const Galeria: typeof Native = Object.assign(
+  function Galeria({
+    children,
+    urls,
+    theme = 'light',
+    ids,
+  }: ComponentProps<typeof Native>) {
+    const [openState, setOpen] = useState({
+      open: false,
+    } as
+      | {
+          open: false
+        }
+      | {
+          open: true
+          src: string
+          initialIndex: number
+        })
+    return (
+      <GaleriaContext.Provider
+        value={{
+          setOpen,
+          urls: urls || [],
+          theme,
+          ...(openState.open
+            ? {
+                open: true,
+                src: openState.src,
+                initialIndex: openState.initialIndex,
+              }
+            : {
+                open: false,
+                src: '',
+                initialIndex: 0,
+              }),
+          ids,
+        }}
+      >
+        <LayoutGroup inherit={false} id={useId()}>
+          {children}
+        </LayoutGroup>
+      </GaleriaContext.Provider>
+    )
+  },
+  {
+    Image,
+    Popup,
+  },
+)
 
 export default Galeria
 
