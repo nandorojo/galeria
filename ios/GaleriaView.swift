@@ -14,6 +14,12 @@ class GaleriaView: ExpoView {
                 print("  Sub-Subview \(subIndex): \(subSubview), Class: \(type(of: subSubview))")
             }
         }
+        
+        print("checking galeria view...")
+        
+        for case let childView as SDAnimatedImageView in self.subviews {
+            print("Subview \(childView), Class: \(type(of: childView))")
+        }
     }
     lazy var imageView: SDAnimatedImageView = {
         printSubviews()

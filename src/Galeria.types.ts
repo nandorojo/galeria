@@ -9,5 +9,5 @@ export type GaleriaViewProps = {
   index?: number
   id?: string
   children: React.ReactElement
-  __web: ComponentProps<(typeof motion)['div']>
+  __web?: ComponentProps<(typeof motion)['div']>
 }

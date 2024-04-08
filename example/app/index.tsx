@@ -3,6 +3,7 @@ import { FlashList } from '@shopify/flash-list'
 
 import { Galeria } from 'galeria'
 import { Fragment } from 'react'
+import { Image } from 'expo-image'
 
 const urls = [
   'https://res.cloudinary.com/dn29xlaeh/image/upload/q_75,w_600,fl_lossy/beatgig-sandbox/chat/hmpschevbtbzjockgq6n',
@@ -34,17 +35,17 @@ const urls = [
 export default function App() {
   const renderItem = (url: string, i: number) => {
     return (
-      <Galeria.Image
-        style={{
-          height: 245,
-          width: 245,
-          objectFit: 'cover',
-        }}
-        id={url}
-        index={i}
-        recyclingKey={url + i}
-        src={url}
-      />
+      <Galeria.Image id={url} index={i}>
+        <Image
+          style={{
+            height: 245,
+            width: 245,
+            objectFit: 'cover',
+          }}
+          source={{ uri: url }}
+          recyclingKey={url + i}
+        />
+      </Galeria.Image>
     )
   }
   return (
@@ -64,27 +65,8 @@ export default function App() {
             estimatedItemSize={245}
             keyExtractor={(item, i) => item + i}
           />
-          {/* {urls.map((url, i) => (
-            <Fragment key={url}>{renderItem(url, i)}</Fragment>
-          ))} */}
           <Galeria.Popup />
         </Galeria>
-
-        {/* {urls.map((url, i) => {
-          return (
-            <Galeria key={url} theme="light">
-              <Galeria.Image
-                style={{
-                  height: 245,
-                  width: '100%',
-                  objectFit: 'cover',
-                }}
-                src={url}
-              />
-              <Galeria.Popup />
-            </Galeria>
-          )
-        })} */}
       </ScrollView>
     </View>
   )
