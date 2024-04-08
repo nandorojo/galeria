@@ -100,6 +100,10 @@ function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
 
   console.log('[popup]', { imageIndex, initialIndex })
 
+  if (!images) {
+    return null
+  }
+
   if (!open || images.length < 1) {
     return null
   }
@@ -218,74 +222,21 @@ const getLayoutId = (id: string | undefined, index: number) => {
 }
 
 function Image({ __web, index = 0, id, children }: GaleriaViewProps) {
-  const { setOpen } = useContext(GaleriaContext)
-
-  const [openedCount, setOpenedCount] = useState(-1)
-  const prevOpenedCount = useRef(openedCount)
-
-  const layoutId = openedCount > -1 ? getLayoutId(id, index) : undefined
-
-  useEffect(
-    function triggerOpen() {
-      if (openedCount === prevOpenedCount.current) {
-        return
-      }
-      prevOpenedCount.current = openedCount
-
-      // it's opened if the index is greater than -1
-      if (openedCount <= -1) return
-
-      setOpen({
-        open: true,
-        src,
-        initialIndex: index ?? 0,
-        id,
-      })
-    },
-    [openedCount],
-  )
+  const [open, setOpen] = useState(false)
 
   return (
     <motion.div
       {...__web}
-      layoutId={layoutId}
-      key={`${openedCount > -1}`}
+      layout
       onClick={() => {
-        // ideally we could just open the gallery here
-        // but we can't because that requires this node always having a layoutId
-        // so instead we change the key to trigger a re-render
-        // i tried flushsync but it appeared to match useLayoutEffect rather than useEffect which wasn't desired
-        setOpenedCount((next) => {
-          // we use a number each time so that useEffect is fired for each open
-          return Math.max(0, next + 1)
-        })
+        setOpen(true)
+      }}
+      style={{
+        display: 'contents',
       }}
     >
       {children}
     </motion.div>
-  )
-
-  return (
-    // we don't want the image to have layout effects until we have opened it
-    // so until then, we render no layout id
-    <motion.img
-      layoutId={openedCount > -1 ? getLayoutId(id, index) : undefined}
-      // in order to change the layout id, we must change they key itself
-      // once it's animated once, we don't need to change this again
-      key={`${openedCount > -1}`}
-      src={src}
-      style={style as object}
-      onClick={() => {
-        // ideally we could just open the gallery here
-        // but we can't because that requires this node always having a layoutId
-        // so instead we change the key to trigger a re-render
-        // i tried flushsync but it appeared to match useLayoutEffect rather than useEffect which wasn't desired
-        setOpenedCount((next) => {
-          // we use a number each time so that useEffect is fired for each open
-          return Math.max(0, next + 1)
-        })
-      }}
-    />
   )
 }
 
