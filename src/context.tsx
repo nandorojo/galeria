@@ -1,9 +1,12 @@
 import { ContextType, createContext } from 'react'
+import type { Image } from 'react-native'
+
+type ImageSource = string | Parameters<typeof Image.resolveAssetSource>[0]
 
 export const GaleriaContext = createContext({
   initialIndex: 0,
   open: false,
-  urls: [] as unknown as [string, ...string[]],
+  urls: [] as unknown as undefined | ImageSource[],
   /**
    * @deprecated
    */

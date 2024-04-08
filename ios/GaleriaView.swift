@@ -5,17 +5,16 @@ import SDWebImage
 
 class GaleriaView: ExpoView {
     func getChildImageView() -> UIImageView? {
-        // Loop over each reactSubview
-        if let reactSubviews = self.reactSubviews() {
-            for reactSubview in reactSubviews {
-                print("react subview: \(reactSubview)")
-                for subview in reactSubview.subviews {
-                    if let imageView = subview as? UIImageView {
-                        return imageView
-                    }
+        guard let reactSubviews = self.reactSubviews() else { return nil }
+
+        for reactSubview in reactSubviews {
+            for subview in reactSubview.subviews {
+                if let imageView = subview as? UIImageView {
+                    return imageView
                 }
             }
         }
+        
         return nil
     }
 
@@ -24,23 +23,11 @@ class GaleriaView: ExpoView {
         setupImageView()
     }
     
-    var theme: String? {
-        didSet {
-            setupImageView()
-        }
-    }
+    var theme: String? { didSet { setupImageView() } }
 
-    var urls: [String]? {
-        didSet {
-            setupImageView()
-        }
-    }
+    var urls: [String]? { didSet { setupImageView() } }
 
-    var initialIndex: Int? {
-        didSet {
-            setupImageView()
-        }
-    }
+    var initialIndex: Int? { didSet { setupImageView() } }
 
     func setupImageView() {
         var viewerTheme: ImageViewerTheme = .dark
@@ -59,10 +46,11 @@ class GaleriaView: ExpoView {
             childImage.setupImageViewer(urls: urlObjects, initialIndex: initialIndex, options: [.theme(viewerTheme)])
         } else {
             if let img = childImage.image {
-                print("ui image", img)
+                print("child image from expo! \(img)")
+                childImage.setupImageViewer(images: [img], options: [.theme(viewerTheme)])
+            } else {
+                print("missing image from expo...\(childImage)")
             }
-//                TODO get url from child?
-//                imageView.setupImageViewer(url: url, options: [.theme(viewerTheme)])
         }
         
     }
