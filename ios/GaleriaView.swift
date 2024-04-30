@@ -35,11 +35,9 @@ class GaleriaView: ExpoView {
             viewerTheme = Theme(rawValue: theme)?.toImageViewerTheme() ?? .dark
         }
         
-        
         guard let childImage = getChildImageView() else {
             return
         }
-
         
         if let urls = self.urls, let initialIndex = self.initialIndex {
             let urlObjects = urls.compactMap { URL(string: $0) }
