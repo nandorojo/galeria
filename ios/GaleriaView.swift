@@ -24,9 +24,7 @@ class GaleriaView: ExpoView {
     }
     
     var theme: Theme { didSet { setupImageView() } }
-
     var urls: [String]? { didSet { setupImageView() } }
-
     var initialIndex: Int? { didSet { setupImageView() } }
 
     func setupImageView() {
@@ -41,10 +39,9 @@ class GaleriaView: ExpoView {
             childImage.setupImageViewer(urls: urlObjects, initialIndex: initialIndex, options: [.theme(viewerTheme)])
         } else {
             if let img = childImage.image {
-                print("child image from expo! \(img)")
                 childImage.setupImageViewer(images: [img], options: [.theme(viewerTheme)])
             } else {
-                print("missing image from expo...\(childImage)")
+                print("missing image child...\(childImage)")
             }
         }   
     }
