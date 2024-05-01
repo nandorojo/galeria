@@ -21,7 +21,7 @@ open class GaleriaModule: Module {
       }
 
       Prop("theme") { (view, theme: Theme?) in
-        view.theme = theme
+        view.theme = theme ?? .dark
       }
     }
   }
