@@ -1,6 +1,7 @@
 import {
   ScrollView,
   StyleSheet,
+  Text,
   View,
   Image as nativeimage,
 } from 'react-native'
