@@ -23,18 +23,13 @@ class GaleriaView: ExpoView {
         setupImageView()
     }
     
-    var theme: String? { didSet { setupImageView() } }
-
+    var theme: Theme { didSet { setupImageView() } }
     var urls: [String]? { didSet { setupImageView() } }
-
     var initialIndex: Int? { didSet { setupImageView() } }
 
     func setupImageView() {
-        var viewerTheme: ImageViewerTheme = .dark
-        if let theme = self.theme {
-            viewerTheme = Theme(rawValue: theme)?.toImageViewerTheme() ?? .dark
-        }
-        
+        var viewerTheme = theme.toImageViewerTheme() 
+
         guard let childImage = getChildImageView() else {
             return
         }
@@ -44,17 +39,11 @@ class GaleriaView: ExpoView {
             childImage.setupImageViewer(urls: urlObjects, initialIndex: initialIndex, options: [.theme(viewerTheme)])
         } else {
             if let img = childImage.image {
-                print("child image from expo! \(img)")
                 childImage.setupImageViewer(images: [img], options: [.theme(viewerTheme)])
             } else {
-                print("missing image from expo...\(childImage)")
+                print("missing image child...\(childImage)")
             }
-        }
-        
-    }
-
-    required init(appContext: AppContext? = nil) {
-        super.init(appContext: appContext)
+        }   
     }
 }
 

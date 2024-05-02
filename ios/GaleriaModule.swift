@@ -1,4 +1,5 @@
 import ExpoModulesCore 
+
 open class GaleriaModule: Module {
   public func definition() -> ModuleDefinition {
     Name("Galeria")
@@ -19,8 +20,8 @@ open class GaleriaModule: Module {
         view.initialIndex = index
       }
 
-      Prop("theme") { (view, theme: String?) in
-        view.theme = theme
+      Prop("theme") { (view, theme: Theme?) in
+        view.theme = theme ?? .dark
       }
     }
   }
