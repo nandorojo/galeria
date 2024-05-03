@@ -1,7 +1,128 @@
 package nandorojo.modules.galeria
 
-import android.content.Context
-import expo.modules.kotlin.AppContext
-import expo.modules.kotlin.views.ExpoView
 
-class GaleriaView(context: Context, appContext: AppContext) : ExpoView(context, appContext)
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Color
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.github.iielse.imageviewer.ImageViewerBuilder
+import com.github.iielse.imageviewer.core.ImageLoader
+import com.github.iielse.imageviewer.core.Photo
+import com.github.iielse.imageviewer.core.SimpleDataProvider
+import com.github.iielse.imageviewer.core.Transformer
+import com.github.iielse.imageviewer.utils.Config
+
+
+class StringPhoto(private val id: Long, private val data: String) : Photo {
+    override fun id(): Long = id
+
+    override fun itemType(): Int = 1
+
+    override fun extra(): Any = data
+}
+fun convertToPhotos(ids: Array<String>): List<Photo> {
+    return ids.mapIndexed { index, data ->
+        StringPhoto(index.toLong(), data)  // Use index as the id, and data as the image data.
+    }
+}
+
+
+class GaleriaView(context: Context) :  ViewGroup(context){
+    private lateinit var viewer: ImageViewerBuilder
+    lateinit var urls:Array<String>
+    var theme: Theme = Theme.Dark
+    var initialIndex: Int = 0
+
+    init {
+        Config.TRANSITION_OFFSET_Y = getStatusBarHeight()
+    }
+    @SuppressLint("DiscouragedApi", "InternalInsetResource")
+    fun getStatusBarHeight(): Int {
+        var statusBarHeight = 0
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0) {
+            statusBarHeight = resources.getDimensionPixelSize(resourceId)
+        }
+        return statusBarHeight
+    }
+    private fun bindStfalconImageViewer(parentView: ViewGroup) {
+
+        val photos = convertToPhotos(urls)
+        val clickedData =  photos[0]
+        for (i in 0 until parentView.childCount) {
+            val childView = parentView.getChildAt(i)
+
+            if (childView is ImageView) {
+                viewer = ImageViewerBuilder(
+                    context = childView.context,
+                    dataProvider = SimpleDataProvider(clickedData, photos),
+                    imageLoader = SimpleImageLoader(),
+                    transformer = object : Transformer {
+                        override fun getView(key: Long): ImageView {
+                            return fakeStartView(parentView)
+                        }
+                    }
+                )
+                childView.setOnClickListener {
+                    Config.VIEWER_BACKGROUND_COLOR = theme.toImageViewerTheme()
+                    viewer.show()
+
+                }
+            } else if (childView is ViewGroup) {
+                bindStfalconImageViewer(childView)
+            }
+        }
+    }
+    private fun fakeStartView(view: View): ImageView {
+        val customWidth = view.width
+        val customHeight = view.height
+        val customLocation = IntArray(2).also { view.getLocationOnScreen(it) }
+        val customScaleType = ImageView.ScaleType.CENTER_CROP
+
+        return ImageView(view.context).apply {
+            left = 0
+            right = customWidth
+            top = 0
+            bottom = customHeight
+            scaleType = customScaleType
+            setTag(R.id.viewer_start_view_location_0, customLocation[0])
+            setTag(R.id.viewer_start_view_location_1, customLocation[1])
+        }
+    }
+
+    override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
+        bindStfalconImageViewer(this)
+
+    }
+
+
+}
+
+enum class Theme(val value: String) {
+    Dark("dark"),
+    Light("light");
+
+    fun toImageViewerTheme(): Int {
+        return when (this) {
+            Dark -> Color.BLACK
+            Light -> Color.WHITE
+        }
+    }
+}
+
+class SimpleImageLoader : ImageLoader {
+    override fun load(view: ImageView, data: Photo, viewHolder: RecyclerView.ViewHolder) {
+        val it = data.extra() as? String
+        Glide.with(view).load(it)
+            .placeholder(view.drawable)
+            .into(view)
+    }
+}
+
+
+
+

@@ -43,11 +43,9 @@ PODS:
     - ReactCommon/turbomodule/core (= 0.73.6)
   - fmt (6.2.1)
   - Galeria (0.3.1):
-    - ExpoImage
     - ExpoModulesCore
     - ImageViewer.swift (~> 3.0)
     - ImageViewer.swift/Fetcher (~> 3.0)
-    - SDWebImage
   - glog (0.3.5)
   - hermes-engine (0.73.6):
     - hermes-engine/Pre-built (= 0.73.6)
@@ -1366,15 +1364,9 @@ SPEC CHECKSUMS:
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   EXConstants: a5f6276e565d98f9eb4280f81241fc342d641590
   EXFont: f20669cb266ef48b004f1eb1f2b20db96cd1df9f
-<<<<<<< HEAD
   Expo: 2cdb5916749a1509cf88114f1f510bd458630eb4
   ExpoCrypto: b6428f48599c007676dc81a9b5f72c07e62fdccc
   ExpoFileSystem: 74cc0fae916f9f044248433971dcfc8c3befd057
-=======
-  Expo: e01a77c6fa4bc80a6d1bb949cda1d12d21044abd
-  ExpoCrypto: b6428f48599c007676dc81a9b5f72c07e62fdccc
-  ExpoFileSystem: eecaf6796aed0f4dd20042dc2ca2cac6c4bc1185
->>>>>>> origin/feat-children
   ExpoHead: 8224345e80abcf4c97b31c99805dd5a3c8d3404d
   ExpoImage: 8cf2d51de3d03b7e984e9b0ba8f19c0c22057001
   ExpoKeepAwake: 0f5cad99603a3268e50af9a6eb8b76d0d9ac956c
@@ -1383,7 +1375,7 @@ SPEC CHECKSUMS:
   FBLazyVector: f64d1e2ea739b4d8f7e4740cde18089cd97fe864
   FBReactNativeSpec: 9f2b8b243131565335437dba74923a8d3015e780
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  Galeria: a2b88188e39a5459d61a36ea952cd02e66c31713
+  Galeria: 0ade7cf47f8ee6fd0a78c779248e977fdbdb553f
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   hermes-engine: 9cecf9953a681df7556b8cc9c74905de8f3293c0
   ImageViewer.swift: 284cd8127d31af8e5938674fb9f8e695a4cdf6c6

@@ -22,13 +22,13 @@ class GaleriaView: ExpoView {
         super.insertReactSubview(subview, at: atIndex)
         setupImageView()
     }
-    
-    var theme: Theme { didSet { setupImageView() } }
+  
+
+    var theme: Theme = .dark  { didSet { setupImageView() } }
     var urls: [String]? { didSet { setupImageView() } }
     var initialIndex: Int? { didSet { setupImageView() } }
-
     func setupImageView() {
-        var viewerTheme = theme.toImageViewerTheme() 
+      let viewerTheme = theme.toImageViewerTheme() 
 
         guard let childImage = getChildImageView() else {
             return

@@ -6,11 +6,13 @@ import {
   Image as nativeimage,
 } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
-import image from '../assets/favicon.png'
+// import image from '../assets/favicon.png'
 
 import { Galeria } from 'galeria'
 import { Fragment } from 'react'
 import { Image } from 'expo-image'
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import { StatusBar } from 'expo-status-bar'
 
 const urls = [
   'https://res.cloudinary.com/dn29xlaeh/image/upload/q_75,w_600,fl_lossy/beatgig-sandbox/chat/hmpschevbtbzjockgq6n',
@@ -40,7 +42,7 @@ const urls = [
   'https://d33wubrfki0l68.cloudfront.net/594de66469079c21fc54c14db0591305a1198dd6/3f4b1/static/images/wallpapers/bridge-01@2x.png',
 ]
 
-console.log('asset', image, nativeimage.resolveAssetSource(image).uri)
+// console.log('asset', image, nativeimage.resolveAssetSource(image).uri)
 
 export default function App() {
   const renderItem = (url: string, i: number) => {
@@ -60,20 +62,37 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <Galeria urls={urls} theme="light">
-        <Galeria.Image>
-          <Image
-            style={{
-              height: 245,
-              width: 245,
-              objectFit: 'cover',
-            }}
-            source={{ uri: urls[0] }}
-          />
-        </Galeria.Image>
-      </Galeria>
-    </View>
+    <SafeAreaProvider>
+      <StatusBar translucent />
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: 'white', paddingTop: 20, gap: 50 }}
+      >
+        <Galeria urls={urls} theme="light">
+          <Galeria.Image>
+            <Image
+              style={{
+                height: 245,
+                width: 245,
+                objectFit: 'cover',
+              }}
+              source={{ uri: urls[0] }}
+            />
+          </Galeria.Image>
+        </Galeria>
+        <Galeria urls={urls} theme="dark">
+          <Galeria.Image>
+            <Image
+              style={{
+                height: 568,
+                width: 390,
+                objectFit: 'cover',
+              }}
+              source={{ uri: urls[0] }}
+            />
+          </Galeria.Image>
+        </Galeria>
+      </SafeAreaView>
+    </SafeAreaProvider>
   )
 
   return (
