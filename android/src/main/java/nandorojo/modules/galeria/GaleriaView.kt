@@ -15,6 +15,7 @@ import com.github.iielse.imageviewer.core.Photo
 import com.github.iielse.imageviewer.core.SimpleDataProvider
 import com.github.iielse.imageviewer.core.Transformer
 import com.github.iielse.imageviewer.utils.Config
+import com.github.iielse.imageviewer.R
 
 
 class StringPhoto(private val id: Long, private val data: String) : Photo {
