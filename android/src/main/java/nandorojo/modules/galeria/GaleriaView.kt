@@ -53,7 +53,7 @@ class GaleriaView(context: Context) :  ViewGroup(context){
     private fun setupImageViewer(parentView: ViewGroup) {
 
         val photos = convertToPhotos(urls)
-        val clickedData =  photos[0]
+        val clickedData =  photos[initialIndex]
         for (i in 0 until parentView.childCount) {
             val childView = parentView.getChildAt(i)
 
