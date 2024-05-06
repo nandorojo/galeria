@@ -50,7 +50,7 @@ class GaleriaView(context: Context) :  ViewGroup(context){
         }
         return statusBarHeight
     }
-    private fun bindStfalconImageViewer(parentView: ViewGroup) {
+    private fun setupImageViewer(parentView: ViewGroup) {
 
         val photos = convertToPhotos(urls)
         val clickedData =  photos[0]
@@ -74,7 +74,7 @@ class GaleriaView(context: Context) :  ViewGroup(context){
 
                 }
             } else if (childView is ViewGroup) {
-                bindStfalconImageViewer(childView)
+                setupImageViewer(childView)
             }
         }
     }
@@ -96,8 +96,7 @@ class GaleriaView(context: Context) :  ViewGroup(context){
     }
 
     override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
-        bindStfalconImageViewer(this)
-
+        setupImageViewer(this)
     }
 
 
