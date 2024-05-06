@@ -1,14 +1,21 @@
 package nandorojo.modules.galeria
 
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.github.iielse.imageviewer.ImageViewerAdapterListener
 import com.github.iielse.imageviewer.ImageViewerBuilder
 import com.github.iielse.imageviewer.core.ImageLoader
 import com.github.iielse.imageviewer.core.Photo
@@ -16,6 +23,9 @@ import com.github.iielse.imageviewer.core.SimpleDataProvider
 import com.github.iielse.imageviewer.core.Transformer
 import com.github.iielse.imageviewer.utils.Config
 import com.github.iielse.imageviewer.R
+import com.github.iielse.imageviewer.core.ViewerCallback
+import com.github.iielse.imageviewer.utils.TransitionEndHelper
+import java.lang.ref.WeakReference
 
 
 class StringPhoto(private val id: Long, private val data: String) : Photo {
@@ -25,6 +35,7 @@ class StringPhoto(private val id: Long, private val data: String) : Photo {
 
     override fun extra(): Any = data
 }
+
 fun convertToPhotos(ids: Array<String>): List<Photo> {
     return ids.mapIndexed { index, data ->
         StringPhoto(index.toLong(), data)  // Use index as the id, and data as the image data.
@@ -32,15 +43,15 @@ fun convertToPhotos(ids: Array<String>): List<Photo> {
 }
 
 
-class GaleriaView(context: Context) :  ViewGroup(context){
+class GaleriaView(context: Context) : ViewGroup(context) {
     private lateinit var viewer: ImageViewerBuilder
-    lateinit var urls:Array<String>
+    lateinit var urls: Array<String>
     var theme: Theme = Theme.Dark
     var initialIndex: Int = 0
+    var disableHiddenOriginalImage = false
+    var transitionOffsetY: Int? = null
+    var transitionOffsetX: Int? = 0
 
-    init {
-        Config.TRANSITION_OFFSET_Y = getStatusBarHeight()
-    }
     @SuppressLint("DiscouragedApi", "InternalInsetResource")
     fun getStatusBarHeight(): Int {
         var statusBarHeight = 0
@@ -50,13 +61,13 @@ class GaleriaView(context: Context) :  ViewGroup(context){
         }
         return statusBarHeight
     }
+
     private fun setupImageViewer(parentView: ViewGroup) {
 
         val photos = convertToPhotos(urls)
-        val clickedData =  photos[initialIndex]
+        val clickedData = photos[initialIndex]
         for (i in 0 until parentView.childCount) {
-            val childView = parentView.getChildAt(i)
-
+            val childView: View = parentView.getChildAt(i)
             if (childView is ImageView) {
                 viewer = ImageViewerBuilder(
                     context = childView.context,
@@ -69,15 +80,18 @@ class GaleriaView(context: Context) :  ViewGroup(context){
                     }
                 )
                 childView.setOnClickListener {
-                    Config.VIEWER_BACKGROUND_COLOR = theme.toImageViewerTheme()
+                    setupConfig()
+                    if (!disableHiddenOriginalImage) {
+                        viewer.setViewerCallback(CustomViewerCallback(childView))
+                    }
                     viewer.show()
-
                 }
             } else if (childView is ViewGroup) {
                 setupImageViewer(childView)
             }
         }
     }
+
     private fun fakeStartView(view: View): ImageView {
         val customWidth = view.width
         val customHeight = view.height
@@ -95,11 +109,32 @@ class GaleriaView(context: Context) :  ViewGroup(context){
         }
     }
 
+    private fun setupConfig() {
+        Config.TRANSITION_OFFSET_Y = transitionOffsetY ?: getStatusBarHeight()
+        Config.TRANSITION_OFFSET_X = transitionOffsetX ?: 0
+        Config.VIEWER_BACKGROUND_COLOR = theme.toImageViewerTheme()
+    }
+
+
     override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
         setupImageViewer(this)
     }
 
 
+}
+
+class CustomViewerCallback(private val childView: ImageView) : ViewerCallback {
+    override fun onInit(viewHolder: RecyclerView.ViewHolder, position: Int) {
+        childView.animate().alpha(0f).setDuration(180).start()
+
+    }
+
+    override fun onRelease(viewHolder: RecyclerView.ViewHolder, view: View) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            childView.alpha = 1f
+        }, 230)
+
+    }
 }
 
 enum class Theme(val value: String) {
