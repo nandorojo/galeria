@@ -2,7 +2,6 @@ import { View, Image as Nativeimage, LogBox } from 'react-native'
 
 import { Galeria } from 'galeria'
 import { Image } from 'expo-image'
-
 import { Link } from 'expo-router'
 import { urls } from '../constants/Images'
 

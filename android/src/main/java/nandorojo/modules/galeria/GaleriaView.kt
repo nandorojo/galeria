@@ -8,15 +8,15 @@ import android.content.ContextWrapper
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.facebook.react.uimanager.ThemedReactContext
-import com.facebook.react.views.image.ReactImageManager
 import com.facebook.react.views.image.ReactImageView
+import com.github.iielse.imageviewer.ImageViewerActionViewModel
 import com.github.iielse.imageviewer.ImageViewerBuilder
 import com.github.iielse.imageviewer.R
 import com.github.iielse.imageviewer.core.ImageLoader
@@ -40,13 +40,7 @@ fun convertToPhotos(ids: Array<String>): List<Photo> {
         StringPhoto(index.toLong(), data)  // Use index as the id, and data as the image data.
     }
 }
-fun getActivityFromContext(context: Context): Activity? {
-    return when (context) {
-        is Activity -> context
-        is ContextWrapper -> getActivityFromContext(context.baseContext)
-        else -> null
-    }
-}
+
 
 class GaleriaView(context: Context) : ViewGroup(context) {
     private lateinit var viewer: ImageViewerBuilder
@@ -56,6 +50,29 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     var disableHiddenOriginalImage = false
     var transitionOffsetY: Int? = null
     var transitionOffsetX: Int? = 0
+    val viewModel: ImageViewerActionViewModel by lazy {
+        ViewModelProvider(getViewModelOwner(context)).get(ImageViewerActionViewModel::class.java)
+    }
+
+    fun dismiss()  {
+        viewModel.dismiss()
+    }
+    private fun getViewModelOwner(context: Context): ViewModelStoreOwner {
+        val activity = getActivity(context)
+            ?: throw IllegalStateException("The provided context ${context.javaClass.name} is not associated with an activity.")
+        return activity as ViewModelStoreOwner
+    }
+
+    private fun getActivity(context: Context): Activity {
+        var ctx = context
+        while (ctx is ContextWrapper) {
+            if (ctx is Activity) {
+                return ctx
+            }
+            ctx = ctx.baseContext
+        }
+        throw IllegalStateException("Context does not contain an activity.")
+    }
 
     @SuppressLint("DiscouragedApi", "InternalInsetResource")
     fun getStatusBarHeight(): Int {
@@ -68,7 +85,6 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     }
 
 
-
     private fun setupImageViewer(parentView: ViewGroup) {
 
         val photos = convertToPhotos(urls)
@@ -78,7 +94,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
             if (childView is ImageView) {
                 var imageViewContext = childView.context
                 if (childView is ReactImageView) {
-                    val activityContext = getActivityFromContext(childView.context)
+                    val activityContext = getActivity(childView.context)
                     imageViewContext = activityContext
                 }
                 viewer = ImageViewerBuilder(
@@ -96,13 +112,17 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                     if (!disableHiddenOriginalImage) {
                         viewer.setViewerCallback(CustomViewerCallback(childView as ImageView))
                     }
+
                     viewer.show()
+
                 }
             } else if (childView is ViewGroup) {
                 setupImageViewer(childView)
             }
         }
     }
+
+
 
     private fun fakeStartView(view: View): ImageView {
         val customWidth = view.width
@@ -138,7 +158,9 @@ class GaleriaView(context: Context) : ViewGroup(context) {
 class CustomViewerCallback(private val childView: ImageView) : ViewerCallback {
     override fun onInit(viewHolder: RecyclerView.ViewHolder, position: Int) {
         childView.animate().alpha(0f).setDuration(180).start()
+
     }
+
 
     override fun onRelease(viewHolder: RecyclerView.ViewHolder, view: View) {
         Handler(Looper.getMainLooper()).postDelayed({

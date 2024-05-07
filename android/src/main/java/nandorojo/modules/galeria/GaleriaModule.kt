@@ -13,7 +13,6 @@ class GaleriaModule : Module() {
         // The module will be accessible from `requireNativeModule('Galeria')` in JavaScript.
         Name("Galeria")
 
-
         // Enables the module to be used as a native view. Definition components that are accepted as part of
         // the view definition: Prop, Events.
         View(GaleriaView::class) {
