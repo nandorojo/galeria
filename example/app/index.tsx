@@ -1,18 +1,8 @@
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  Image as nativeimage,
-} from 'react-native'
-import { FlashList } from '@shopify/flash-list'
-// import image from '../assets/favicon.png'
+import { View, Image as Nativeimage } from 'react-native'
 
 import { Galeria } from 'galeria'
-import { Fragment } from 'react'
 import { Image } from 'expo-image'
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
-import { StatusBar } from 'expo-status-bar'
+
 import { Link } from 'expo-router'
 import { urls } from '../constants/Images'
 
@@ -24,12 +14,11 @@ export default function HomeScreen() {
       <LinkItem href="/modal">Modal</LinkItem>
 
       <Galeria urls={urls} theme="light">
-        <Galeria.Image>
+        <Galeria.Image id={urls[0]} index={0}>
           <Image
             style={{
               height: 245,
               width: 245,
-              objectFit: 'cover',
             }}
             source={{ uri: urls[0] }}
           />

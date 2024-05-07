@@ -8,7 +8,7 @@ import { useFonts } from 'expo-font'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
-import { useColorScheme } from 'react-native'
+import { useColorScheme, Platform } from 'react-native'
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -43,7 +43,23 @@ function RootLayoutNav() {
       >
         <Stack.Screen name="index" options={{ title: 'Example' }} />
         <Stack.Screen name="photos" options={{ title: 'Photos' }} />
-        <Stack.Screen name="chat" options={{ title: 'Chat' }} />
+        <Stack.Screen
+          name="chat"
+          options={{
+            title: 'Chat',
+            ...Platform.select({
+              ios: {
+                headerTransparent: true,
+                headerBlurEffect: 'dark',
+                headerTitleStyle: {
+                  color: '#fff',
+                },
+                statusBarStyle: 'inverted',
+              },
+              default: {},
+            }),
+          }}
+        />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

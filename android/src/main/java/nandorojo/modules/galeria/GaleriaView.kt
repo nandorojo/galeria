@@ -1,10 +1,10 @@
 package nandorojo.modules.galeria
 
 
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
@@ -12,20 +12,19 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.github.iielse.imageviewer.ImageViewerAdapterListener
+import com.facebook.react.uimanager.ThemedReactContext
+import com.facebook.react.views.image.ReactImageManager
+import com.facebook.react.views.image.ReactImageView
 import com.github.iielse.imageviewer.ImageViewerBuilder
+import com.github.iielse.imageviewer.R
 import com.github.iielse.imageviewer.core.ImageLoader
 import com.github.iielse.imageviewer.core.Photo
 import com.github.iielse.imageviewer.core.SimpleDataProvider
 import com.github.iielse.imageviewer.core.Transformer
-import com.github.iielse.imageviewer.utils.Config
-import com.github.iielse.imageviewer.R
 import com.github.iielse.imageviewer.core.ViewerCallback
-import com.github.iielse.imageviewer.utils.TransitionEndHelper
-import java.lang.ref.WeakReference
+import com.github.iielse.imageviewer.utils.Config
 
 
 class StringPhoto(private val id: Long, private val data: String) : Photo {
@@ -41,7 +40,13 @@ fun convertToPhotos(ids: Array<String>): List<Photo> {
         StringPhoto(index.toLong(), data)  // Use index as the id, and data as the image data.
     }
 }
-
+fun getActivityFromContext(context: Context): Activity? {
+    return when (context) {
+        is Activity -> context
+        is ContextWrapper -> getActivityFromContext(context.baseContext)
+        else -> null
+    }
+}
 
 class GaleriaView(context: Context) : ViewGroup(context) {
     private lateinit var viewer: ImageViewerBuilder
@@ -62,15 +67,22 @@ class GaleriaView(context: Context) : ViewGroup(context) {
         return statusBarHeight
     }
 
+
+
     private fun setupImageViewer(parentView: ViewGroup) {
 
         val photos = convertToPhotos(urls)
         val clickedData = photos[initialIndex]
         for (i in 0 until parentView.childCount) {
-            val childView: View = parentView.getChildAt(i)
+            val childView = parentView.getChildAt(i)
             if (childView is ImageView) {
+                var imageViewContext = childView.context
+                if (childView is ReactImageView) {
+                    val activityContext = getActivityFromContext(childView.context)
+                    imageViewContext = activityContext
+                }
                 viewer = ImageViewerBuilder(
-                    context = childView.context,
+                    context = imageViewContext,
                     dataProvider = SimpleDataProvider(clickedData, photos),
                     imageLoader = SimpleImageLoader(),
                     transformer = object : Transformer {
@@ -82,7 +94,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                 childView.setOnClickListener {
                     setupConfig()
                     if (!disableHiddenOriginalImage) {
-                        viewer.setViewerCallback(CustomViewerCallback(childView))
+                        viewer.setViewerCallback(CustomViewerCallback(childView as ImageView))
                     }
                     viewer.show()
                 }
@@ -126,14 +138,12 @@ class GaleriaView(context: Context) : ViewGroup(context) {
 class CustomViewerCallback(private val childView: ImageView) : ViewerCallback {
     override fun onInit(viewHolder: RecyclerView.ViewHolder, position: Int) {
         childView.animate().alpha(0f).setDuration(180).start()
-
     }
 
     override fun onRelease(viewHolder: RecyclerView.ViewHolder, view: View) {
         Handler(Looper.getMainLooper()).postDelayed({
             childView.alpha = 1f
         }, 230)
-
     }
 }
 
@@ -151,6 +161,7 @@ enum class Theme(val value: String) {
 
 class SimpleImageLoader : ImageLoader {
     override fun load(view: ImageView, data: Photo, viewHolder: RecyclerView.ViewHolder) {
+//        Todo: Since React-Native's Image is using Fresco as the image loader, we may need to handle it differently.
         val it = data.extra() as? String
         Glide.with(view).load(it)
             .placeholder(view.drawable)

@@ -16,7 +16,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "nandorojo.modules.galeria.example",
       "infoPlist": {
-        "UIBackgroundModes": ["fetch", "remote-notification"]
+        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "UIViewControllerBasedStatusBarAppearance": true
       }
     },
     "android": {

@@ -1,13 +1,12 @@
-import { StatusBar } from 'expo-status-bar'
 import { Platform, StyleSheet, Text, TextInput, View } from 'react-native'
 import React from 'react'
-
+import { useHeaderHeight } from '@react-navigation/elements'
 import { FlashList, ListRenderItem } from '@shopify/flash-list'
-import Animated, { useAnimatedStyle } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { urls } from '../constants/Images'
 import { Galeria } from 'galeria'
 import { Image } from 'expo-image'
+
 const messages: MessageProps[] = [
   {
     text: 'Hello',
@@ -106,7 +105,7 @@ const RenderItem: ListRenderItem<MessageProps> = ({ item, index }) => {
 }
 export default function ChatScreen() {
   const { bottom } = useSafeAreaInsets()
-
+  const height = useHeaderHeight()
   return (
     <Galeria urls={images} theme="dark">
       <View style={styles.container}>
@@ -114,7 +113,13 @@ export default function ChatScreen() {
           inverted
           data={reversedMessages}
           renderItem={RenderItem}
-          contentContainerStyle={{ paddingTop: 12 }}
+          ListFooterComponent={
+            <View
+              style={{
+                height: 12 + Platform.select({ ios: height, default: 0 }),
+              }}
+            />
+          }
           estimatedItemSize={300}
         />
         <View style={{ paddingBottom: bottom, ...styles.inputBox }}>
