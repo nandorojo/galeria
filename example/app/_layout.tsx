@@ -8,7 +8,7 @@ import { useFonts } from 'expo-font'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
-import { useColorScheme, Platform } from 'react-native'
+import { useColorScheme, Platform, LogBox } from 'react-native'
 
 export {
   // Catch any errors thrown by the Layout component.

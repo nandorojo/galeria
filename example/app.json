@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "galeria-example",
+    "scheme": "galeria-example",
     "slug": "galeria-example",
     "version": "1.0.0",
     "orientation": "portrait",
