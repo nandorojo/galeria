@@ -46,21 +46,7 @@ class GaleriaView: ExpoView {
   
   private func setupImageViewerWithUrls(_ childImage: UIImageView, urls: [String], initialIndex: Int, viewerTheme: ImageViewerTheme) {
     let urlObjects = urls.compactMap(URL.init(string:))
-    var options: [ImageViewerOption] = [.theme(viewerTheme)]
-    let iconColor = theme.iconColor()
-    
-    if let closeIconName = closeIconName, let closeIconImage = UIImage(systemName: closeIconName)?.withTintColor(iconColor, renderingMode: .alwaysOriginal) {
-      let closeIconOption = ImageViewerOption.closeIcon(closeIconImage)
-      options.append(closeIconOption)
-    }
-   
-  
-    if let rightIconName = rightNavItemIconName, let rightIconImage = UIImage(systemName: rightIconName)?.withTintColor(iconColor, renderingMode: .alwaysOriginal) {
-      let rightNavItemOption = ImageViewerOption.rightNavItemIcon(rightIconImage, onTap: { index in
-        self.onPressRightNavItemIcon(["index": index])
-      })
-      options.append(rightNavItemOption)
-    }
+    let options = buildImageViewerOptions()
     
     childImage.setupImageViewer(urls: urlObjects, initialIndex: initialIndex, options: options)
   }
@@ -70,7 +56,28 @@ class GaleriaView: ExpoView {
       print("Missing image in childImage: \(childImage)")
       return
     }
-    childImage.setupImageViewer(images: [img], options: [.theme(viewerTheme)])
+    let options = buildImageViewerOptions()
+    
+    childImage.setupImageViewer(images: [img], options: options)
+  }
+  
+  private func buildImageViewerOptions() -> [ImageViewerOption] {
+    let viewerTheme = theme.toImageViewerTheme()
+    var options: [ImageViewerOption] = [.theme(viewerTheme)]
+    let iconColor = theme.iconColor()
+    
+    if let closeIconName = closeIconName, let closeIconImage = UIImage(systemName: closeIconName)?.withTintColor(iconColor, renderingMode: .alwaysOriginal) {
+      options.append(ImageViewerOption.closeIcon(closeIconImage))
+    }
+    
+    if let rightIconName = rightNavItemIconName, let rightIconImage = UIImage(systemName: rightIconName)?.withTintColor(iconColor, renderingMode: .alwaysOriginal) {
+      let rightNavItemOption = ImageViewerOption.rightNavItemIcon(rightIconImage, onTap: { index in
+        self.onPressRightNavItemIcon(["index": index])
+      })
+      options.append(rightNavItemOption)
+    }
+    
+    return options
   }
 }
 
