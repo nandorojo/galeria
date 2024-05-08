@@ -7,7 +7,7 @@ import { Image } from 'expo-image'
 export default function ModalScreen() {
   return (
     <View style={styles.container}>
-      <Galeria urls={urls} theme="light">
+      <Galeria urls={urls} theme="dark">
         <Galeria.Image>
           <Image
             style={{
