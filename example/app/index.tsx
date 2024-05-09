@@ -12,7 +12,7 @@ export default function HomeScreen() {
       <LinkItem href="/chat">Chat</LinkItem>
       <LinkItem href="/modal">Modal</LinkItem>
 
-      <Galeria urls={urls} theme="light">
+      <Galeria urls={urls} theme="dark">
         <Galeria.Image id={urls[0]} index={0}>
           <Image
             style={{

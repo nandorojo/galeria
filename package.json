@@ -34,7 +34,7 @@
   "devDependencies": {
     "@types/react": "^18.0.25",
     "expo-module-scripts": "^3.5.1",
-    "expo-modules-core": "^1.12.9",
+    "expo-modules-core": "^1.12.10",
     "prettier": "^3.0.3",
     "react-native": "0.74.1",
     "react-native-web": "^0.19.8"

@@ -3,7 +3,7 @@ import { requireNativeViewManager } from 'expo-modules-core'
 import { GaleriaViewProps } from './Galeria.types'
 import { useContext } from 'react'
 import { GaleriaContext } from './context'
-import { Image } from 'react-native'
+import { Image, View } from 'react-native'
 
 const NativeImage = requireNativeViewManager<
   GaleriaViewProps & {

@@ -8,13 +8,16 @@ import android.content.ContextWrapper
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.facebook.react.bridge.ReactContext
 import com.facebook.react.views.image.ReactImageView
 import com.github.iielse.imageviewer.ImageViewerActionViewModel
 import com.github.iielse.imageviewer.ImageViewerBuilder
@@ -25,7 +28,9 @@ import com.github.iielse.imageviewer.core.SimpleDataProvider
 import com.github.iielse.imageviewer.core.Transformer
 import com.github.iielse.imageviewer.core.ViewerCallback
 import com.github.iielse.imageviewer.utils.Config
-
+import com.facebook.react.uimanager.UIManagerModule
+import com.facebook.react.uimanager.NativeViewHierarchyManager
+import com.facebook.react.uimanager.util.ReactFindViewUtil
 
 class StringPhoto(private val id: Long, private val data: String) : Photo {
     override fun id(): Long = id
@@ -54,12 +59,12 @@ class GaleriaView(context: Context) : ViewGroup(context) {
         ViewModelProvider(getViewModelOwner(context)).get(ImageViewerActionViewModel::class.java)
     }
 
+
     fun dismiss()  {
         viewModel.dismiss()
     }
     private fun getViewModelOwner(context: Context): ViewModelStoreOwner {
         val activity = getActivity(context)
-            ?: throw IllegalStateException("The provided context ${context.javaClass.name} is not associated with an activity.")
         return activity as ViewModelStoreOwner
     }
 
@@ -86,11 +91,13 @@ class GaleriaView(context: Context) : ViewGroup(context) {
 
 
     private fun setupImageViewer(parentView: ViewGroup) {
-
+        Log.d("parentView" , "${ ReactFindViewUtil.findView(parentView,"backView")}")
+//        val backButton = ReactFindViewUtil.findView(parentView,"backButton")
         val photos = convertToPhotos(urls)
         val clickedData = photos[initialIndex]
         for (i in 0 until parentView.childCount) {
             val childView = parentView.getChildAt(i)
+            Log.d("childView" , "${childView.getTag()}")
             if (childView is ImageView) {
                 var imageViewContext = childView.context
                 if (childView is ReactImageView) {

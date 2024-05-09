@@ -1,5 +1,6 @@
 package nandorojo.modules.galeria
 
+import android.view.View
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 

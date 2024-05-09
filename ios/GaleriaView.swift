@@ -2,8 +2,11 @@ import UIKit
 import ExpoModulesCore
 import ImageViewer_swift
 import SDWebImage
+import React
 
-class GaleriaView: ExpoView {
+
+class GaleriaView: ExpoFabricViewObjC {
+  
   func getChildImageView() -> UIImageView? {
     guard let reactSubviews = self.reactSubviews() else { return nil }
     
@@ -18,12 +21,23 @@ class GaleriaView: ExpoView {
     return nil
   }
   
-  override func insertReactSubview(_ subview: UIView!, at atIndex: Int) {
-    super.insertReactSubview(subview, at: atIndex)
-    setupImageView()
+  //  override func insertReactSubview(_ subview: UIView!, at atIndex: Int) {
+  //    super.insertReactSubview(subview, at: atIndex)
+  //    print("insertReactSubview")
+  //
+  //    setupImageView()
+  //  }
+
+  
+  override func layoutSubviews() {
+    super.layoutSubviews()
+//    setupImageView()
+    print("View  \(self), Class: \(type(of: self))")
+    
+    print("Subview  \(self.contentView), Class: \(type(of: self.contentView))")
+
+   
   }
-  
-  
   var theme: Theme = .dark  { didSet { setupImageView() } }
   var urls: [String]? { didSet { setupImageView() } }
   var initialIndex: Int? { didSet { setupImageView() } }

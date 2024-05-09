@@ -6,10 +6,6 @@ open class GaleriaModule: Module {
     
     View(GaleriaView.self) {
       Events(
-        "onLoadStart",
-        "onProgress",
-        "onError",
-        "onLoad",
         "onPressRightNavItemIcon"
       )
       
@@ -30,6 +26,7 @@ open class GaleriaModule: Module {
       Prop("rightNavItemIconName") { (view, rightNavItemIconName: String) in
         view.rightNavItemIconName = rightNavItemIconName
       }
+  
     }
   }
 }

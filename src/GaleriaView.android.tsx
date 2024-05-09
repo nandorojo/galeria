@@ -3,7 +3,7 @@ import { requireNativeViewManager } from 'expo-modules-core'
 import { GaleriaViewProps } from './Galeria.types'
 import { useContext } from 'react'
 import { GaleriaContext } from './context'
-import { Image } from 'react-native'
+import { Image, View } from 'react-native'
 
 const NativeImage = requireNativeViewManager<
   GaleriaViewProps & {
@@ -41,7 +41,7 @@ const Galeria = Object.assign(
     )
   },
   {
-    Image(props: GaleriaViewProps) {
+    Image({ children, ...props }: GaleriaViewProps) {
       const { theme, urls } = useContext(GaleriaContext)
       return (
         <NativeImage
@@ -54,7 +54,15 @@ const Galeria = Object.assign(
             return Image.resolveAssetSource(url).uri
           })}
           {...props}
-        />
+        >
+          <>
+            {/* <View
+              nativeID="backView"
+              style={{ backgroundColor: 'red', width: 60, height: 60 }}
+            /> */}
+            {children}
+          </>
+        </NativeImage>
       )
     },
     Popup: (() => null) as React.FC<{
