@@ -42,7 +42,7 @@ const Galeria = Object.assign(
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme, urls } = useContext(GaleriaContext)
+      const { theme, urls, initialIndex } = useContext(GaleriaContext)
       return (
         <NativeImage
           theme={theme}
@@ -53,6 +53,7 @@ const Galeria = Object.assign(
 
             return Image.resolveAssetSource(url).uri
           })}
+          index={initialIndex}
           {...props}
         />
       )

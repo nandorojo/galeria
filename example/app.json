@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "galeria-example",
+    "scheme": "galeria-example",
     "slug": "galeria-example",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,17 +12,13 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "nandorojo.modules.galeria.example",
       "infoPlist": {
-        "UIBackgroundModes": [
-          "fetch",
-          "remote-notification"
-        ]
+        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "UIViewControllerBasedStatusBarAppearance": true
       }
     },
     "android": {
@@ -35,7 +32,26 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static",
+            "deploymentTarget": "14.1",
+            "unstable_networkInspector": true
+          },
+
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "minSdkVersion": 24,
+            "buildToolsVersion": "34.0.0",
+            "kotlinVersion": "1.8.0",
+            "unstable_networkInspector": true
+          }
+        }
+      ]
     ]
   }
 }
