@@ -1,7 +1,6 @@
 import UIKit
 import ExpoModulesCore
 import ImageViewer_swift
-import SDWebImage
 
 class GaleriaView: ExpoView {
   func getChildImageView() -> UIImageView? {

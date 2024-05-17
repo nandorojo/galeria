@@ -5,14 +5,6 @@ open class GaleriaModule: Module {
     Name("Galeria")
     
     View(GaleriaView.self) {
-      Events(
-        "onLoadStart",
-        "onProgress",
-        "onError",
-        "onLoad",
-        "onPressRightNavItemIcon"
-      )
-      
       Prop("urls") { (view, urls: [String]?) in
         view.urls = urls
       }
