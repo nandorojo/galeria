@@ -12,16 +12,20 @@ export default function HomeScreen() {
       <LinkItem href="/chat">Chat</LinkItem>
       <LinkItem href="/modal">Modal</LinkItem>
 
-      <Galeria urls={urls} theme="light">
-        <Galeria.Image id={urls[0]} index={0}>
-          <Image
-            style={{
-              height: 245,
-              width: 245,
-            }}
-            source={{ uri: urls[0] }}
-          />
-        </Galeria.Image>
+      <Galeria theme="light" urls={urls}>
+        {urls.map((uri, index) => (
+          <Galeria.Image key={uri + index} index={index}>
+            <Image
+              style={{
+                height: 245,
+                width: 245,
+              }}
+              source={{ uri }}
+            />
+          </Galeria.Image>
+        ))}
+
+        <Galeria.Popup />
       </Galeria>
     </View>
   )
