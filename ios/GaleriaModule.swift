@@ -1,6 +1,6 @@
 import ExpoModulesCore 
 
-open class GaleriaModule: Module {
+public class GaleriaModule: Module {
   public func definition() -> ModuleDefinition {
     Name("Galeria")
     
