@@ -56,7 +56,6 @@ function RootLayoutNav() {
                 },
                 statusBarStyle: 'inverted',
               },
-              default: {},
             }),
           }}
         />

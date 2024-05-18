@@ -1,0 +1,33 @@
+diff --git a/build/uuid/uuid.web.js b/build/uuid/uuid.web.js
+index bb678dcba47e6d6eb2c7c2496bb626e8ce7f2b6e..3b57b9806daf1f9b72cf6fd13a329040c189ed54 100644
+--- a/build/uuid/uuid.web.js
++++ b/build/uuid/uuid.web.js
+@@ -1,20 +1,14 @@
+-import sha1 from './lib/sha1';
+-import v35 from './lib/v35';
+-import { Uuidv5Namespace } from './uuid.types';
++import sha1 from "./lib/sha1";
++import v35 from "./lib/v35";
++import { Uuidv5Namespace } from "./uuid.types";
+ function uuidv4() {
+-    // Crypto needs to be required when run in Node.js environment.
+-    const cryptoObject = typeof crypto === 'undefined' || typeof crypto.randomUUID === 'undefined'
+-        ? require('crypto')
+-        : crypto;
+-    if (!cryptoObject?.randomUUID) {
+-        throw Error("The browser doesn't support `crypto.randomUUID` function");
+-    }
+-    return cryptoObject.randomUUID();
++  // Crypto needs to be required when run in Node.js environment.
++  return Math.random().toString(36);
+ }
+ const uuid = {
+-    v4: uuidv4,
+-    v5: v35('v5', 0x50, sha1),
+-    namespace: Uuidv5Namespace,
++  v4: uuidv4,
++  v5: v35("v5", 0x50, sha1),
++  namespace: Uuidv5Namespace,
+ };
+ export default uuid;
+ //# sourceMappingURL=uuid.web.js.map

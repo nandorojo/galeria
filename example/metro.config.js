@@ -17,9 +17,6 @@ config.resolver.nodeModulesPaths = [
   path.resolve(__dirname, '../node_modules'),
 ]
 
-config.resolver.assetExts.push('mjs')
-config.resolver.assetExts.push('cjs')
-
 config.watchFolders = [path.resolve(__dirname, '..')]
 
 config.transformer.getTransformOptions = async () => ({
