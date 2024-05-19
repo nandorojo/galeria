@@ -7,6 +7,7 @@ import {
 import { useFonts } from 'expo-font'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
+import { StatusBar } from 'react-native'
 import { useEffect } from 'react'
 import { useColorScheme, Platform, LogBox } from 'react-native'
 
@@ -32,7 +33,7 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme()
+  const colorScheme = 'dark'
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

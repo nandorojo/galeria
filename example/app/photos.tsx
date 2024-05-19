@@ -7,31 +7,29 @@ import { Image as Nativeimage } from 'react-native'
 const itemWidth = Dimensions.get('window').width / 3
 
 export default function PhotosScreen() {
-  const renderItem = ({ item: url, index }: ListRenderItemInfo<string>) => {
-    return (
-      <Galeria.Image id={url} index={index}>
-        <Image
-          style={{
-            width: itemWidth,
-            height: itemWidth,
-          }}
-          source={{ uri: url }}
-          recyclingKey={url + index}
-        />
-      </Galeria.Image>
-    )
-  }
   return (
     <View style={styles.container}>
       <Galeria urls={urls} theme="dark">
         <FlashList
           data={urls}
-          renderItem={renderItem}
+          renderItem={({ item: url, index }) => {
+            return (
+              <Galeria.Image index={index}>
+                <Image
+                  style={{
+                    width: itemWidth,
+                    height: itemWidth,
+                  }}
+                  source={{ uri: url }}
+                  recyclingKey={url + index}
+                />
+              </Galeria.Image>
+            )
+          }}
           numColumns={3}
           estimatedItemSize={itemWidth}
           keyExtractor={(item, i) => item + i}
         />
-        <Galeria.Popup />
       </Galeria>
     </View>
   )

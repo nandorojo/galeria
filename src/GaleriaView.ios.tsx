@@ -12,7 +12,6 @@ const NativeImage = requireNativeViewManager<
   }
 >('Galeria')
 
-const array = []
 const noop = () => {}
 
 const Galeria = Object.assign(
@@ -20,20 +19,16 @@ const Galeria = Object.assign(
     children,
     urls,
     theme = 'dark',
-    ids,
   }: {
     children: React.ReactNode
-  } & Partial<Pick<GaleriaContext, 'theme' | 'ids' | 'urls'>>) {
+  } & Partial<Pick<GaleriaContext, 'theme' | 'urls'>>) {
     return (
       <GaleriaContext.Provider
         value={{
           urls,
           theme,
-          initialIndex: 0,
           open: false,
-          src: '',
           setOpen: noop,
-          ids,
         }}
       >
         {children}
@@ -42,7 +37,7 @@ const Galeria = Object.assign(
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme, urls, initialIndex } = useContext(GaleriaContext)
+      const { theme, urls } = useContext(GaleriaContext)
       return (
         <NativeImage
           theme={theme}
@@ -53,7 +48,6 @@ const Galeria = Object.assign(
 
             return Image.resolveAssetSource(url).uri
           })}
-          index={initialIndex}
           {...props}
         />
       )

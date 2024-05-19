@@ -51,6 +51,7 @@ const LinkItem = ({
         style={{
           fontSize: 16,
           fontWeight: '600',
+          color: 'white',
         }}
         href={href}
       >

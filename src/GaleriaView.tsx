@@ -15,11 +15,13 @@ import {
   LayoutGroup,
   animate,
   motion,
+  useDomEvent,
   useMotionValue,
   useTransform,
 } from 'framer-motion'
-import { Dimensions, Modal } from 'react-native'
+import { Dimensions, Modal, View, useWindowDimensions } from 'react-native'
 import { GaleriaContext } from './context'
+import { unstable_createElement } from 'react-native-web'
 
 const useClientEffect =
   typeof window === 'undefined' ? useEffect : useLayoutEffect
@@ -224,19 +226,65 @@ const getLayoutId = (id: string | undefined, index: number) => {
 function Image({ __web, index = 0, id, children }: GaleriaViewProps) {
   const [open, setOpen] = useState(false)
 
+  useDomEvent(
+    useRef((typeof window !== 'undefined' && window) as typeof window),
+    'scroll',
+    () => open && setOpen(false),
+  )
+
+  const [{ height, width }, setLayout] = useState({ height: 0, width: 0 })
+  const windowDimensions = useWindowDimensions()
+
   return (
-    <motion.div
-      {...__web}
-      layout
-      onClick={() => {
-        setOpen(true)
-      }}
-      style={{
-        display: 'contents',
-      }}
-    >
-      {children}
-    </motion.div>
+    <>
+      {open && <div style={{ height, width }} />}
+      <View
+        onLayout={(e) => {
+          if (open) return
+          setLayout((current) => {
+            const { width, height } = e.nativeEvent.layout
+            if (current.width !== width || current.height !== height) {
+              return { width, height }
+            }
+            return current
+          })
+        }}
+      >
+        {unstable_createElement(motion.div, {
+          ...__web,
+          layout: true,
+          onClick: () => {
+            setOpen((open) => !open)
+          },
+          style: {
+            position: 'relative',
+            cursor: open ? 'zoom-out' : 'zoom-in',
+            ...(open && {
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: '100%',
+              width: '100%',
+            }),
+          },
+          children: cloneElement(children, {
+            ...children.props,
+            style: [
+              children.props.style,
+              open && {
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+              },
+            ],
+            resizeMode: 'contain',
+            contentFit: 'contain',
+          }),
+        })}
+      </View>
+    </>
   )
 }
 
