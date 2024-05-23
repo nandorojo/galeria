@@ -69,3 +69,42 @@ export const DarkMode = () => (
   </Galeria>
 )
 ```
+
+### FlashList
+
+```tsx
+import { Galeria } from '@nandorojo/galeria'
+import { Image, type ImageAssetSource } from 'react-native' // works with ANY image component!
+import { FlashList } from "@shopify/flash-list"
+
+import localImage from './assets/local-image.png'
+
+const urls = ['https://my-image.com/image.jpg', localImage]
+
+export const FlashListSupport = () => {
+  return (
+    <Galeria urls={urls}>
+      <FlashList
+        data={urls}
+        renderItem={({ item, index }) => {
+          // you should put this in a memoized component
+          return (
+            <Galeria.Image index={index}>
+              <Image
+                style={styles.image}
+                source={src(item)}
+                recyclingKey={item + index}
+              />
+            </Galeria.Image>
+          )
+        }}
+        numColumns={3}
+        estimatedItemSize={size}
+        keyExtractor={(item, i) => item + i}
+      />
+    </Galeria>
+  )
+}
+
+const src = (s) => (typeof s === 'string' ? { uri: s } : s) // this could be better
+```
