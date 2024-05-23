@@ -23,7 +23,9 @@ The React (Native) Image viewer. The API is simple, and it runs natively.
  - Web support (alpha)
  - Remote URLs & local images
 
-> Galeria is in beta...🚧 A true release is coming soon.
+### This is in beta
+
+> **Galeria is in beta...🚧 A true release is coming soon.**
 
 ### One Image
 
