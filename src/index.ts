@@ -1,4 +1,6 @@
-export { default as Galeria } from './GaleriaView'
-import Galeria from './GaleriaView'
-console.log('[Galeria]', Galeria)
-export { GaleriaViewProps } from './Galeria.types'
+// export { default as Galeria } from './GaleriaView'
+import type ActualGaleria from './GaleriaView'
+export type { GaleriaViewProps } from './Galeria.types'
+import * as presentation from '../presentation/Galeria'
+
+export const Galeria = presentation.Galeria as typeof ActualGaleria

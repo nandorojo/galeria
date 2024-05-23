@@ -37,15 +37,18 @@
     "expo-modules-core": "^1.12.9",
     "prettier": "^3.0.3",
     "react-native": "0.74.1",
-    "react-native-web": "^0.19.8"
+    "react-native-web": "^0.19.8",
+    "typescript": "^5.4.5"
   },
   "peerDependencies": {
-    "expo": "*",
     "react": "*",
     "react-native": "*"
   },
   "prettier": {
     "singleQuote": true,
     "semi": false
+  },
+  "resolutions": {
+    "typescript": "^5.4.5"
   }
 }

@@ -1,8 +1,22 @@
 {
-  "extends": "expo-module-scripts/tsconfig.base",
+  "extends": "expo/tsconfig.base",
+
   "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+
+    "sourceMap": true,
+    "module": "NodeNext",
+    "declaration": true,
+    "lib": ["es2022", "dom", "dom.iterable"],
+
     "outDir": "./build",
-    "jsx": "preserve"
+    "jsx": "react-jsx"
   },
   "include": ["./src"],
   "exclude": ["**/__mocks__/*", "**/__tests__/*"]

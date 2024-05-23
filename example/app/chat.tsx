@@ -82,10 +82,7 @@ function Message({ text, url, sender }: MessageProps) {
         {text}
       </Text>
       {!!url && (
-        <Galeria.Image
-          id={url}
-          index={images.findIndex((item) => item === url)}
-        >
+        <Galeria.Image index={images.findIndex((item) => item === url)}>
           <Image
             style={{
               height: 245,
