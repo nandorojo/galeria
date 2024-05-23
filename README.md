@@ -20,7 +20,7 @@ The React (Native) Image viewer. The API is simple, and it runs natively.
  - Modal support
  - FlashList support
  - Clean API
- - Web support (alpha)
+ - Web support (coming soon!)
  - Remote URLs & local images
 
 ### This is in beta
