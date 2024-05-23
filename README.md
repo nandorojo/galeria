@@ -108,3 +108,14 @@ export const FlashListSupport = () => {
 
 const src = (s) => (typeof s === 'string' ? { uri: s } : s) // 🤷‍♂️
 ```
+
+## Credits
+
+- Under the hood, Galeria uses native libraries on iOS and Android.
+- On Web, Galeria uses Framer Motion.
+- Thanks to [Michael Henry](https://github.com/michaelhenry/ImageViewer.swift) for the iOS Image Viewer
+- Thanks to [iielse](https://github.com/iielse/imageviewer) for the Android Image Viewer
+
+## License
+
+This software is free to use for apps or libraries of any size. However, I ask that you don't re-sell it or represent it as yours. If you fork it and make it public, please give credit back to the original GitHub repository.
