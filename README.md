@@ -49,7 +49,7 @@ const urls = ['https://my-image.com/image.jpg', localImage]
 export const MutliImage = ({ style }) => (
   <Galeria urls={urls}>
     {urls.map((url, index) => (
-        <Galeria.Image index={index} key={...}>
+   <Galeria.Image index={index} key={...}>
          <Image source={typeof url === 'string' ? { uri: url } : url} style={style} />
        </Galeria.Image>
      )}
