@@ -13,10 +13,9 @@ The React (Native) Image viewer. The API is simple, and it runs natively.
  - FlashList support
  - Clean API
  - Web support (alpha)
+ - Remote URLs & local images
 
 > Galeria is in beta...🚧 A true release is coming soon.
-
-## Remote Images
 
 ### One Image
 
@@ -24,7 +23,9 @@ The React (Native) Image viewer. The API is simple, and it runs natively.
 import { Galeria } from '@nandorojo/galeria'
 import { Image } from 'react-native' // works with ANY image component!
 
-export const SingleImage = ({ url, style }) => (
+const url = 'https://my-image.com/image.jpg'
+
+export const SingleImage = ({ style }) => (
   <Galeria urls={[url]}>
     <Galeria.Image>
       <Image source={{ uri: url }} style={style} />
@@ -41,11 +42,17 @@ Simply pass an array to `urls`.
 import { Galeria } from '@nandorojo/galeria'
 import { Image } from 'react-native' // works with ANY image component!
 
-export const MutliImage = ({ urls, style }) => (
+import localImage from './assets/local-image.png'
+
+const urls = ['https://my-image.com/image.jpg', localImage]
+
+export const MutliImage = ({ style }) => (
   <Galeria urls={urls}>
-    <Galeria.Image>
-      <Image source={{ uri: url }} style={style} />
-    </Galeria.Image>
+    {urls.map((url, index) => (
+        <Galeria.Image index={index} key={...}>
+         <Image source={typeof url === 'string' ? { uri: url } : url} style={style} />
+       </Galeria.Image>
+     )}
   </Galeria>
 )
 ```
