@@ -61,7 +61,11 @@ export const MutliImage = ({ style }) => (
 ### Dark Mode
 
 ```tsx
+import { Galeria } from '@nandorojo/galeria'
+
+export const DarkMode = () => (
   <Galeria urls={urls} theme='dark'>
-    
+    ...
   </Galeria>
+)
 ```
