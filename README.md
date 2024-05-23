@@ -106,5 +106,5 @@ export const FlashListSupport = () => {
   )
 }
 
-const src = (s) => (typeof s === 'string' ? { uri: s } : s) // this could be better
+const src = (s) => (typeof s === 'string' ? { uri: s } : s) // 🤷‍♂️
 ```
