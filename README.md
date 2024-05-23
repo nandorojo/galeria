@@ -125,6 +125,7 @@ const src = (s) => (typeof s === 'string' ? { uri: s } : s) // 🤷‍♂️
 - On Web, Galeria uses Framer Motion.
 - Thanks to [Michael Henry](https://github.com/michaelhenry/ImageViewer.swift) for the iOS Image Viewer
 - Thanks to [iielse](https://github.com/iielse/imageviewer) for the Android Image Viewer
+- Thanks to [Alan](https://github.com/alantoa) for building the Android integration.
 
 ## License
 
