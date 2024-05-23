@@ -56,3 +56,12 @@ export const MutliImage = ({ style }) => (
   </Galeria>
 )
 ```
+
+
+### Dark Mode
+
+```tsx
+  <Galeria urls={urls} theme='dark'>
+    
+  </Galeria>
+```
