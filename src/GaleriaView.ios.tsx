@@ -3,6 +3,7 @@ import { requireNativeViewManager } from 'expo-modules-core'
 import { GaleriaViewProps } from './Galeria.types'
 import { useContext } from 'react'
 import { GaleriaContext } from './context'
+import { Image } from 'react-native'
 
 const NativeImage = requireNativeViewManager<
   GaleriaViewProps & {
@@ -17,14 +18,12 @@ const noop = () => {}
 const Galeria = Object.assign(
   function Galeria({
     children,
-    urls = array,
+    urls,
     theme = 'dark',
+    ids,
   }: {
     children: React.ReactNode
-    theme?: 'dark' | 'light'
-    urls?: string[]
-    ids?: string[]
-  }) {
+  } & Partial<Pick<GaleriaContext, 'theme' | 'ids' | 'urls'>>) {
     return (
       <GaleriaContext.Provider
         value={{
@@ -34,7 +33,7 @@ const Galeria = Object.assign(
           open: false,
           src: '',
           setOpen: noop,
-          ids: undefined,
+          ids,
         }}
       >
         {children}
@@ -43,8 +42,21 @@ const Galeria = Object.assign(
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme, urls } = useContext(GaleriaContext)
-      return <NativeImage theme={theme} urls={urls} {...props} />
+      const { theme, urls, initialIndex } = useContext(GaleriaContext)
+      return (
+        <NativeImage
+          theme={theme}
+          urls={urls?.map((url) => {
+            if (typeof url === 'string') {
+              return url
+            }
+
+            return Image.resolveAssetSource(url).uri
+          })}
+          index={initialIndex}
+          {...props}
+        />
+      )
     },
     Popup: (() => null) as React.FC<{
       disableTransition?: 'web'

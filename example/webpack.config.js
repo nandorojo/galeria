@@ -1,25 +1,10 @@
-const createConfigAsync = require('@expo/webpack-config')
-const path = require('path')
+const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 
-module.exports = async (env, argv) => {
-  const config = await createConfigAsync(
-    {
-      ...env,
-      babel: {
-        dangerouslyAddModulePathsToTranspile: ['galeria'],
-      },
-    },
-    argv
-  )
-  config.resolve.modules = [
-    path.resolve(__dirname, './node_modules'),
-    path.resolve(__dirname, '../node_modules'),
-  ]
-  config.module.rules.push({
-    test: /\.mjs$/,
-    include: /node_modules/,
-    type: 'javascript/auto',
-  })
-
+module.exports = async function (env, argv) {
+  const config = await createExpoWebpackConfigAsync(env, argv)
+  config.resolve.fallback = {
+    ...config.resolve.fallback,
+    crypto: require.resolve('expo-crypto'),
+  }
   return config
 }

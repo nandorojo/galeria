@@ -35,12 +35,13 @@ function Popup({ disableTransition }: { disableTransition?: 'web' }) {
 }
 
 function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
-  const { open, setOpen, urls, initialIndex, theme, ids } =
+  const { open, setOpen, urls, initialIndex, theme, src, ids } =
     useContext(GaleriaContext)
 
   const isDragging = useMotionValue(false)
+  const carousel = urls.length > 0 && urls
 
-  const images = urls
+  const images = carousel || [src].filter(Boolean)
 
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -99,10 +100,6 @@ function OpenPopup({ disableTransition }: { disableTransition: boolean }) {
   )
 
   console.log('[popup]', { imageIndex, initialIndex })
-
-  if (!images) {
-    return null
-  }
 
   if (!open || images.length < 1) {
     return null
@@ -221,73 +218,105 @@ const getLayoutId = (id: string | undefined, index: number) => {
   return finalId
 }
 
-function Image({ __web, index = 0, id, children }: GaleriaViewProps) {
-  const [open, setOpen] = useState(false)
+function Image({ style, src, index = 0, id }: GaleriaViewProps) {
+  const { setOpen } = useContext(GaleriaContext)
 
-  return (
-    <motion.div
-      {...__web}
-      layout
-      onClick={() => {
-        setOpen(true)
-      }}
-      style={{
-        display: 'contents',
-      }}
-    >
-      {children}
-    </motion.div>
-  )
-}
+  const [openedCount, setOpenedCount] = useState(-1)
+  const prevOpenedCount = useRef(openedCount)
 
-function Root({
-  children,
-  urls,
-  theme = 'light',
-  ids,
-}: ComponentProps<typeof Native>) {
-  const [openState, setOpen] = useState({
-    open: false,
-  } as
-    | {
-        open: false
+  useEffect(
+    function triggerOpen() {
+      if (openedCount === prevOpenedCount.current) {
+        return
       }
-    | {
-        open: true
-        src: string
-        initialIndex: number
+      prevOpenedCount.current = openedCount
+
+      // it's opened if the index is greater than -1
+      if (openedCount <= -1) return
+
+      setOpen({
+        open: true,
+        src,
+        initialIndex: index ?? 0,
+        id,
       })
+    },
+    [openedCount],
+  )
+
   return (
-    <GaleriaContext.Provider
-      value={{
-        setOpen,
-        urls,
-        theme,
-        ...(openState.open
-          ? {
-              open: true,
-              src: openState.src,
-              initialIndex: openState.initialIndex,
-            }
-          : {
-              open: false,
-              src: '',
-              initialIndex: 0,
-            }),
-        ids,
+    // we don't want the image to have layout effects until we have opened it
+    // so until then, we render no layout id
+    <motion.img
+      layoutId={openedCount > -1 ? getLayoutId(id, index) : undefined}
+      // in order to change the layout id, we must change they key itself
+      // once it's animated once, we don't need to change this again
+      key={`${openedCount > -1}`}
+      src={src}
+      style={style as object}
+      onClick={() => {
+        // ideally we could just open the gallery here
+        // but we can't because that requires this node always having a layoutId
+        // so instead we change the key to trigger a re-render
+        // i tried flushsync but it appeared to match useLayoutEffect rather than useEffect which wasn't desired
+        setOpenedCount((next) => {
+          // we use a number each time so that useEffect is fired for each open
+          return Math.max(0, next + 1)
+        })
       }}
-    >
-      <LayoutGroup inherit={false} id={useId()}>
-        {children}
-      </LayoutGroup>
-    </GaleriaContext.Provider>
+    />
   )
 }
 
-const Galeria: typeof Native = Object.assign(Root, {
-  Image,
-  Popup,
-})
+const Galeria: typeof Native = Object.assign(
+  function Galeria({
+    children,
+    urls,
+    theme = 'light',
+    ids,
+  }: ComponentProps<typeof Native>) {
+    const [openState, setOpen] = useState({
+      open: false,
+    } as
+      | {
+          open: false
+        }
+      | {
+          open: true
+          src: string
+          initialIndex: number
+        })
+    return (
+      <GaleriaContext.Provider
+        value={{
+          setOpen,
+          urls: urls || [],
+          theme,
+          ...(openState.open
+            ? {
+                open: true,
+                src: openState.src,
+                initialIndex: openState.initialIndex,
+              }
+            : {
+                open: false,
+                src: '',
+                initialIndex: 0,
+              }),
+          ids,
+        }}
+      >
+        <LayoutGroup inherit={false} id={useId()}>
+          {children}
+        </LayoutGroup>
+      </GaleriaContext.Provider>
+    )
+  },
+  {
+    Image,
+    Popup,
+  },
+)
 
 export default Galeria
 

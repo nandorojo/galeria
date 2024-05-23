@@ -1,34 +1,26 @@
 import ExpoModulesCore 
-open class GaleriaModule: Module {
+
+public class GaleriaModule: Module {
   public func definition() -> ModuleDefinition {
     Name("Galeria")
-
+    
     View(GaleriaView.self) {
-      Events(
-        "onLoadStart",
-        "onProgress",
-        "onError",
-        "onLoad"
-      )
-
-      Prop("src") { (view, src: String) in
-        view.src = src
-      }
-
       Prop("urls") { (view, urls: [String]?) in
         view.urls = urls
       }
-
+      
       Prop("index") { (view, index: Int?) in
         view.initialIndex = index
       }
-
-      Prop("theme") { (view, theme: String?) in
-        view.theme = theme
+      
+      Prop("theme") { (view, theme: Theme?) in
+        view.theme = theme ?? .dark
       }
-
-      Prop("recyclingKey") { (view, recyclingKey: String?) in
-        view.recyclingKey = recyclingKey
+      Prop("closeIconName") { (view, closeIconName: String?) in
+        view.closeIconName = closeIconName
+      }
+      Prop("rightNavItemIconName") { (view, rightNavItemIconName: String) in
+        view.rightNavItemIconName = rightNavItemIconName
       }
     }
   }
