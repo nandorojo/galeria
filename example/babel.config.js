@@ -11,6 +11,11 @@ module.exports = function (api) {
           alias: {
             // For development, we want to alias the library to the source
             galeria: path.join(__dirname, '..', 'src', 'index.ts'),
+            'framer-motion': path.join(
+              __dirname,
+              '..',
+              'node_modules/framer-motion',
+            ),
           },
         },
       ],

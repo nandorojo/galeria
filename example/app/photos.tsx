@@ -9,13 +9,20 @@ const itemWidth = Dimensions.get('window').width / 3
 export default function PhotosScreen() {
   const renderItem = ({ item: url, index }: ListRenderItemInfo<string>) => {
     return (
-      <Galeria.Image id={url} index={index}>
+      <Galeria.Image
+        id={url}
+        index={index}
+        style={{
+          backgroundColor: 'black',
+          borderWidth: 1,
+        }}
+      >
         <Image
           style={{
             width: itemWidth,
             height: itemWidth,
           }}
-          source={{ uri: url }}
+          source={typeof url === 'string' ? { uri: url } : url}
           recyclingKey={url + index}
         />
       </Galeria.Image>
