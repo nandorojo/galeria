@@ -1,3 +1,4 @@
+'use client'
 import {
   useState,
   useId,
@@ -8,172 +9,24 @@ import {
   useLayoutEffect,
   isValidElement,
   cloneElement,
-  useCallback,
-  useMemo,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { Dimensions, Image as ReactImage } from 'react-native'
 
 import { GaleriaViewProps } from './Galeria.types'
 import type Native from './GaleriaView.ios'
 
-import {
-  LayoutGroup,
-  motion,
-  useDragControls,
-  useMotionValue,
-  useTransform,
-} from 'framer-motion'
+import { LayoutGroup, motion } from 'framer-motion'
 import { GaleriaContext } from './context'
 
-import { Modal } from 'react-native'
-
-const useEffecter = typeof window === 'undefined' ? useLayoutEffect : useEffect
-
-/** TODO */
-function ImageOld({ __web, index = 0, children, style }: GaleriaViewProps) {
-  const [{ open, aspectRatio }, setOpen] = useState({
-    open: false,
-    aspectRatio: 1,
-  })
-
-  const { theme, urls } = useContext(GaleriaContext)
-
-  const id = useId()
-
-  const ref = useRef<HTMLDivElement>(null)
-
-  const direction = aspectRatio > 1 ? 'horizontal' : 'vertical'
-
-  useEffect(function scrollListener() {
-    const handler = (e: any) => {
-      setOpen(({ open, aspectRatio }) => ({
-        open: false,
-        aspectRatio,
-      }))
-    }
-
-    document.addEventListener('scroll', handler)
-
-    return () => {
-      document.removeEventListener('scroll', handler)
-    }
-  }, [])
-
-  const src = urls?.[index]
-
-  const dragPosition = useDragControls()
-
-  const pan = useMotionValue(-1)
-
-  const startDragPosition = useRef({ x: 0, y: 0 })
-  const screenHeight = Dimensions.get('window').height
-
-  return (
-    <>
-      <motion.div
-        {...__web}
-        ref={ref}
-        layout
-        layoutId={id}
-        onClick={() => {
-          const bounding = ref.current?.getBoundingClientRect()
-          setOpen(({ open }) => ({
-            open: !open,
-            aspectRatio: bounding ? bounding.height / bounding.width : 1,
-          }))
-        }}
-        style={{ ...(style as object) }}
-      >
-        {isValidElement(children)
-          ? cloneElement(children, { draggable: false } as object)
-          : children}
-      </motion.div>
-
-      <Modal
-        animationType="none"
-        transparent
-        visible={open}
-        onRequestClose={() =>
-          setOpen((current) => ({
-            ...current,
-            open: !current.open,
-          }))
-        }
-      >
-        <div
-          style={{
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            position: 'relative',
-          }}
-          onClick={() => {
-            setOpen((current) => ({ ...current, open: false }))
-          }}
-        >
-          <motion.div
-            style={{
-              background: theme === 'dark' ? 'black' : 'white',
-              position: 'absolute',
-              inset: 0,
-              opacity: useTransform(pan, (dragY) => {
-                if (dragY === -1) return 1
-                const dragPercent = (screenHeight - dragY) / screenHeight
-                return dragPercent
-              }),
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          />
-
-          <motion.div
-            style={{
-              touchAction: 'none',
-              msTouchAction: 'none',
-              aspectRatio,
-              ...(direction === 'horizontal'
-                ? { width: '100%', paddingBottom: `${100 / aspectRatio}%` }
-                : { height: '100%', width: `${100 / aspectRatio}%` }),
-            }}
-            layoutId={id}
-            drag="y"
-            onDragStart={(e, { point }) => {
-              startDragPosition.current = point
-            }}
-            onDrag={(_, { delta, point }) => {
-              const y = point.y - startDragPosition.current.y
-              pan.set(Math.abs(y))
-              console.log('[pan]', y)
-            }}
-          >
-            <motion.div
-              style={{
-                height: '100%',
-                width: '100%',
-              }}
-            >
-              <ReactImage
-                style={{
-                  height: '100%',
-                  width: '100%',
-                }}
-                source={typeof src === 'string' ? { uri: src } : src}
-                {...{ draggable: false }}
-              />
-            </motion.div>
-          </motion.div>
-        </div>
-      </Modal>
-    </>
-  )
-}
-
-function Image({ __web, index = 0, children, style }: GaleriaViewProps) {
+function Image({
+  __web,
+  index = 0,
+  children,
+  style,
+  dynamicAspectRatio = false,
+}: GaleriaViewProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const { urls } = useContext(GaleriaContext)
+  const { urls, theme } = useContext(GaleriaContext)
   const url = urls?.[index]
   const parentRef = useRef<HTMLDivElement>()
   const [aspectRatio, setAspectRatio] = useState(1)
@@ -187,7 +40,7 @@ function Image({ __web, index = 0, children, style }: GaleriaViewProps) {
     }
     return null
   }
-  const getImageAspectRatio = (node: Node) => {
+  const getNodeAspectRatio = (node: Node) => {
     const imageNode = getFirstImageChild(node)
     if (imageNode) {
       return (
@@ -202,12 +55,26 @@ function Image({ __web, index = 0, children, style }: GaleriaViewProps) {
     const imageNode = getFirstImageChild(e.target as Node)
     if (imageNode) {
       setIsOpen(true)
-      const ratio = getImageAspectRatio(imageNode)
-      console.log({ ratio })
+      const ratio = getNodeAspectRatio(imageNode)
       setAspectRatio(ratio)
+      if (
+        typeof process != 'undefined' &&
+        typeof process.env != 'undefined' &&
+        process?.env?.NODE_ENV === 'development'
+      ) {
+        const nodeAspectRatio = getNodeAspectRatio(imageNode)
+
+        if (nodeAspectRatio !== ratio) {
+          console.error(
+            `[galeria] Galeria.Image does not have the same aspect ratio as its child.
+            
+This might result in a weird animation. To fix it, pass the "style" prop to Galeria.Image to give it the same height & width as the image.`,
+          )
+        }
+      }
     }
   }
-  const isHorizontal = aspectRatio >= 1
+  const isHorizontal = Number(aspectRatio >= 1).toFixed(4)
   return (
     <>
       <motion.div
@@ -227,14 +94,18 @@ function Image({ __web, index = 0, children, style }: GaleriaViewProps) {
           <motion.img
             layoutId={id}
             style={{
-              ...(isHorizontal
-                ? {
-                    width: `100%`,
-                    aspectRatio,
-                  }
+              ...(dynamicAspectRatio
+                ? {}
                 : {
-                    height: '100%',
-                    aspectRatio,
+                    ...(isHorizontal
+                      ? {
+                          width: `100%`,
+                          aspectRatio,
+                        }
+                      : {
+                          height: '100%',
+                          aspectRatio,
+                        }),
                   }),
               objectFit: 'cover',
               zIndex: 2000,
