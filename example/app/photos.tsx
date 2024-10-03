@@ -46,6 +46,7 @@ export default function PhotosScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: 0,
   },
 })

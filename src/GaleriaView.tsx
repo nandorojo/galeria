@@ -178,21 +178,43 @@ function Image({ __web, index = 0, children, style }: GaleriaViewProps) {
   const parentRef = useRef<HTMLDivElement>()
   const [aspectRatio, setAspectRatio] = useState(1)
   const id = useId()
+  const getFirstImageChild = (node: Node) => {
+    if (node.nodeType === 1 && node.nodeName === 'IMG') {
+      return node
+    }
+    if (node.childNodes) {
+      return getFirstImageChild(node.childNodes[0])
+    }
+    return null
+  }
+  const getImageAspectRatio = (node: Node) => {
+    const imageNode = getFirstImageChild(node)
+    if (imageNode) {
+      return (
+        imageNode.getBoundingClientRect().height /
+        imageNode.getBoundingClientRect().width
+      )
+    }
+    return 1
+  }
+  const [windowDimensions, setWindowDimensions] = useState()
+  const onClick = (e) => {
+    const imageNode = getFirstImageChild(e.target as Node)
+    if (imageNode) {
+      setIsOpen(true)
+      const ratio = getImageAspectRatio(imageNode)
+      console.log({ ratio })
+      setAspectRatio(ratio)
+    }
+  }
+  const isHorizontal = aspectRatio >= 1
   return (
     <>
       <motion.div
-        style={style as object}
-        onClick={() => setIsOpen(true)}
-        ref={useMemo(
-          () => (ref) => {
-            if (ref) {
-              const { height, width } = ref.getBoundingClientRect()
-              setAspectRatio(height / width)
-              parentRef.current = ref
-            }
-          },
-          [],
-        )}
+        style={{ zIndex: index, ...style } as object}
+        // faster than onClick
+        onMouseDown={onClick}
+        onTouchStart={onClick}
         layoutId={id}
       >
         {isValidElement(children)
@@ -205,9 +227,17 @@ function Image({ __web, index = 0, children, style }: GaleriaViewProps) {
           <motion.img
             layoutId={id}
             style={{
-              width: '100%',
-              height: `${100 / aspectRatio}%`,
+              ...(isHorizontal
+                ? {
+                    width: `100%`,
+                    aspectRatio,
+                  }
+                : {
+                    height: '100%',
+                    aspectRatio,
+                  }),
               objectFit: 'cover',
+              zIndex: 2000,
             }}
             src={url as string}
           ></motion.img>
