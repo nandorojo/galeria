@@ -12,17 +12,19 @@ export default function HomeScreen() {
       <LinkItem href="/chat">Chat</LinkItem>
       <LinkItem href="/modal">Modal</LinkItem>
 
-      <Galeria urls={urls} theme="light">
-        <Galeria.Image id={urls[0]} index={0}>
-          <Image
-            style={{
-              height: 245,
-              width: 245,
-            }}
-            source={{ uri: urls[0] }}
-          />
-        </Galeria.Image>
-      </Galeria>
+      <View>
+        <Galeria urls={urls} theme="light">
+          <Galeria.Image id={urls[0]} index={0}>
+            <Image
+              style={{
+                height: 245,
+                width: 245,
+              }}
+              source={{ uri: urls[0] }}
+            />
+          </Galeria.Image>
+        </Galeria>
+      </View>
     </View>
   )
 }

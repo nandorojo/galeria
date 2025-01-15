@@ -6,7 +6,6 @@ import {
   useRef,
   useEffect,
   useContext,
-  useLayoutEffect,
   isValidElement,
   cloneElement,
 } from 'react'
@@ -18,18 +17,18 @@ import type Native from './GaleriaView.ios'
 import { LayoutGroup, motion } from 'framer-motion'
 import { GaleriaContext } from './context'
 
-function Image({
+function GaleriaImage({
   __web,
   index = 0,
   children,
   style,
-  dynamicAspectRatio = false,
+  ...props
 }: GaleriaViewProps) {
   const [isOpen, setIsOpen] = useState(false)
   const { urls, theme } = useContext(GaleriaContext)
-  const url = urls?.[index]
-  const parentRef = useRef<HTMLDivElement>()
-  const [aspectRatio, setAspectRatio] = useState(1)
+  let url = urls?.[index]
+  const [measuredAspectRatio, setAspectRatio] = useState(1)
+  const aspectRatio = props.aspectRatio ?? measuredAspectRatio
   const id = useId()
   const getFirstImageChild = (node: Node) => {
     if (node.nodeType === 1 && node.nodeName === 'IMG') {
@@ -50,7 +49,6 @@ function Image({
     }
     return 1
   }
-  const [windowDimensions, setWindowDimensions] = useState()
   const onClick = (e) => {
     const imageNode = getFirstImageChild(e.target as Node)
     if (imageNode) {
@@ -62,7 +60,9 @@ function Image({
         typeof process.env != 'undefined' &&
         process?.env?.NODE_ENV === 'development'
       ) {
-        const nodeAspectRatio = getNodeAspectRatio(imageNode)
+        const nodeAspectRatio = getNodeAspectRatio(e.target)
+
+        console.log('node-aspect-ratio', nodeAspectRatio)
 
         if (nodeAspectRatio !== ratio) {
           console.error(
@@ -74,15 +74,34 @@ This might result in a weird animation. To fix it, pass the "style" prop to Gale
       }
     }
   }
-  const isHorizontal = Number(aspectRatio >= 1).toFixed(4)
+  const isHorizontal = Number(measuredAspectRatio.toFixed(3)) >= 1
+  if (typeof url === 'number') {
+    console.error(`[galeria] urls[${index}] failed to get image: Expo Web/Metro Web does not currently support locally-imported images with <Galeria.Image />
+
+Please use a remote image in the urls[] array prop of your <Galeria> for now.`)
+  }
   return (
     <>
       <motion.div
-        style={{ zIndex: index, ...style } as object}
+        style={
+          {
+            zIndex: index,
+            ...style,
+          } as React.CSSProperties
+        }
+        onMouseEnter={function preloadOnHover() {
+          if (typeof url === 'string') {
+            try {
+              const img = new Image()
+              img.src = url
+            } catch {}
+          }
+        }}
         // faster than onClick
         onMouseDown={onClick}
         onTouchStart={onClick}
         layoutId={id}
+        aria-label="test"
       >
         {isValidElement(children)
           ? cloneElement(children, { draggable: false } as object)
@@ -94,19 +113,17 @@ This might result in a weird animation. To fix it, pass the "style" prop to Gale
           <motion.img
             layoutId={id}
             style={{
-              ...(dynamicAspectRatio
-                ? {}
-                : {
-                    ...(isHorizontal
-                      ? {
-                          width: `100%`,
-                          aspectRatio,
-                        }
-                      : {
-                          height: '100%',
-                          aspectRatio,
-                        }),
-                  }),
+              ...{
+                ...(aspectRatio > 1
+                  ? {
+                      width: `100%`,
+                      aspectRatio,
+                    }
+                  : {
+                      height: '100%',
+                      aspectRatio,
+                    }),
+              },
               objectFit: 'cover',
               zIndex: 2000,
             }}
@@ -117,6 +134,8 @@ This might result in a weird animation. To fix it, pass the "style" prop to Gale
     </>
   )
 }
+
+function Popup() {}
 
 function Root({
   children,
@@ -171,6 +190,7 @@ function PopupModal({
   children: React.ReactNode
   onClose: () => void
 }) {
+  const { theme } = useContext(GaleriaContext)
   const elementRef = useRef<HTMLDivElement | null>(null)
   if (typeof window !== 'undefined' && !elementRef.current) {
     const element = document.createElement('div')
@@ -203,9 +223,22 @@ function PopupModal({
         right: 0,
         bottom: 0,
         zIndex: 100,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
       onClick={onClose}
     >
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        style={{
+          zIndex: -1,
+          position: 'absolute',
+          inset: 0,
+          background: theme === 'dark' ? '#000000' : '#ffffff',
+        }}
+      />
       {children}
     </div>
   )
@@ -213,7 +246,7 @@ function PopupModal({
 }
 
 const Galeria: typeof Native = Object.assign(Root, {
-  Image,
+  Image: GaleriaImage,
   Popup: () => null,
 })
 

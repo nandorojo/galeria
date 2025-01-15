@@ -12,5 +12,5 @@ export type GaleriaViewProps = {
   children: React.ReactElement
   __web?: ComponentProps<(typeof motion)['div']>
   style?: ViewStyle
-  dynamicAspectRatio?: boolean
+  aspectRatio?: number
 }
