@@ -4,24 +4,20 @@
 
 The React (Native) Image viewer. The API is simple, and it runs natively.
 
-
-
 <video width="300" src="https://github.com/nandorojo/galeria/assets/13172299/5e915a75-bd40-410f-99fb-5df644ce96ad" ></video>
-
-
 
 ## Features
 
- - Shared element transitions
- - Pinch to zoom
- - Double tap to zoom
- - Pan to close
- - Multi-image support
- - Modal support
- - FlashList support
- - Clean API
- - Web support (coming soon!)
- - Remote URLs & local images
+- Shared element transitions
+- Pinch to zoom
+- Double tap to zoom
+- Pan to close
+- Multi-image support
+- Modal support
+- FlashList support
+- Clean API
+- Web support (beta as of 0.5.0 - feedback welcome!)
+- Remote URLs & local images
 
 ### This is in beta
 
@@ -67,14 +63,13 @@ export const MutliImage = ({ style }) => (
 )
 ```
 
-
 ### Dark Mode
 
 ```tsx
 import { Galeria } from '@nandorojo/galeria'
 
 export const DarkMode = () => (
-  <Galeria urls={urls} theme='dark'>
+  <Galeria urls={urls} theme="dark">
     ...
   </Galeria>
 )
@@ -85,7 +80,7 @@ export const DarkMode = () => (
 ```tsx
 import { Galeria } from '@nandorojo/galeria'
 import { Image, type ImageAssetSource } from 'react-native' // works with ANY image component!
-import { FlashList } from "@shopify/flash-list"
+import { FlashList } from '@shopify/flash-list'
 
 import localImage from './assets/local-image.png'
 
