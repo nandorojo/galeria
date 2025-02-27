@@ -80,6 +80,10 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
     light: '#ffffff',
     dark: '#000000',
   }[theme]
+  const foreground = {
+    light: '#000000',
+    dark: '#ffffff',
+  }[theme]
   return (
     <>
       <motion.div
@@ -143,6 +147,32 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
             )
           }}
         </WindowDimensions>
+
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            padding: 16,
+            cursor: 'pointer',
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+              fill={foreground}
+            />
+          </svg>
+        </motion.div>
       </PopupModal>
     </>
   )
