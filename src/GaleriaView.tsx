@@ -11,6 +11,7 @@ import {
   cloneElement,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { useWindowDimensions } from 'react-native' // TODO: remove this
 
 import { GaleriaViewProps } from './Galeria.types'
 import type Native from './GaleriaView.ios'
@@ -28,7 +29,6 @@ function Image({
   const [isOpen, setIsOpen] = useState(false)
   const { urls, theme } = useContext(GaleriaContext)
   const url = urls?.[index]
-  const parentRef = useRef<HTMLDivElement>()
   const [aspectRatio, setAspectRatio] = useState(1)
   const id = useId()
   const getFirstImageChild = (node: Node) => {
@@ -50,7 +50,6 @@ function Image({
     }
     return 1
   }
-  const [windowDimensions, setWindowDimensions] = useState()
   const onClick = (e) => {
     const imageNode = getFirstImageChild(e.target as Node)
     if (imageNode) {
@@ -60,21 +59,31 @@ function Image({
       if (
         typeof process != 'undefined' &&
         typeof process.env != 'undefined' &&
-        process?.env?.NODE_ENV === 'development'
+        process?.env?.NODE_ENV === 'development' &&
+        imageNode.parentElement
       ) {
-        const nodeAspectRatio = getNodeAspectRatio(imageNode)
+        const nodeAspectRatio = getNodeAspectRatio(imageNode.parentElement)
 
         if (nodeAspectRatio !== ratio) {
           console.error(
             `[galeria] Galeria.Image does not have the same aspect ratio as its child.
             
-This might result in a weird animation. To fix it, pass the "style" prop to Galeria.Image to give it the same height & width as the image.`,
+This might result in a weird animation. To fix it, pass the "style" prop to Galeria.Image to give it the same height & width as the image.
+
+Or, you might need something like alignItems: 'flex-start' to the parent element.`,
           )
         }
       }
     }
   }
-  const isHorizontal = Number(aspectRatio >= 1).toFixed(4)
+  const background = {
+    light: '#ffffff',
+    dark: '#000000',
+  }[theme]
+  const foreground = {
+    light: '#000000',
+    dark: '#ffffff',
+  }[theme]
   return (
     <>
       <motion.div
@@ -90,29 +99,80 @@ This might result in a weird animation. To fix it, pass the "style" prop to Gale
       </motion.div>
 
       <PopupModal visible={isOpen} onClose={() => setIsOpen(false)}>
-        {url ? (
-          <motion.img
-            layoutId={id}
-            style={{
-              ...(dynamicAspectRatio
-                ? {}
-                : {
-                    ...(isHorizontal
-                      ? {
-                          width: `100%`,
-                          aspectRatio,
-                        }
-                      : {
-                          height: '100%',
-                          aspectRatio,
-                        }),
-                  }),
-              objectFit: 'cover',
-              zIndex: 2000,
-            }}
-            src={url as string}
-          ></motion.img>
-        ) : null}
+        <WindowDimensions>
+          {(dimensions) => {
+            // given the image aspect ratio, and the window dimensions, we want to derive the proper height and width
+            // such that it spans the size of the window with a "contain" effect, but implemented in code rather than using object-fit
+
+            // Calculate dimensions for "contain" effect
+            const windowRatio = dimensions.width / dimensions.height
+            const imageRatio = aspectRatio
+
+            // If image is wider than window (relative to their heights)
+            const width =
+              imageRatio > windowRatio
+                ? dimensions.width
+                : dimensions.height * imageRatio
+            const height =
+              imageRatio > windowRatio
+                ? dimensions.width / imageRatio
+                : dimensions.height
+
+            return (
+              <motion.div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+                initial={{ backgroundColor: background + '00' }}
+                animate={{ backgroundColor: background }}
+                exit={{ backgroundColor: background + '00' }}
+              >
+                {url ? (
+                  <motion.img
+                    layoutId={id}
+                    style={{
+                      width,
+                      height,
+                      objectFit: 'cover',
+                      zIndex: 2000,
+                    }}
+                    src={url as string}
+                  ></motion.img>
+                ) : null}
+              </motion.div>
+            )
+          }}
+        </WindowDimensions>
+
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            padding: 16,
+            cursor: 'pointer',
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+              fill={foreground}
+            />
+          </svg>
+        </motion.div>
       </PopupModal>
     </>
   )
@@ -160,6 +220,15 @@ function Root({
       </LayoutGroup>
     </GaleriaContext.Provider>
   )
+}
+
+function WindowDimensions({
+  children,
+}: {
+  children: (dimensions: { width: number; height: number }) => React.ReactNode
+}) {
+  const dimensions = useWindowDimensions()
+  return children(dimensions)
 }
 
 function PopupModal({
