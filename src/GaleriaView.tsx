@@ -31,12 +31,15 @@ function Image({
   const url = urls?.[index]
   const [aspectRatio, setAspectRatio] = useState(1)
   const id = useId()
-  const getFirstImageChild = (node: Node) => {
-    if (node.nodeType === 1 && node.nodeName === 'IMG') {
+  const getFirstImageChild = (node: Node): HTMLImageElement | null => {
+    if (node instanceof HTMLImageElement) {
       return node
     }
-    if (node.childNodes) {
-      return getFirstImageChild(node.childNodes[0])
+    if (node.childNodes && node.childNodes.length > 0) {
+      for (const child of Array.from(node.childNodes)) {
+        const result = getFirstImageChild(child)
+        if (result) return result
+      }
     }
     return null
   }
@@ -44,13 +47,15 @@ function Image({
     const imageNode = getFirstImageChild(node)
     if (imageNode) {
       return (
-        imageNode.getBoundingClientRect().height /
-        imageNode.getBoundingClientRect().width
+        imageNode.getBoundingClientRect().width /
+        imageNode.getBoundingClientRect().height
       )
     }
     return 1
   }
-  const onClick = (e) => {
+  const onClick = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
+  ) => {
     const imageNode = getFirstImageChild(e.target as Node)
     if (imageNode) {
       setIsOpen(true)
