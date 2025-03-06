@@ -16,7 +16,7 @@ import { useWindowDimensions } from 'react-native' // TODO: remove this
 import { GaleriaViewProps } from './Galeria.types'
 import type Native from './GaleriaView.ios'
 
-import { LayoutGroup, motion } from 'framer-motion'
+import { LayoutGroup, motion, useDomEvent } from 'framer-motion'
 import { GaleriaContext } from './context'
 
 function Image({
@@ -89,13 +89,20 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
     light: '#000000',
     dark: '#ffffff',
   }[theme]
+  const [wasOpen, setWasOpen] = useState(false)
+
+  if (isOpen && !wasOpen) {
+    setWasOpen(true)
+  }
+
   return (
     <>
       <motion.div
-        style={{ zIndex: index, ...style } as object}
+        style={{ zIndex: index + (wasOpen ? 1000 : 0), ...style } as object}
         // faster than onClick
-        onMouseDown={onClick}
-        onTouchStart={onClick}
+        // onMouseDown={onClick}
+        // onTouchStart={onClick}
+        onClick={onClick}
         layoutId={id}
       >
         {isValidElement(children)
@@ -178,6 +185,13 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
             />
           </svg>
         </motion.div>
+
+        <OnScrollOnce
+          onScroll={() => {
+            console.log('onScroll')
+            isOpen && setIsOpen(false)
+          }}
+        />
       </PopupModal>
     </>
   )
@@ -186,7 +200,7 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
 function Root({
   children,
   urls,
-  theme = 'light',
+  theme = 'dark',
   ids,
 }: ComponentProps<typeof Native>) {
   const [openState, setOpen] = useState({
@@ -236,6 +250,13 @@ function WindowDimensions({
   return children(dimensions)
 }
 
+function OnScrollOnce({ onScroll }: { onScroll: () => void }) {
+  useDomEvent(useRef(window), 'scroll', onScroll)
+  useDomEvent(useRef(window), 'wheel', onScroll)
+
+  return null
+}
+
 function PopupModal({
   visible,
   children,
@@ -248,7 +269,7 @@ function PopupModal({
   const elementRef = useRef<HTMLDivElement | null>(null)
   if (typeof window !== 'undefined' && !elementRef.current) {
     const element = document.createElement('div')
-    element.setAttribute('galeria-popup', 'hello-inspector')
+    element.setAttribute('galeria-popup', '1')
 
     if (element && document.body) {
       document.body.appendChild(element)
@@ -266,7 +287,6 @@ function PopupModal({
     }
   }, [])
 
-  // for radix menus, which glitch a lot with regular modals on RNW
   if (!visible) return null
   const node = (
     <div
@@ -278,7 +298,9 @@ function PopupModal({
         bottom: 0,
         zIndex: 100,
       }}
-      onClick={onClose}
+      onClick={(e) => {
+        onClose()
+      }}
     >
       {children}
     </div>

@@ -2,7 +2,7 @@
 
 # Galeria 📷
 
-The React (Native) Image viewer. The API is simple, and it runs natively.
+An opinionated image viewer for React (+ Native). **It works with any image component - bring your own image component!**
 
 <video width="300" src="https://github.com/nandorojo/galeria/assets/13172299/5e915a75-bd40-410f-99fb-5df644ce96ad" ></video>
 
@@ -16,12 +16,20 @@ The React (Native) Image viewer. The API is simple, and it runs natively.
 - Modal support
 - FlashList support
 - Clean API
-- Web support (beta as of 0.5.0 - feedback welcome!)
+- Web support
 - Remote URLs & local images
+- Supports different images when collapsed and expanded
+  - This lets you show smaller thumbnails with higher resolution expanded images
+- Works with any image component
+  - `<Image />` from `react-native`
+  - `<SolitoImage />` from `solito/image`
+  - `<Image />` from `next/image`
+  - `<Image />` from `expo-image`
+  - `<FastImage />` from `react-native-fast-image`
+  - `<img />` on web
+  - ...etc
 
-### This is in beta
-
-> **Galeria is in beta...🚧 A true release is coming soon.**
+Web support is a simplified version of the native experience powered by Framer Motion.
 
 ### One Image
 
@@ -85,7 +93,7 @@ import { FlashList } from '@shopify/flash-list'
 import localImage from './assets/local-image.png'
 
 const urls = ['https://my-image.com/image.jpg', localImage]
-
+const size = 100
 export const FlashListSupport = () => {
   return (
     <Galeria urls={urls}>
@@ -99,6 +107,7 @@ export const FlashListSupport = () => {
                 style={styles.image}
                 source={src(item)}
                 recyclingKey={item + index}
+                style={{ width: size, height: size }}
               />
             </Galeria.Image>
           )
@@ -112,6 +121,133 @@ export const FlashListSupport = () => {
 }
 
 const src = (s) => (typeof s === 'string' ? { uri: s } : s) // 🤷‍♂️
+```
+
+### Plain Web Support
+
+Galeria does not use _any_ React Native code on the web. It is a pure React component library.
+
+So you can even use `<img />` if you want to only use it on web.
+
+```tsx
+import { Galeria } from '@nandorojo/galeria'
+
+const urls = ['https://my-image.com/image.jpg']
+
+export const WebSupport = () => (
+  <Galeria urls={urls}>
+    <Galeria.Image>
+      <img src={urls[0]} width={100} height={100} />
+    </Galeria.Image>
+  </Galeria>
+)
+```
+
+### Solito Image
+
+```tsx
+import { SolitoImage } from 'solito/image'
+
+const urls = ['https://my-image.com/image.jpg']
+
+export const SolitoSupport = () => (
+  <Galeria urls={urls}>
+    <Galeria.Image>
+      <SolitoImage src={urls[0]} />
+    </Galeria.Image>
+  </Galeria>
+)
+```
+
+### Next.js Image
+
+```tsx
+import { Galeria } from '@nandorojo/galeria'
+import Image from 'next/image'
+
+const urls = ['https://my-image.com/image.jpg']
+
+export const NextJS = () => (
+  <Galeria urls={urls}>
+    <Galeria.Image>
+      <Image
+        src={urls[0]}
+        width={100}
+        height={100}
+        // edit these props for your use case
+        unoptimized
+      />
+    </Galeria.Image>
+  </Galeria>
+)
+```
+
+### Expo Image
+
+```tsx
+import { Galeria } from '@nandorojo/galeria'
+import { Image } from 'expo-image'
+
+const urls = ['https://my-image.com/image.jpg']
+
+export const ExpoImage = () => (
+  <Galeria urls={urls}>
+    <Galeria.Image>
+      <Image src={urls[0]} style={{ width: 100, height: 100 }} />
+    </Galeria.Image>
+  </Galeria>
+)
+```
+
+### React Native Fast Image
+
+```tsx
+import { Galeria } from '@nandorojo/galeria'
+import FastImage from 'react-native-fast-image'
+
+const urls = ['https://my-image.com/image.jpg']
+
+export const FastImage = () => (
+  <Galeria urls={urls}>
+    <Galeria.Image>
+      <FastImage
+        source={{ uri: urls[0] }}
+        style={{ width: 100, height: 100 }}
+      />
+    </Galeria.Image>
+  </Galeria>
+)
+```
+
+## Installation
+
+```bash
+yarn add @nandorojo/galeria
+
+# or
+
+npm i @nandorojo/galeria
+```
+
+### Next.js / Solito
+
+Add `@nandorojo/galeria` to `transpilePackages` in your `next.config.js`.
+
+```tsx
+module.exports = {
+  transpilePackages: ['@nandorojo/galeria'],
+}
+```
+
+### Expo
+
+Galeria uses native libraries on iOS and Android, so it does not work with Expo Go. You will need to use a dev client.
+
+After installing it, rebuild your native code:
+
+```bash
+npx expo prebuild
+npx expo run:ios # or npx expo run:android
 ```
 
 ## Credits
