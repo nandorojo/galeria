@@ -2,7 +2,7 @@
 
 # Galeria 📷
 
-An opinionated image viewer for React (+ Native). **It works with any image component - bring your own image component!**
+An image viewer for React (+ Native). **It works with any image component - bring your own image component!**
 
 <video width="300" src="https://github.com/nandorojo/galeria/assets/13172299/5e915a75-bd40-410f-99fb-5df644ce96ad" ></video>
 
@@ -13,14 +13,14 @@ An opinionated image viewer for React (+ Native). **It works with any image comp
 - Double tap to zoom
 - Pan to close
 - Multi-image support
-- Modal support
+- React Native Modal support
 - FlashList support
 - Clean API
 - Web support
 - Remote URLs & local images
 - Supports different images when collapsed and expanded
   - This lets you show smaller thumbnails with higher resolution expanded images
-- Works with any image component
+- Works with _any image component_
   - `<Image />` from `react-native`
   - `<SolitoImage />` from `solito/image`
   - `<Image />` from `next/image`
@@ -29,7 +29,9 @@ An opinionated image viewer for React (+ Native). **It works with any image comp
   - `<img />` on web
   - ...etc
 
-Web support is a simplified version of the native experience powered by Framer Motion.
+For iOS and Android, the implementation uses Swift (`ImageViewer.swift`) and Kotlin (`imageviewer`) respectively – see [credits](#credits).
+
+Web support is a simplified version of the native experience powered by Framer Motion. It currently supports a single image at a time.
 
 ### One Image
 
