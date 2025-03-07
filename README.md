@@ -39,6 +39,12 @@ For iOS and Android, the implementation uses Swift (`ImageViewer.swift`) and Kot
 
 Web support is a simplified version of the native experience powered by Framer Motion. It currently supports a single image at a time.
 
+## Resources
+
+- [See @FernandoTheRojo's Tweet here](https://x.com/FernandoTheRojo/status/1898102430379790606)
+- [Watch my talk at App.js Conf](https://www.youtube.com/watch?v=mG1Lv-RWds8) about how to build Galeria
+  - "Don't be afraid to build a native library"
+
 ### One Image
 
 ```tsx
