@@ -16,7 +16,7 @@ import { useWindowDimensions } from 'react-native' // TODO: remove this
 import { GaleriaViewProps } from './Galeria.types'
 import type Native from './GaleriaView.ios'
 
-import { LayoutGroup, motion } from 'framer-motion'
+import { LayoutGroup, motion, useDomEvent } from 'framer-motion'
 import { GaleriaContext } from './context'
 
 function Image({
@@ -31,12 +31,15 @@ function Image({
   const url = urls?.[index]
   const [aspectRatio, setAspectRatio] = useState(1)
   const id = useId()
-  const getFirstImageChild = (node: Node) => {
-    if (node.nodeType === 1 && node.nodeName === 'IMG') {
+  const getFirstImageChild = (node: Node): HTMLImageElement | null => {
+    if (node instanceof HTMLImageElement) {
       return node
     }
-    if (node.childNodes) {
-      return getFirstImageChild(node.childNodes[0])
+    if (node.childNodes && node.childNodes.length > 0) {
+      for (const child of Array.from(node.childNodes)) {
+        const result = getFirstImageChild(child)
+        if (result) return result
+      }
     }
     return null
   }
@@ -44,13 +47,15 @@ function Image({
     const imageNode = getFirstImageChild(node)
     if (imageNode) {
       return (
-        imageNode.getBoundingClientRect().height /
-        imageNode.getBoundingClientRect().width
+        imageNode.getBoundingClientRect().width /
+        imageNode.getBoundingClientRect().height
       )
     }
     return 1
   }
-  const onClick = (e) => {
+  const onClick = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
+  ) => {
     const imageNode = getFirstImageChild(e.target as Node)
     if (imageNode) {
       setIsOpen(true)
@@ -67,7 +72,7 @@ function Image({
         if (nodeAspectRatio !== ratio) {
           console.error(
             `[galeria] Galeria.Image does not have the same aspect ratio as its child.
-            
+
 This might result in a weird animation. To fix it, pass the "style" prop to Galeria.Image to give it the same height & width as the image.
 
 Or, you might need something like alignItems: 'flex-start' to the parent element.`,
@@ -84,13 +89,20 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
     light: '#000000',
     dark: '#ffffff',
   }[theme]
+  const [wasOpen, setWasOpen] = useState(false)
+
+  if (isOpen && !wasOpen) {
+    setWasOpen(true)
+  }
+
   return (
     <>
       <motion.div
-        style={{ zIndex: index, ...style } as object}
+        style={{ zIndex: index + (wasOpen ? 1000 : 0), ...style } as object}
         // faster than onClick
-        onMouseDown={onClick}
-        onTouchStart={onClick}
+        // onMouseDown={onClick}
+        // onTouchStart={onClick}
+        onClick={onClick}
         layoutId={id}
       >
         {isValidElement(children)
@@ -173,6 +185,13 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
             />
           </svg>
         </motion.div>
+
+        <OnScrollOnce
+          onScroll={() => {
+            console.log('onScroll')
+            isOpen && setIsOpen(false)
+          }}
+        />
       </PopupModal>
     </>
   )
@@ -181,20 +200,20 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
 function Root({
   children,
   urls,
-  theme = 'light',
+  theme = 'dark',
   ids,
 }: ComponentProps<typeof Native>) {
   const [openState, setOpen] = useState({
     open: false,
   } as
     | {
-        open: false
-      }
+      open: false
+    }
     | {
-        open: true
-        src: string
-        initialIndex: number
-      })
+      open: true
+      src: string
+      initialIndex: number
+    })
   return (
     <GaleriaContext.Provider
       value={{
@@ -203,15 +222,15 @@ function Root({
         theme,
         ...(openState.open
           ? {
-              open: true,
-              src: openState.src,
-              initialIndex: openState.initialIndex,
-            }
+            open: true,
+            src: openState.src,
+            initialIndex: openState.initialIndex,
+          }
           : {
-              open: false,
-              src: '',
-              initialIndex: 0,
-            }),
+            open: false,
+            src: '',
+            initialIndex: 0,
+          }),
         ids,
       }}
     >
@@ -231,6 +250,13 @@ function WindowDimensions({
   return children(dimensions)
 }
 
+function OnScrollOnce({ onScroll }: { onScroll: () => void }) {
+  useDomEvent(useRef(window), 'scroll', onScroll)
+  useDomEvent(useRef(window), 'wheel', onScroll)
+
+  return null
+}
+
 function PopupModal({
   visible,
   children,
@@ -243,7 +269,7 @@ function PopupModal({
   const elementRef = useRef<HTMLDivElement | null>(null)
   if (typeof window !== 'undefined' && !elementRef.current) {
     const element = document.createElement('div')
-    element.setAttribute('galeria-popup', 'hello-inspector')
+    element.setAttribute('galeria-popup', '1')
 
     if (element && document.body) {
       document.body.appendChild(element)
@@ -261,7 +287,6 @@ function PopupModal({
     }
   }, [])
 
-  // for radix menus, which glitch a lot with regular modals on RNW
   if (!visible) return null
   const node = (
     <div
@@ -273,7 +298,9 @@ function PopupModal({
         bottom: 0,
         zIndex: 100,
       }}
-      onClick={onClose}
+      onClick={(e) => {
+        onClose()
+      }}
     >
       {children}
     </div>

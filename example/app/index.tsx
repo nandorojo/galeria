@@ -11,6 +11,7 @@ export default function HomeScreen() {
       <LinkItem href="/photos">Photos</LinkItem>
       <LinkItem href="/chat">Chat</LinkItem>
       <LinkItem href="/modal">Modal</LinkItem>
+      <LinkItem href="/masonry">Masonry</LinkItem>
 
       <Galeria urls={urls} theme="light">
         <Galeria.Image id={urls[0]} index={0}>
