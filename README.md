@@ -200,7 +200,7 @@ const urls = ['https://my-image.com/image.jpg']
 export const ExpoImage = () => (
   <Galeria urls={urls}>
     <Galeria.Image>
-      <Image src={urls[0]} style={{ width: 100, height: 100 }} />
+      <Image source={urls[0]} style={{ width: 100, height: 100 }} />
     </Galeria.Image>
   </Galeria>
 )
