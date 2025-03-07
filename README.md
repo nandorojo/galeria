@@ -1,4 +1,3 @@
-<img width="1728" alt="Screenshot 2024-05-23 at 1 02 03 PM" src="https://github.com/nandorojo/galeria/assets/13172299/d43f4d04-3510-47fa-8c1d-93cb01644d38">
 
 # Galeria 📷
 
@@ -8,6 +7,7 @@ An image viewer for React (+ Native). **It works with any image component - brin
 
 
 https://github.com/user-attachments/assets/5062e949-b205-4260-830c-38041cec26db
+<img width="1728" alt="Screenshot 2024-05-23 at 1 02 03 PM" src="https://github.com/nandorojo/galeria/assets/13172299/d43f4d04-3510-47fa-8c1d-93cb01644d38">
 
 
 ## Features
