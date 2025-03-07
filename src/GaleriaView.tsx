@@ -31,12 +31,15 @@ function Image({
   const url = urls?.[index]
   const [aspectRatio, setAspectRatio] = useState(1)
   const id = useId()
-  const getFirstImageChild = (node: Node) => {
-    if (node.nodeType === 1 && node.nodeName === 'IMG') {
+  const getFirstImageChild = (node: Node): HTMLImageElement | null => {
+    if (node instanceof HTMLImageElement) {
       return node
     }
-    if (node.childNodes) {
-      return getFirstImageChild(node.childNodes[0])
+    if (node.childNodes && node.childNodes.length > 0) {
+      for (const child of Array.from(node.childNodes)) {
+        const result = getFirstImageChild(child)
+        if (result) return result
+      }
     }
     return null
   }
@@ -67,7 +70,7 @@ function Image({
         if (nodeAspectRatio !== ratio) {
           console.error(
             `[galeria] Galeria.Image does not have the same aspect ratio as its child.
-            
+
 This might result in a weird animation. To fix it, pass the "style" prop to Galeria.Image to give it the same height & width as the image.
 
 Or, you might need something like alignItems: 'flex-start' to the parent element.`,
@@ -188,13 +191,13 @@ function Root({
     open: false,
   } as
     | {
-        open: false
-      }
+      open: false
+    }
     | {
-        open: true
-        src: string
-        initialIndex: number
-      })
+      open: true
+      src: string
+      initialIndex: number
+    })
   return (
     <GaleriaContext.Provider
       value={{
@@ -203,15 +206,15 @@ function Root({
         theme,
         ...(openState.open
           ? {
-              open: true,
-              src: openState.src,
-              initialIndex: openState.initialIndex,
-            }
+            open: true,
+            src: openState.src,
+            initialIndex: openState.initialIndex,
+          }
           : {
-              open: false,
-              src: '',
-              initialIndex: 0,
-            }),
+            open: false,
+            src: '',
+            initialIndex: 0,
+          }),
         ids,
       }}
     >
