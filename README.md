@@ -10,7 +10,6 @@ https://github.com/user-attachments/assets/5062e949-b205-4260-830c-38041cec26db
 
 > The video makes Web look a bit weird, but don't worry. [Here is why – it's just because of FlashList](https://x.com/FernandoTheRojo/status/1898108643758743882)'s Masonry List, which wraps the views with additional cells breaking z-index. But it isn't a fundamental Galeria issue.
 
-<img width="1728" alt="Screenshot 2024-05-23 at 1 02 03 PM" src="https://github.com/nandorojo/galeria/assets/13172299/d43f4d04-3510-47fa-8c1d-93cb01644d38">
 
 
 ## Features
@@ -268,3 +267,4 @@ npx expo run:ios # or npx expo run:android
 - Thanks to [iielse](https://github.com/iielse/imageviewer) for the Android Image Viewer
 - Thanks to [Alan](https://github.com/alantoa) for building the Android integration.
 
+<img width="1728" alt="Screenshot 2024-05-23 at 1 02 03 PM" src="https://github.com/nandorojo/galeria/assets/13172299/d43f4d04-3510-47fa-8c1d-93cb01644d38">
