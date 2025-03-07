@@ -50,6 +50,7 @@ class GaleriaView: ExpoView {
     guard let childImage = getChildImageView() else {
       return
     }
+    
 
     if let urls = self.urls, let initialIndex = self.initialIndex {
       setupImageViewerWithUrls(
@@ -82,7 +83,7 @@ class GaleriaView: ExpoView {
 
   private func buildImageViewerOptions() -> [ImageViewerOption] {
     let viewerTheme = theme.toImageViewerTheme()
-    var options: [ImageViewerOption] = [.theme(viewerTheme)]
+      var options: [ImageViewerOption] = [.theme(viewerTheme)]
     let iconColor = theme.iconColor()
 
     if let closeIconName = closeIconName,
