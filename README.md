@@ -168,6 +168,7 @@ export const SolitoSupport = () => (
 ### Next.js Image
 
 ```tsx
+'use client'
 import { Galeria } from '@nandorojo/galeria'
 import Image from 'next/image'
 
