@@ -34,10 +34,10 @@
   "devDependencies": {
     "@types/node": "^22.7.4",
     "@types/react": "^18.0.25",
-    "expo-module-scripts": "^3.5.1",
-    "expo-modules-core": "^1.12.9",
+    "expo": "^52.0.37",
+    "expo-module-scripts": "^4.0.4",
     "prettier": "^3.0.3",
-    "react-native": "0.74.1",
+    "react-native": "0.77.1",
     "react-native-web": "^0.19.8"
   },
   "peerDependencies": {
