@@ -41,7 +41,7 @@ Web support is a simplified version of the native experience powered by Framer M
 
 ## Resources
 
-- [See @FernandoTheRojo's Tweet here](https://x.com/FernandoTheRojo/status/1898102430379790606)
+- [@FernandoTheRojo's tweet about Galeria v1](https://x.com/FernandoTheRojo/status/1898102430379790606)
 - [Watch my talk at App.js Conf](https://www.youtube.com/watch?v=mG1Lv-RWds8) about how to build Galeria
   - "Don't be afraid to build a native library"
 
