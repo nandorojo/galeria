@@ -1,11 +1,11 @@
-import { requireNativeViewManager } from 'expo-modules-core'
+import { requireNativeView } from 'expo'
 
 import { GaleriaViewProps } from './Galeria.types'
 import { useContext } from 'react'
 import { GaleriaContext } from './context'
 import { Image } from 'react-native'
 
-const NativeImage = requireNativeViewManager<
+const NativeImage = requireNativeView<
   GaleriaViewProps & {
     urls?: string[]
     theme: 'dark' | 'light'
@@ -13,7 +13,7 @@ const NativeImage = requireNativeViewManager<
 >('Galeria')
 
 const array = []
-const noop = () => {}
+const noop = () => { }
 
 const Galeria = Object.assign(
   function Galeria({

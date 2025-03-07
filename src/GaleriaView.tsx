@@ -72,7 +72,7 @@ function Image({
         if (nodeAspectRatio !== ratio) {
           console.error(
             `[galeria] Galeria.Image does not have the same aspect ratio as its child.
-            
+
 This might result in a weird animation. To fix it, pass the "style" prop to Galeria.Image to give it the same height & width as the image.
 
 Or, you might need something like alignItems: 'flex-start' to the parent element.`,
@@ -207,13 +207,13 @@ function Root({
     open: false,
   } as
     | {
-        open: false
-      }
+      open: false
+    }
     | {
-        open: true
-        src: string
-        initialIndex: number
-      })
+      open: true
+      src: string
+      initialIndex: number
+    })
   return (
     <GaleriaContext.Provider
       value={{
@@ -222,15 +222,15 @@ function Root({
         theme,
         ...(openState.open
           ? {
-              open: true,
-              src: openState.src,
-              initialIndex: openState.initialIndex,
-            }
+            open: true,
+            src: openState.src,
+            initialIndex: openState.initialIndex,
+          }
           : {
-              open: false,
-              src: '',
-              initialIndex: 0,
-            }),
+            open: false,
+            src: '',
+            initialIndex: 0,
+          }),
         ids,
       }}
     >

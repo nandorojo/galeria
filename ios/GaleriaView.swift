@@ -4,7 +4,14 @@ import ImageViewer_swift
 
 class GaleriaView: ExpoView {
   func getChildImageView() -> UIImageView? {
-    guard let reactSubviews = self.reactSubviews() else { return nil }
+    var reactSubviews: [UIView]? = nil
+    if (RCTIsNewArchEnabled()) {
+      reactSubviews = self.subviews
+    } else {
+      reactSubviews = self.reactSubviews()
+    }
+    
+    guard let reactSubviews else { return nil }
     
     for reactSubview in reactSubviews {
       for subview in reactSubview.subviews {
@@ -19,7 +26,16 @@ class GaleriaView: ExpoView {
   
   override func insertReactSubview(_ subview: UIView!, at atIndex: Int) {
     super.insertReactSubview(subview, at: atIndex)
-    setupImageView()
+    if (!RCTIsNewArchEnabled()) {
+      setupImageView()
+    }
+  }
+  
+  override func insertSubview(_ subview: UIView, at atIndex: Int) {
+    super.insertSubview(subview, at: atIndex)
+    if (RCTIsNewArchEnabled()) {
+      setupImageView()
+    }
   }
   
   

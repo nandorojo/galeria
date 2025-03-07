@@ -12,6 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "newArchEnabled": true,
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
@@ -38,7 +39,7 @@
         {
           "ios": {
             "useFrameworks": "static",
-            "deploymentTarget": "14.1",
+            "deploymentTarget": "15.1",
             "unstable_networkInspector": true
           },
 

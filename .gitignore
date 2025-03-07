@@ -58,3 +58,6 @@ yarn-error.log
 # Native
 example/ios/
 example/android/
+
+# History
+.history/*
