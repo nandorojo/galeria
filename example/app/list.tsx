@@ -1,6 +1,6 @@
 import { MasonryFlashList } from '@shopify/flash-list'
 import { Galeria } from 'galeria'
-import { Dimensions, Image, View } from 'react-native'
+import { Dimensions, Image, ScrollView, View } from 'react-native'
 
 const images: {
   url: string
@@ -110,21 +110,14 @@ const images: {
   },
 ]
 
-export default function Masonry() {
+export default function List() {
   return (
     <Galeria urls={images.map((image) => image.url)} theme="dark">
-      <MasonryFlashList
-        data={images}
-        contentContainerStyle={{ backgroundColor: 'black' }}
-        CellRendererComponent={({ item, index, children }) => {
-          return (
-            <View style={{ zIndex: 100 - index }} testID={`test-${index}`}>
-              {children}
-            </View>
-          )
-        }}
-        renderItem={({ index, item }) => {
-          const aspectRatio = item.width / item.height
+      <ScrollView
+        contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap' }}
+      >
+        {images.map((image, index) => {
+          const aspectRatio = image.width / image.height
           const width = Dimensions.get('window').width / 2
           const height = width / aspectRatio
           return (
@@ -136,15 +129,13 @@ export default function Masonry() {
               index={index}
             >
               <Image
-                source={{ uri: item.url }}
+                source={{ uri: image.url }}
                 style={{ width: '100%', height: '100%' }}
               />
             </Galeria.Image>
           )
-        }}
-        numColumns={2}
-        estimatedItemSize={200}
-      />
+        })}
+      </ScrollView>
     </Galeria>
   )
 }
