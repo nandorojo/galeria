@@ -24,6 +24,7 @@ https://github.com/user-attachments/assets/5062e949-b205-4260-830c-38041cec26db
 - Clean API
 - Web support
 - Remote URLs & local images
+- New Architecture support
 - Supports different images when collapsed and expanded
   - This lets you show smaller thumbnails with higher resolution expanded images
 - Works with _any image component_
