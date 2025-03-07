@@ -188,7 +188,6 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
 
         <OnScrollOnce
           onScroll={() => {
-            console.log('onScroll')
             isOpen && setIsOpen(false)
           }}
         />
@@ -207,13 +206,13 @@ function Root({
     open: false,
   } as
     | {
-      open: false
-    }
+        open: false
+      }
     | {
-      open: true
-      src: string
-      initialIndex: number
-    })
+        open: true
+        src: string
+        initialIndex: number
+      })
   return (
     <GaleriaContext.Provider
       value={{
@@ -222,15 +221,15 @@ function Root({
         theme,
         ...(openState.open
           ? {
-            open: true,
-            src: openState.src,
-            initialIndex: openState.initialIndex,
-          }
+              open: true,
+              src: openState.src,
+              initialIndex: openState.initialIndex,
+            }
           : {
-            open: false,
-            src: '',
-            initialIndex: 0,
-          }),
+              open: false,
+              src: '',
+              initialIndex: 0,
+            }),
         ids,
       }}
     >
