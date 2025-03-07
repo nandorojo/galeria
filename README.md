@@ -45,6 +45,9 @@ Web support is a simplified version of the native experience powered by Framer M
 - [Watch my talk at App.js Conf](https://www.youtube.com/watch?v=mG1Lv-RWds8) about how to build Galeria
   - "Don't be afraid to build a native library"
 
+## Usage
+
+
 ### One Image
 
 ```tsx
