@@ -111,7 +111,9 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                 )
                 if (edgeToEdge) {
                     viewer.setViewerFactory(object : ImageViewerDialogFragment.Factory() {
-                        override fun build() = EdgeToEdgeImageViewerDialogFragment()
+                        override fun build() = EdgeToEdgeImageViewerDialogFragment(
+                            theme.toAppearanceLightSystemBars()
+                        )
                     })
                 }
                 childView.setOnClickListener {
@@ -183,6 +185,13 @@ class CustomViewerCallback(private val childView: ImageView) : ViewerCallback {
 enum class Theme(val value: String) {
     Dark("dark"),
     Light("light");
+
+    fun toAppearanceLightSystemBars(): Boolean {
+        return when (this) {
+            Dark -> false
+            Light -> true
+        }
+    }
 
     fun toImageViewerTheme(): Int {
         return when (this) {
