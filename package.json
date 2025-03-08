@@ -29,7 +29,8 @@
   "license": "MIT",
   "homepage": "https://github.com/nandorojo/galeria#readme",
   "dependencies": {
-    "framer-motion": "^10.9.1"
+    "framer-motion": "^10.9.1",
+    "react-native-is-edge-to-edge": "^1.1.6"
   },
   "devDependencies": {
     "@types/node": "^22.7.4",
