@@ -13,4 +13,5 @@ export type GaleriaViewProps = {
   __web?: ComponentProps<(typeof motion)['div']>
   style?: ViewStyle
   dynamicAspectRatio?: boolean
+  edgeToEdge?: boolean
 }
