@@ -59,6 +59,7 @@ class GaleriaView: ExpoView {
   ) {
     let urlObjects = urls.compactMap(URL.init(string:))
     let options = buildImageViewerOptions()
+
     childImage.setupImageViewer(urls: urlObjects, initialIndex: initialIndex, options: options)
   }
 
