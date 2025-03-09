@@ -31,21 +31,15 @@ class GaleriaView: ExpoView {
     }
   }
 
-  override func insertSubview(_ subview: UIView, at atIndex: Int) {
-    super.insertSubview(subview, at: atIndex)
-    if RCTIsNewArchEnabled() {
-      setupImageView()
-    }
-  }
-
-  var theme: Theme = .dark { didSet { setupImageView() } }
-  var urls: [String]? { didSet { setupImageView() } }
-  var initialIndex: Int? { didSet { setupImageView() } }
+  var theme: Theme = .dark
+  var urls: [String]?
+  var initialIndex: Int?
   var closeIconName: String?
   var rightNavItemIconName: String?
   let onPressRightNavItemIcon = EventDispatcher()
+  
 
-  func setupImageView() {
+  public func setupImageView() {
     let viewerTheme = theme.toImageViewerTheme()
     guard let childImage = getChildImageView() else {
       return

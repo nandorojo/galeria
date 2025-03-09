@@ -5,6 +5,10 @@ public class GaleriaModule: Module {
     Name("Galeria")
     
     View(GaleriaView.self) {
+      OnViewDidUpdateProps {(view) in
+        view.setupImageView()
+      }
+
       Prop("urls") { (view, urls: [String]?) in
         view.urls = urls
       }
