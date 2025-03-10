@@ -4,10 +4,12 @@ import { GaleriaViewProps } from './Galeria.types'
 import { useContext } from 'react'
 import { GaleriaContext } from './context'
 import { Image } from 'react-native'
+import { SFSymbol } from 'sf-symbols-typescript'
 
 const NativeImage = requireNativeView<
   GaleriaViewProps & {
     urls?: string[]
+    closeIconName?: SFSymbol
     theme: 'dark' | 'light'
   }
 >('Galeria')
@@ -18,15 +20,17 @@ const noop = () => { }
 const Galeria = Object.assign(
   function Galeria({
     children,
+    closeIconName,
     urls,
     theme = 'dark',
     ids,
   }: {
     children: React.ReactNode
-  } & Partial<Pick<GaleriaContext, 'theme' | 'ids' | 'urls'>>) {
+  } & Partial<Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName'>>) {
     return (
       <GaleriaContext.Provider
         value={{
+          closeIconName,
           urls,
           theme,
           initialIndex: 0,
@@ -42,9 +46,10 @@ const Galeria = Object.assign(
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme, urls, initialIndex } = useContext(GaleriaContext)
+      const { theme, urls, initialIndex, closeIconName } = useContext(GaleriaContext)
       return (
         <NativeImage
+          closeIconName={closeIconName}
           theme={theme}
           urls={urls?.map((url) => {
             if (typeof url === 'string') {

@@ -216,6 +216,7 @@ function Root({
   return (
     <GaleriaContext.Provider
       value={{
+        closeIconName: undefined,
         setOpen,
         urls,
         theme,
