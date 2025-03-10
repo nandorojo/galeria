@@ -4,7 +4,7 @@ import { GaleriaViewProps } from './Galeria.types'
 import { useContext } from 'react'
 import { GaleriaContext } from './context'
 import { Image } from 'react-native'
-import { SFSymbol } from 'sf-symbols-typescript'
+import type { SFSymbol } from 'sf-symbols-typescript'
 
 const NativeImage = requireNativeView<
   GaleriaViewProps & {

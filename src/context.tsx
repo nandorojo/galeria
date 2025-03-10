@@ -1,6 +1,6 @@
 import { ContextType, createContext } from 'react'
 import type { Image } from 'react-native'
-import { SFSymbol } from 'sf-symbols-typescript'
+import type { SFSymbol } from 'sf-symbols-typescript'
 
 type ImageSource = string | Parameters<typeof Image.resolveAssetSource>[0]
 

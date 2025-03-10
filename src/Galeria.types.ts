@@ -1,7 +1,7 @@
 import type { motion } from 'framer-motion'
 import type { ComponentProps } from 'react'
 import { ViewStyle } from 'react-native'
-import { SFSymbol } from 'sf-symbols-typescript'
+import type { SFSymbol } from 'sf-symbols-typescript'
 
 export type ChangeEventPayload = {
   value: string
