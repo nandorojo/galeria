@@ -3132,6 +3132,7 @@ __metadata:
     prettier: "npm:^3.0.3"
     react-dom: "npm:18.3.1"
     react-native: "npm:0.77.1"
+    react-native-is-edge-to-edge: "npm:^1.1.6"
     react-native-web: "npm:^0.19.8"
     sf-symbols-typescript: "npm:^2.1.0"
   peerDependencies:
@@ -10378,6 +10379,16 @@ __metadata:
   version: 18.3.1
   resolution: "react-is@npm:18.3.1"
   checksum: 10c0/f2f1e60010c683479e74c63f96b09fb41603527cd131a9959e2aee1e5a8b0caf270b365e5ca77d4a6b18aae659b60a86150bb3979073528877029b35aecd2072
+  languageName: node
+  linkType: hard
+
+"react-native-is-edge-to-edge@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "react-native-is-edge-to-edge@npm:1.1.6"
+  peerDependencies:
+    react: ">=18.2.0"
+    react-native: ">=0.73.0"
+  checksum: 10c0/5690e521e8310d21643634a8d0dacd524e19b76695f347b26f649fcac156a7a901fd6daef7f78482381a41e8445f4552f40ade13790fdf112fab15b0f54dbabd
   languageName: node
   linkType: hard
 

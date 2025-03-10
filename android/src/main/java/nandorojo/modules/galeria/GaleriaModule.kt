@@ -29,6 +29,9 @@ class GaleriaModule : Module() {
             Prop("disableHiddenOriginalImage") { view: GaleriaView, disableHiddenOriginalImage: Boolean ->
                 view.disableHiddenOriginalImage = disableHiddenOriginalImage
             }
+            Prop("edgeToEdge") { view: GaleriaView, edgeToEdge: Boolean ->
+                view.edgeToEdge = edgeToEdge
+            }
             Prop("transitionOffsetY") { view: GaleriaView, transitionOffsetY: Int? ->
                 view.transitionOffsetY = transitionOffsetY
             }
