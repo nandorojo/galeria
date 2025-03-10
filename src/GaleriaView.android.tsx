@@ -27,6 +27,7 @@ const Galeria = Object.assign(
     return (
       <GaleriaContext.Provider
         value={{
+          closeIconName: undefined,
           urls,
           theme,
           initialIndex: 0,

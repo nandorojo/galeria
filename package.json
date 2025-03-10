@@ -40,7 +40,8 @@
     "prettier": "^3.0.3",
     "react-dom": "18.3.1",
     "react-native": "0.77.1",
-    "react-native-web": "^0.19.8"
+    "react-native-web": "^0.19.8",
+    "sf-symbols-typescript": "^2.1.0"
   },
   "peerDependencies": {
     "expo": "*",
