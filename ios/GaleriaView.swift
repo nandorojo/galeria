@@ -3,7 +3,8 @@ import ImageViewer_swift
 import UIKit
 
 class GaleriaView: ExpoView {
-  var childImageView: UIImageView?
+  private var childImageView: UIImageView?
+
   func getChildImageView() -> UIImageView? {
     var reactSubviews: [UIView]? = nil
     if RCTIsNewArchEnabled() {
