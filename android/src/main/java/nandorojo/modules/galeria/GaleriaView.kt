@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide
 import com.facebook.react.views.image.ReactImageView
 import com.github.iielse.imageviewer.ImageViewerActionViewModel
 import com.github.iielse.imageviewer.ImageViewerBuilder
+import com.github.iielse.imageviewer.ImageViewerDialogFragment
 import com.github.iielse.imageviewer.R
 import com.github.iielse.imageviewer.core.ImageLoader
 import com.github.iielse.imageviewer.core.Photo
@@ -48,6 +49,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     var theme: Theme = Theme.Dark
     var initialIndex: Int = 0
     var disableHiddenOriginalImage = false
+    var edgeToEdge = false
     var transitionOffsetY: Int? = null
     var transitionOffsetX: Int? = 0
     val viewModel: ImageViewerActionViewModel by lazy {
@@ -107,6 +109,13 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                         }
                     }
                 )
+                if (edgeToEdge) {
+                    viewer.setViewerFactory(object : ImageViewerDialogFragment.Factory() {
+                        override fun build() = EdgeToEdgeImageViewerDialogFragment(
+                            theme.toAppearanceLightSystemBars()
+                        )
+                    })
+                }
                 childView.setOnClickListener {
                     setupConfig()
                     if (!disableHiddenOriginalImage) {
@@ -142,7 +151,11 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     }
 
     private fun setupConfig() {
-        Config.TRANSITION_OFFSET_Y = transitionOffsetY ?: getStatusBarHeight()
+        Config.TRANSITION_OFFSET_Y = transitionOffsetY ?: when (edgeToEdge) {
+            true -> 0
+            false -> getStatusBarHeight()
+        }
+
         Config.TRANSITION_OFFSET_X = transitionOffsetX ?: 0
         Config.VIEWER_BACKGROUND_COLOR = theme.toImageViewerTheme()
     }
@@ -172,6 +185,13 @@ class CustomViewerCallback(private val childView: ImageView) : ViewerCallback {
 enum class Theme(val value: String) {
     Dark("dark"),
     Light("light");
+
+    fun toAppearanceLightSystemBars(): Boolean {
+        return when (this) {
+            Dark -> false
+            Light -> true
+        }
+    }
 
     fun toImageViewerTheme(): Int {
         return when (this) {

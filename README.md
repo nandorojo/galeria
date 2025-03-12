@@ -8,7 +8,8 @@ An image viewer for React (+ Native). **It works with any image component - brin
 
 https://github.com/user-attachments/assets/5062e949-b205-4260-830c-38041cec26db
 
-<img width="1728" alt="Screenshot 2024-05-23 at 1 02 03 PM" src="https://github.com/nandorojo/galeria/assets/13172299/d43f4d04-3510-47fa-8c1d-93cb01644d38">
+> The video makes Web look a bit weird, but don't worry. [Here is why – it's just because of FlashList](https://x.com/FernandoTheRojo/status/1898108643758743882)'s Masonry List, which wraps the views with additional cells breaking z-index. But it isn't a fundamental Galeria issue.
+
 
 
 ## Features
@@ -23,6 +24,7 @@ https://github.com/user-attachments/assets/5062e949-b205-4260-830c-38041cec26db
 - Clean API
 - Web support
 - Remote URLs & local images
+- New Architecture support
 - Supports different images when collapsed and expanded
   - This lets you show smaller thumbnails with higher resolution expanded images
 - Works with _any image component_
@@ -37,6 +39,15 @@ https://github.com/user-attachments/assets/5062e949-b205-4260-830c-38041cec26db
 For iOS and Android, the implementation uses Swift (`ImageViewer.swift`) and Kotlin (`imageviewer`) respectively – see [credits](#credits).
 
 Web support is a simplified version of the native experience powered by Framer Motion. It currently supports a single image at a time.
+
+## Resources
+
+- [@FernandoTheRojo's tweet about Galeria v1](https://x.com/FernandoTheRojo/status/1898102430379790606)
+- [Watch my talk at App.js Conf](https://www.youtube.com/watch?v=mG1Lv-RWds8) about how to build Galeria
+  - "Don't be afraid to build a native library"
+
+## Usage
+
 
 ### One Image
 
@@ -266,3 +277,4 @@ npx expo run:ios # or npx expo run:android
 - Thanks to [iielse](https://github.com/iielse/imageviewer) for the Android Image Viewer
 - Thanks to [Alan](https://github.com/alantoa) for building the Android integration.
 
+<img width="1728" alt="Screenshot 2024-05-23 at 1 02 03 PM" src="https://github.com/nandorojo/galeria/assets/13172299/d43f4d04-3510-47fa-8c1d-93cb01644d38">

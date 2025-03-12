@@ -3132,7 +3132,9 @@ __metadata:
     prettier: "npm:^3.0.3"
     react-dom: "npm:18.3.1"
     react-native: "npm:0.77.1"
+    react-native-is-edge-to-edge: "npm:^1.1.6"
     react-native-web: "npm:^0.19.8"
+    sf-symbols-typescript: "npm:^2.1.0"
   peerDependencies:
     expo: "*"
     react: "*"
@@ -10380,6 +10382,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-is-edge-to-edge@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "react-native-is-edge-to-edge@npm:1.1.6"
+  peerDependencies:
+    react: ">=18.2.0"
+    react-native: ">=0.73.0"
+  checksum: 10c0/5690e521e8310d21643634a8d0dacd524e19b76695f347b26f649fcac156a7a901fd6daef7f78482381a41e8445f4552f40ade13790fdf112fab15b0f54dbabd
+  languageName: node
+  linkType: hard
+
 "react-native-web@npm:^0.19.8":
   version: 0.19.11
   resolution: "react-native-web@npm:0.19.11"
@@ -11221,6 +11233,13 @@ __metadata:
   version: 1.2.0
   resolution: "setprototypeof@npm:1.2.0"
   checksum: 10c0/68733173026766fa0d9ecaeb07f0483f4c2dc70ca376b3b7c40b7cda909f94b0918f6c5ad5ce27a9160bdfb475efaa9d5e705a11d8eaae18f9835d20976028bc
+  languageName: node
+  linkType: hard
+
+"sf-symbols-typescript@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "sf-symbols-typescript@npm:2.1.0"
+  checksum: 10c0/b6e2482c2b3ba785aa00770013e343a2175475b9cb7c8703c30a2ec1da8b41acd982db2d953877afb35af32a3dfba337d0b29e703c399cd2138c3cf68685c9c2
   languageName: node
   linkType: hard
 
