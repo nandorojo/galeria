@@ -3,6 +3,8 @@ import ImageViewer_swift
 import UIKit
 
 class GaleriaView: ExpoView {
+  private var childImageView: UIImageView?
+
   func getChildImageView() -> UIImageView? {
     var reactSubviews: [UIView]? = nil
     if RCTIsNewArchEnabled() {
@@ -16,6 +18,7 @@ class GaleriaView: ExpoView {
     for reactSubview in reactSubviews {
       for subview in reactSubview.subviews {
         if let imageView = subview as? UIImageView {
+          childImageView = imageView
           return imageView
         }
       }
@@ -29,6 +32,15 @@ class GaleriaView: ExpoView {
     if !RCTIsNewArchEnabled() {
       setupImageView()
     }
+  }
+
+
+  // https://github.com/nandorojo/galeria/issues/19
+  // Cleanup gesture recognizers from the image view to work with fabric view recycling
+  override func unmountChildComponentView(_ childComponentView: UIView, index: Int) {
+    childImageView?.gestureRecognizers?.removeAll()
+    childImageView = nil
+    super.unmountChildComponentView(childComponentView, index: index)
   }
 
   var theme: Theme = .dark
