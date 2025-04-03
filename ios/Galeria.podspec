@@ -21,8 +21,8 @@ Pod::Spec.new do |s|
   s.compiler_flags = new_arch_compiler_flags if new_arch_enabled
 
   s.dependency 'ExpoModulesCore'
-  s.dependency 'ImageViewer.swift', '~> 3.0'
-  s.dependency 'ImageViewer.swift/Fetcher', '~> 3.0'
+  s.dependency 'SDWebImage'
+
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {

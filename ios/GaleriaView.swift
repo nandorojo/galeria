@@ -1,5 +1,4 @@
 import ExpoModulesCore
-import ImageViewer_swift
 import UIKit
 
 class GaleriaView: ExpoView {
