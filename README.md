@@ -84,7 +84,7 @@ export const MutliImage = ({ style }) => (
        <Galeria.Image index={index} key={...}>
          <Image source={typeof url === 'string' ? { uri: url } : url} style={style} />
        </Galeria.Image>
-     )}
+     ))}
   </Galeria>
 )
 ```
