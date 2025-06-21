@@ -6,7 +6,8 @@ public protocol ImageDataSource: AnyObject {
 }
 
 public class ImageCarouselViewController:UIPageViewController, ImageViewerTransitionViewControllerConvertible {
-    
+    var imageObservation: NSKeyValueObservation?
+
     unowned var initialSourceView: UIImageView?
     var sourceView: UIImageView? {
         guard let vc = viewControllers?.first as? ImageViewerController else {
@@ -156,7 +157,8 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
         applyOptions()
         
         dataSource = self
-
+        delegate = self
+        
         if let imageDatasource = imageDatasource {
             let initialVC:ImageViewerController = .init(
                 index: initialIndex,
@@ -220,5 +222,18 @@ extension ImageCarouselViewController:UIPageViewControllerDataSource {
             index: newIndex,
             imageItem: imageDatasource.imageItem(at: newIndex),
             imageLoader: vc.imageLoader)
+    }
+}
+
+extension ImageCarouselViewController: UIPageViewControllerDelegate {
+    public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        if completed {
+            imageObservation?.invalidate()
+            imageObservation = nil
+            if let dummyViews = view.superview?.subviews.filter({ $0 is UIImageView && $0 != targetView && $0 != sourceView }), !dummyViews.isEmpty {  
+                dummyViews.forEach { $0.removeFromSuperview() }
+            }
+            
+        }
     }
 }

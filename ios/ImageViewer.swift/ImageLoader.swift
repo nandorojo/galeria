@@ -44,3 +44,14 @@ struct SDWebImageLoader: ImageLoader {
     }
 }
 #endif
+
+
+public struct ImageLoaderFactory {
+    public static func makeDefault() -> ImageLoader {
+        #if canImport(SDWebImage)
+        return SDWebImageLoader()
+        #else
+        return URLSessionImageLoader()
+        #endif
+    }
+}
