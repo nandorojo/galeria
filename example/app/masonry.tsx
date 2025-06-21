@@ -1,6 +1,7 @@
 import { MasonryFlashList } from '@shopify/flash-list'
 import { Galeria } from 'galeria'
-import { Dimensions, Image, View } from 'react-native'
+import { forwardRef } from 'react'
+import { Dimensions, Image, Platform, View } from 'react-native'
 
 const images: {
   url: string
@@ -110,19 +111,23 @@ const images: {
   },
 ]
 
+const CellRendererComponent = forwardRef<View, any>(
+  ({ index, children }, ref) => {
+    return (
+      <View ref={ref} style={{ zIndex: 100 - index }} testID={`test-${index}`}>
+        {children}
+      </View>
+    )
+  },
+)
+
 export default function Masonry() {
   return (
     <Galeria urls={images.map((image) => image.url)} theme="dark">
       <MasonryFlashList
         data={images}
         contentContainerStyle={{ backgroundColor: 'black' }}
-        CellRendererComponent={({ item, index, children }) => {
-          return (
-            <View style={{ zIndex: 100 - index }} testID={`test-${index}`}>
-              {children}
-            </View>
-          )
-        }}
+        CellRendererComponent={Platform.select({ web: CellRendererComponent })}
         renderItem={({ index, item }) => {
           const aspectRatio = item.width / item.height
           const width = Dimensions.get('window').width / 2
