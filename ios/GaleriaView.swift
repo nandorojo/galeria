@@ -7,24 +7,51 @@ class GaleriaView: ExpoView {
   func getChildImageView() -> UIImageView? {
     var reactSubviews: [UIView]? = nil
     if RCTIsNewArchEnabled() {
-      reactSubviews = self.subviews
+        reactSubviews = self.subviews
     } else {
-      reactSubviews = self.reactSubviews()
+        reactSubviews = self.reactSubviews()
     }
 
     guard let reactSubviews else { return nil }
 
-    for reactSubview in reactSubviews {
-      for subview in reactSubview.subviews {
-        if let imageView = subview as? UIImageView {
-          childImageView = imageView
-          return imageView
+        for reactSubview in reactSubviews {
+            for subview in reactSubview.subviews {
+
+                if let imageView = subview as? UIImageView {
+                    return imageView
+                }
+                // Specifically handle FastImage (and it's fork) case,look for UIImageView within it
+                // Is there a better way to handle image-libraries that wraps/contains UIImageView
+                let componentClassNames = [
+                    "RCTLegacyViewManagerInteropComponentView",
+                    "FFFastImageViewComponentView"
+                ]
+
+                for className in componentClassNames {
+                    if let componentClass = NSClassFromString(className), subview.isKind(of: componentClass) {
+                        return findImageViewInView(subview)
+                    }
+                }
+            }
         }
-      }
+
+        return nil
     }
 
-    return nil
-  }
+    // Tried to use subview.isKind(of: UIImageView.self),
+    // but seems like we need to loop through all subviews to see if we find a UIImageView
+    private func findImageViewInView(_ view: UIView) -> UIImageView? {
+        if let imageView = view as? UIImageView {
+            return imageView
+        }
+        for subview in view.subviews {
+            if let imageView = findImageViewInView(subview) {
+                return imageView
+            }
+        }
+
+        return nil
+    }
 
   #if !RCT_NEW_ARCH_ENABLED
   override func insertReactSubview(_ subview: UIView!, at atIndex: Int) {

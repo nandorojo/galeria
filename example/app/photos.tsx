@@ -1,9 +1,8 @@
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list'
 import { Galeria } from 'galeria'
-import { StyleSheet, View, Dimensions } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
+import Image from 'react-native-fast-image'
 import { urls } from '../constants/Images'
-import { Image } from 'expo-image'
-import { Image as Nativeimage } from 'react-native'
 const itemWidth = Dimensions.get('window').width / 3
 
 export default function PhotosScreen() {
