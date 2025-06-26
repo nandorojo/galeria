@@ -4965,21 +4965,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-image@npm:~2.0.6":
-  version: 2.0.6
-  resolution: "expo-image@npm:2.0.6"
-  peerDependencies:
-    expo: "*"
-    react: "*"
-    react-native: "*"
-    react-native-web: "*"
-  peerDependenciesMeta:
-    react-native-web:
-      optional: true
-  checksum: 10c0/f5e2c16d631888163b1f1365fb63c361fa15d0b804f2fc59a9f2e1036255a0da23120a28b1feb307f4c90a1870e2d0f6e8b3ec25d00636a0576828bcf7046b0e
-  languageName: node
-  linkType: hard
-
 "expo-keep-awake@npm:~14.0.3":
   version: 14.0.3
   resolution: "expo-keep-awake@npm:14.0.3"
@@ -5489,7 +5474,6 @@ __metadata:
     expo-build-properties: "npm:~0.13.2"
     expo-constants: "npm:~17.0.7"
     expo-crypto: "npm:~14.0.2"
-    expo-image: "npm:~2.0.6"
     expo-linking: "npm:~7.0.5"
     expo-router: "npm:~4.0.17"
     expo-screen-orientation: "npm:~8.0.4"
@@ -5498,6 +5482,7 @@ __metadata:
     react: "npm:18.3.1"
     react-dom: "npm:18.3.1"
     react-native: "npm:0.77.1"
+    react-native-fast-image: "npm:^8.6.3"
     react-native-gesture-handler: "npm:~2.24.0"
     react-native-reanimated: "npm:~3.17.1"
     react-native-safe-area-context: "npm:5.3.0"
@@ -8149,6 +8134,16 @@ __metadata:
   version: 18.3.1
   resolution: "react-is@npm:18.3.1"
   checksum: 10c0/f2f1e60010c683479e74c63f96b09fb41603527cd131a9959e2aee1e5a8b0caf270b365e5ca77d4a6b18aae659b60a86150bb3979073528877029b35aecd2072
+  languageName: node
+  linkType: hard
+
+"react-native-fast-image@npm:^8.6.3":
+  version: 8.6.3
+  resolution: "react-native-fast-image@npm:8.6.3"
+  peerDependencies:
+    react: ^17 || ^18
+    react-native: ">=0.60.0"
+  checksum: 10c0/4ebeae53ffeadf1e7e5e133c1cfda81f9efe978f9ece10c732a0338149fe9104681bfdabc8427dad7c934b02bfcbd0e205bb6ca43e2844abc6054630ebe34454
   languageName: node
   linkType: hard
 

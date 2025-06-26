@@ -28,6 +28,12 @@ import com.github.iielse.imageviewer.core.ViewerCallback
 import com.github.iielse.imageviewer.utils.Config
 
 
+val fastImageViewWithUrlClass = try {
+    Class.forName("com.dylanvann.fastimage.FastImageViewWithUrl")
+} catch (e: ClassNotFoundException) {
+    null
+}
+
 class StringPhoto(private val id: Long, private val data: String) : Photo {
     override fun id(): Long = id
 
@@ -95,7 +101,8 @@ class GaleriaView(context: Context) : ViewGroup(context) {
             val childView = parentView.getChildAt(i)
             if (childView is ImageView) {
                 var imageViewContext = childView.context
-                if (childView is ReactImageView) {
+                if (childView is ReactImageView ||
+                    (fastImageViewWithUrlClass != null && fastImageViewWithUrlClass.isInstance(childView))) {
                     val activityContext = getActivity(childView.context)
                     imageViewContext = activityContext
                 }
