@@ -1,7 +1,6 @@
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list'
 import { Galeria } from 'galeria'
-import { Dimensions, StyleSheet, View } from 'react-native'
-import Image from 'react-native-fast-image'
+import { Dimensions, Image, StyleSheet, View } from 'react-native'
 import { urls } from '../constants/Images'
 const itemWidth = Dimensions.get('window').width / 3
 

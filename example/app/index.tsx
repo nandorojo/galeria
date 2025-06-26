@@ -1,9 +1,8 @@
-import { View } from 'react-native'
+import { Image, View } from 'react-native'
 
 import { useTheme } from '@react-navigation/native'
 import { Link } from 'expo-router'
 import { Galeria } from 'galeria'
-import Image from 'react-native-fast-image'
 import { urls } from '../constants/Images'
 export default function HomeScreen() {
   return (
