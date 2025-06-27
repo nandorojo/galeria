@@ -1,8 +1,7 @@
-import { StatusBar } from 'expo-status-bar'
-import { Galeria } from 'galeria'
-import { Platform, StyleSheet, Text, View } from 'react-native'
-import { urls } from '../constants/Images'
 import { Image } from 'expo-image'
+import { Galeria } from 'galeria'
+import { StyleSheet, View } from 'react-native'
+import { urls } from '../constants/Images'
 
 export default function ModalScreen() {
   return (
