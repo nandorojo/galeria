@@ -16,6 +16,9 @@ class GaleriaModule : Module() {
         // Enables the module to be used as a native view. Definition components that are accepted as part of
         // the view definition: Prop, Events.
         View(GaleriaView::class) {
+            Events(
+                "onIndexChange"
+            )
             // Defines a setter for the `name` prop.
             Prop("theme") { view: GaleriaView, theme: Theme ->
                 view.theme = theme

@@ -15,6 +15,9 @@ protocol ImageViewerTransitionViewControllerConvertible {
     
     // The final view
     var targetView: UIImageView? { get }
+    
+    // Store image observation
+    var imageObservation: NSKeyValueObservation? { get set }
 }
 
 final class ImageViewerTransitionPresentationAnimator:NSObject {
@@ -81,7 +84,7 @@ extension ImageViewerTransitionPresentationAnimator: UIViewControllerAnimatedTra
         completed: @escaping((Bool) -> Void)) {
 
         guard
-            let transitionVC = controller as? ImageViewerTransitionViewControllerConvertible,
+            var transitionVC = controller as? ImageViewerTransitionViewControllerConvertible,
             let sourceView = transitionVC.sourceView
         else { return }
     
@@ -102,14 +105,17 @@ extension ImageViewerTransitionPresentationAnimator: UIViewControllerAnimatedTra
         UIView.animate(withDuration: duration, animations: {
             dummyImageView.frame = UIScreen.main.bounds
             controller.view.alpha = 1.0
-        }) { [weak self] finished in
-            self?.observation = transitionVC.targetView?.observe(\.image, options: [.new, .initial]) { img, change in
+        }) { finished in
+            let observation = transitionVC.targetView?.observe(\.image, options: [.new, .initial]) { img, change in
                 if img.image != nil {
-                    transitionVC.targetView?.alpha = 1.0
-                    dummyImageView.removeFromSuperview()
-                    completed(finished)
+                    DispatchQueue.main.async {
+                        transitionVC.targetView?.alpha = 1.0
+                        dummyImageView.removeFromSuperview()
+                    }
                 }
             }
+            transitionVC.imageObservation = observation
+            completed(finished)
         }
     }
     

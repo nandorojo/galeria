@@ -26,6 +26,7 @@ import com.github.iielse.imageviewer.core.SimpleDataProvider
 import com.github.iielse.imageviewer.core.Transformer
 import com.github.iielse.imageviewer.core.ViewerCallback
 import com.github.iielse.imageviewer.utils.Config
+import expo.modules.kotlin.viewevent.EventDispatcher
 
 
 class StringPhoto(private val id: Long, private val data: String) : Photo {
@@ -46,6 +47,7 @@ fun convertToPhotos(ids: Array<String>): List<Photo> {
 class GaleriaView(context: Context) : ViewGroup(context) {
     private lateinit var viewer: ImageViewerBuilder
     lateinit var urls: Array<String>
+    val onIndexChange by EventDispatcher()
     var theme: Theme = Theme.Dark
     var initialIndex: Int = 0
     var disableHiddenOriginalImage = false
@@ -119,7 +121,9 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                 childView.setOnClickListener {
                     setupConfig()
                     if (!disableHiddenOriginalImage) {
-                        viewer.setViewerCallback(CustomViewerCallback(childView as ImageView))
+                        viewer.setViewerCallback(CustomViewerCallback(childView as ImageView) { index ->
+                            onIndexChange(mapOf("currentIndex" to index))
+                        })
                     }
 
                     viewer.show()
@@ -168,7 +172,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
 
 }
 
-class CustomViewerCallback(private val childView: ImageView) : ViewerCallback {
+class CustomViewerCallback(private val childView: ImageView, private val onIndexChange: (Int) -> Unit) : ViewerCallback {
     override fun onInit(viewHolder: RecyclerView.ViewHolder, position: Int) {
         childView.animate().alpha(0f).setDuration(180).start()
 
@@ -179,6 +183,10 @@ class CustomViewerCallback(private val childView: ImageView) : ViewerCallback {
         Handler(Looper.getMainLooper()).postDelayed({
             childView.alpha = 1f
         }, 230)
+    }
+
+    override fun onPageSelected(position: Int, viewHolder: RecyclerView.ViewHolder) {
+        onIndexChange(position)
     }
 }
 
