@@ -234,21 +234,21 @@ extension ImageCarouselViewController: UIPageViewControllerDataSource {
 }
 
 extension ImageCarouselViewController: UIPageViewControllerDelegate {
-        public func pageViewController(
-            _ pageViewController: UIPageViewController, didFinishAnimating finished: Bool,
-            previousViewControllers: [UIViewController], transitionCompleted completed: Bool
-        ) {
-            if completed {
-                if let currentVC = viewControllers?.first as? ImageViewerController {
-                    onIndexChange?(currentVC.index)
-                }
-                imageObservation?.invalidate()
-                imageObservation = nil
-                if let dummyViews = view.superview?.subviews.filter({
-                    $0 is UIImageView && $0 != targetView && $0 != sourceView
-                }), !dummyViews.isEmpty {
-                    dummyViews.forEach { $0.removeFromSuperview() }
-                }
+    public func pageViewController(
+        _ pageViewController: UIPageViewController, didFinishAnimating finished: Bool,
+        previousViewControllers: [UIViewController], transitionCompleted completed: Bool
+    ) {
+        if completed {
+            if let currentVC = viewControllers?.first as? ImageViewerController {
+                onIndexChange?(currentVC.index)
+            }
+            imageObservation?.invalidate()
+            imageObservation = nil
+            if let dummyViews = view.superview?.subviews.filter({
+                $0 is UIImageView && $0 != targetView && $0 != sourceView
+            }), !dummyViews.isEmpty {
+                dummyViews.forEach { $0.removeFromSuperview() }
             }
         }
+    }
 }
