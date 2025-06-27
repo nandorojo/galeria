@@ -9,7 +9,11 @@ export default function ModalScreen() {
   return (
     <View style={styles.container}>
       <Galeria urls={urls} theme="dark">
-        <Galeria.Image>
+        <Galeria.Image
+          onIndexChange={(e) =>
+            console.log('IndeX: ', e.nativeEvent.currentIndex)
+          }
+        >
           <Image
             style={{
               height: 245,
