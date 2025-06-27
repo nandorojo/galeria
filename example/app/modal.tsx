@@ -1,8 +1,8 @@
 import { Image } from 'expo-image'
-import { useRouter } from 'expo-router'
 import { Galeria } from 'galeria'
 import { Button, StyleSheet, View } from 'react-native'
 import { urls } from '../constants/Images'
+import { useRouter } from 'expo-router'
 
 export default function ModalScreen() {
   const router = useRouter()

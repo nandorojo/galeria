@@ -16,4 +16,5 @@ export type GaleriaViewProps = {
   style?: ViewStyle
   dynamicAspectRatio?: boolean
   edgeToEdge?: boolean
+  onIndexChange?: (event: GaleriaIndexChangedEvent) => void
 }
