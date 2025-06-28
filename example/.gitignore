@@ -78,3 +78,12 @@ yarn-error.*
 # Native
 ios/
 android/
+
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
