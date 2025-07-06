@@ -222,22 +222,30 @@ extension ImageViewerController {
     
     func updateMinMaxZoomScaleForSize(_ size: CGSize) {
         
-        let targetSize = imageView.bounds.size
-        if targetSize.width == 0 || targetSize.height == 0 {
+        // Get the image size instead of the UIImageView bounds  
+        guard let image = imageView.image else { return }
+        let imageSize = image.size
+        
+        if imageSize.width == 0 || imageSize.height == 0 {
             return
         }
         
-        let minScale = min(
-            size.width/targetSize.width,
-            size.height/targetSize.height)
-        let maxScale = max(
-            (size.width + 1.0) / targetSize.width,
-            (size.height + 1.0) / targetSize.height)
         
+        // Calcuate scale based on image size
+        let minScale = min(
+            size.width/imageSize.width,   
+            size.height/imageSize.height)  
+        
+        let maxScale = max(
+            (size.width + 1.0) / imageSize.width,
+            (size.height + 1.0) / imageSize.height)
+        
+
         scrollView.minimumZoomScale = minScale
         scrollView.zoomScale = minScale
         maxZoomScale = maxScale
-        scrollView.maximumZoomScale = maxZoomScale * 1.1
+     
+        scrollView.maximumZoomScale =  maxZoomScale * 1.1
     }
     
     
@@ -254,11 +262,20 @@ extension ImageViewerController {
     }
     
     func updateConstraintsForSize(_ size: CGSize) {
-        let yOffset = max(0, (size.height - imageView.frame.height) / 2)
+        // Get the image size
+        guard let image = imageView.image else { return }
+        let imageSize = image.size
+        
+        let scaledImageWidth = imageSize.width * scrollView.zoomScale
+        let scaledImageHeight = imageSize.height * scrollView.zoomScale
+        
+        // Calculate vertical offset for centering
+        let yOffset = max(0, (size.height - scaledImageHeight) / 2)
         top.constant = yOffset
         bottom.constant = yOffset
         
-        let xOffset = max(0, (size.width - imageView.frame.width) / 2)
+        // Calculate horizontal offset for centering
+        let xOffset = max(0, (size.width - scaledImageWidth) / 2)
         leading.constant = xOffset
         trailing.constant = xOffset
         view.layoutIfNeeded()
