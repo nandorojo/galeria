@@ -9,7 +9,6 @@ import {
 import { GaleriaContext } from './context'
 import { GaleriaIndexChangedEvent, GaleriaViewProps } from './Galeria.types'
 
-
 const EDGE_TO_EDGE = isEdgeToEdge()
 
 const NativeImage = requireNativeView<
