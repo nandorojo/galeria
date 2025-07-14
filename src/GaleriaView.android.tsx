@@ -7,7 +7,7 @@ import {
   isEdgeToEdge,
 } from 'react-native-is-edge-to-edge'
 import { GaleriaContext } from './context'
-import { GaleriaViewProps } from './Galeria.types'
+import { GaleriaIndexChangedEvent, GaleriaViewProps } from './Galeria.types'
 
 const EDGE_TO_EDGE = isEdgeToEdge()
 
