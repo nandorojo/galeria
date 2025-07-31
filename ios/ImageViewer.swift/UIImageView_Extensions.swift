@@ -147,6 +147,14 @@ extension UIImageView {
         addGestureRecognizer(_tapRecognizer!)
     }
     
+    private func topMostViewController(_ rootViewController: UIViewController?) -> UIViewController? {
+        var topController = rootViewController
+        while let presented = topController?.presentedViewController {
+            topController = presented
+        }
+        return topController
+    }
+    
     @objc
     private func showImageViewer(_ sender:TapWithDataRecognizer) {
         guard let sourceView = sender.view as? UIImageView else { return }
@@ -156,7 +164,9 @@ extension UIImageView {
             imageLoader: sender.imageLoader ?? URLSessionImageLoader(),
             options: sender.options,
             initialIndex: sender.initialIndex)
-        let presentFromVC = sender.from ?? vc
+     
+        let rootVC = sender.from ?? vc
+        let presentFromVC = topMostViewController(rootVC)
         presentFromVC?.present(imageCarousel, animated: true)
     }
 }

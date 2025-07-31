@@ -1,14 +1,14 @@
 import { Image } from 'expo-image'
-import { useRouter } from 'expo-router'
 import { Galeria } from 'galeria'
-import { Button, StyleSheet, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { urls } from '../constants/Images'
 
-export default function ModalScreen() {
-  const router = useRouter()
+export default function SecondModalScreen() {
   return (
     <View style={styles.container}>
-      <Galeria urls={urls} theme="dark">
+      <Text>Second Modal with Galeria</Text>
+
+      <Galeria urls={[urls[4]]} theme="dark">
         <Galeria.Image>
           <Image
             style={{
@@ -16,15 +16,10 @@ export default function ModalScreen() {
               width: 245,
               objectFit: 'cover',
             }}
-            source={{ uri: urls[0] }}
+            source={{ uri: urls[4] }}
           />
         </Galeria.Image>
       </Galeria>
-
-      <Button
-        title="Open new modal Modal"
-        onPress={() => router.push('/second-modal')}
-      />
     </View>
   )
 }
