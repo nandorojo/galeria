@@ -12,6 +12,9 @@ export default function PhotosScreen() {
       <Galeria.Image
         id={url}
         index={index}
+        onIndexChange={(e) =>
+          console.log('Index: ', e.nativeEvent.currentIndex)
+        }
         style={{
           backgroundColor: 'black',
           borderWidth: 1,

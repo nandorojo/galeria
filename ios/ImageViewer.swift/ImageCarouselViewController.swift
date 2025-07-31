@@ -170,6 +170,7 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
                 imageItem: imageDatasource.imageItem(at: initialIndex),
                 imageLoader: imageLoader)
             setViewControllers([initialVC], direction: .forward, animated: true)
+            onIndexChange?(initialIndex)
         }
     }
 
