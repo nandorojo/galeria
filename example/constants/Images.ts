@@ -4,6 +4,7 @@ import splash from '../assets/splash.png'
 
 export const urls = [
   'https://res.cloudinary.com/dn29xlaeh/image/upload/q_75,w_600,fl_lossy/beatgig-sandbox/chat/hmpschevbtbzjockgq6n',
+  'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2hpc3NvbHo3cXh6eDBjODVtenByZGUwZjZqZGY0d25jbG9yeTdmMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uIJBFZoOaifHf52MER/giphy.gif',
   smallImage,
   splash,
   mediumImage,

@@ -150,10 +150,18 @@ extension UIImageView {
     @objc
     private func showImageViewer(_ sender:TapWithDataRecognizer) {
         guard let sourceView = sender.view as? UIImageView else { return }
+        // Use SDWebImageLoader if available, otherwise fall back to URLSessionImageLoader
+        let defaultImageLoader: ImageLoader
+        #if canImport(SDWebImage)
+        defaultImageLoader = SDWebImageLoader()
+        #else
+        defaultImageLoader = URLSessionImageLoader()
+        #endif
+        
         let imageCarousel = ImageCarouselViewController.init(
             sourceView: sourceView,
             imageDataSource: sender.imageDatasource,
-            imageLoader: sender.imageLoader ?? URLSessionImageLoader(),
+            imageLoader: sender.imageLoader ?? defaultImageLoader,
             options: sender.options,
             initialIndex: sender.initialIndex)
         let presentFromVC = sender.from ?? vc
