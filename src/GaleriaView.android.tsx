@@ -1,13 +1,13 @@
 import { requireNativeView } from 'expo'
 
-import { GaleriaViewProps } from './Galeria.types'
 import { useContext } from 'react'
-import { GaleriaContext } from './context'
 import { Image } from 'react-native'
 import {
   controlEdgeToEdgeValues,
   isEdgeToEdge,
 } from 'react-native-is-edge-to-edge'
+import { GaleriaContext } from './context'
+import { GaleriaIndexChangedEvent, GaleriaViewProps } from './Galeria.types'
 
 const EDGE_TO_EDGE = isEdgeToEdge()
 
@@ -16,11 +16,12 @@ const NativeImage = requireNativeView<
     edgeToEdge: boolean
     urls?: string[]
     theme: 'dark' | 'light'
+    onIndexChange?: (event: GaleriaIndexChangedEvent) => void
   }
 >('Galeria')
 
 const array = []
-const noop = () => { }
+const noop = () => {}
 
 const Galeria = Object.assign(
   function Galeria({
@@ -59,6 +60,7 @@ const Galeria = Object.assign(
 
       return (
         <NativeImage
+          onIndexChange={props.onIndexChange}
           edgeToEdge={EDGE_TO_EDGE || (edgeToEdge ?? false)}
           theme={theme}
           urls={urls?.map((url) => {

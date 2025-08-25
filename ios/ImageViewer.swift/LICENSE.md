@@ -1,3 +1,7 @@
+> Below is the original license of the code forked from `ImageViewer.swift`. Thanks to @michaelhenry for his prior art.
+
+# License
+
 MIT
 
 Copyright (c) 2013 Michael Henry Pantaleon (http://www.iamkel.net/). All rights reserved.

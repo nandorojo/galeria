@@ -1,11 +1,11 @@
-import { Platform, StyleSheet, Text, TextInput, View } from 'react-native'
-import React from 'react'
 import { useHeaderHeight } from '@react-navigation/elements'
 import { FlashList, ListRenderItem } from '@shopify/flash-list'
+import { Image } from 'expo-image'
+import { Galeria } from 'galeria'
+import React from 'react'
+import { Platform, StyleSheet, Text, TextInput, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { urls } from '../constants/Images'
-import { Galeria } from 'galeria'
-import { Image } from 'expo-image'
 
 const messages: MessageProps[] = [
   {
