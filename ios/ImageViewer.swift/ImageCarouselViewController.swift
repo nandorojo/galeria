@@ -8,7 +8,7 @@ public protocol ImageDataSource: AnyObject {
 public class ImageCarouselViewController:UIPageViewController, ImageViewerTransitionViewControllerConvertible {
     var imageObservation: NSKeyValueObservation?
 
-    unowned var initialSourceView: UIImageView?
+    weak var initialSourceView: UIImageView?
     var sourceView: UIImageView? {
         guard let vc = viewControllers?.first as? ImageViewerController else {
             return nil
