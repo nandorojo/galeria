@@ -10,7 +10,6 @@ export type ChangeEventPayload = {
 
 type GaleriaIndexChangedPayload = {
   currentIndex: number
-  target: number
 }
 
 export type GaleriaIndexChangedEvent =
