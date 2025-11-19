@@ -1,15 +1,19 @@
 import { Image } from 'expo-image'
-import { useRouter } from 'expo-router'
 import { Galeria } from 'galeria'
 import { Button, StyleSheet, View } from 'react-native'
 import { urls } from '../constants/Images'
+import { useRouter } from 'expo-router'
 
 export default function ModalScreen() {
   const router = useRouter()
   return (
     <View style={styles.container}>
       <Galeria urls={urls} theme="dark">
-        <Galeria.Image>
+        <Galeria.Image
+          onIndexChange={(e) =>
+            console.log('Index: ', e.nativeEvent.currentIndex)
+          }
+        >
           <Image
             style={{
               height: 245,
