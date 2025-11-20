@@ -15,7 +15,6 @@ const NativeImage = requireNativeView<
   }
 >('Galeria')
 
-const array = []
 const noop = () => {}
 
 const Galeria = Object.assign(
