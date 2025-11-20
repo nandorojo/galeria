@@ -68,10 +68,19 @@ class GaleriaView: ExpoView {
   }
 
   private func setupImageViewerWithUrls(
-    _ childImage: UIImageView, urls: [String], initialIndex: Int, viewerTheme: ImageViewerTheme
+    _ childImage: UIImageView,
+    urls: [String],
+    initialIndex: Int,
+    viewerTheme: ImageViewerTheme
   ) {
-    let urlObjects = urls.compactMap(URL.init(string:))
     let options = buildImageViewerOptions()
+
+    let urlObjects: [URL] = urls.compactMap { string in
+      if string.hasPrefix("http://") || string.hasPrefix("https://") || string.hasPrefix("file://") {
+        return URL(string: string)
+      }
+      return URL(fileURLWithPath: string)
+    }
 
     childImage.setupImageViewer(urls: urlObjects, initialIndex: initialIndex, options: options)
   }
