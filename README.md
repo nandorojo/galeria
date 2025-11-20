@@ -153,7 +153,25 @@ const lowResolutionUrls = createLowResolutionUrls(urls);
      <Galeria.Image index={index} key={...}>
        <Image source={typeof url === 'string' ? { uri: url } : url} style={style} />
      </Galeria.Image>
-   )}
+   ))}
+</Galeria>
+```
+
+### Get Index of Currently Shown Image
+*iOS & Android*
+
+To get the index of the currently shown image in the image viewer use `onIndexChange`. It triggers on initial open of the image viewer and when the user scrolls through the images. 
+
+```tsx
+<Galeria urls={urls}>
+  {urls.map((url, index) => (
+     <Galeria.Image 
+        index={index} key={...}  
+        onIndexChange={(e) => setCurrentIndex(e.nativeEvent.currentIndex)}
+        >
+       <Image source={typeof url === 'string' ? { uri: url } : url} style={style} />
+     </Galeria.Image>
+   ))}
 </Galeria>
 ```
 
