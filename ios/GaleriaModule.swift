@@ -1,22 +1,24 @@
-import ExpoModulesCore 
+import ExpoModulesCore
 
 public class GaleriaModule: Module {
   public func definition() -> ModuleDefinition {
     Name("Galeria")
-    
+
     View(GaleriaView.self) {
-      OnViewDidUpdateProps {(view) in
+      Events("onIndexChange")
+
+      OnViewDidUpdateProps { (view) in
         view.setupImageView()
       }
 
       Prop("urls") { (view, urls: [String]?) in
         view.urls = urls
       }
-      
+
       Prop("index") { (view, index: Int?) in
         view.initialIndex = index
       }
-      
+
       Prop("theme") { (view, theme: Theme?) in
         view.theme = theme ?? .dark
       }
@@ -26,7 +28,11 @@ public class GaleriaModule: Module {
       Prop("rightNavItemIconName") { (view, rightNavItemIconName: String) in
         view.rightNavItemIconName = rightNavItemIconName
       }
+
     }
   }
-}
 
+  func onIndexChange(index: Int) {
+    sendEvent("onIndexChange", ["currentIndex": index])
+  }
+}

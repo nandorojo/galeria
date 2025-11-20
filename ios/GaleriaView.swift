@@ -27,21 +27,20 @@ class GaleriaView: ExpoView {
   }
 
   #if !RCT_NEW_ARCH_ENABLED
-  override func insertReactSubview(_ subview: UIView!, at atIndex: Int) {
-    super.insertReactSubview(subview, at: atIndex)
-    setupImageView()
-  }
+    override func insertReactSubview(_ subview: UIView!, at atIndex: Int) {
+      super.insertReactSubview(subview, at: atIndex)
+      setupImageView()
+    }
   #endif
 
-
   #if RCT_NEW_ARCH_ENABLED
-  // https://github.com/nandorojo/galeria/issues/19
-  // Cleanup gesture recognizers from the image view to work with fabric view recycling
-  override func unmountChildComponentView(_ childComponentView: UIView, index: Int) {
-    childImageView?.gestureRecognizers?.removeAll()
-    childImageView = nil
-    super.unmountChildComponentView(childComponentView, index: index)
-  }
+    // https://github.com/nandorojo/galeria/issues/19
+    // Cleanup gesture recognizers from the image view to work with fabric view recycling
+    override func unmountChildComponentView(_ childComponentView: UIView, index: Int) {
+      childImageView?.gestureRecognizers?.removeAll()
+      childImageView = nil
+      super.unmountChildComponentView(childComponentView, index: index)
+    }
   #endif
 
   var theme: Theme = .dark
@@ -50,14 +49,13 @@ class GaleriaView: ExpoView {
   var closeIconName: String?
   var rightNavItemIconName: String?
   let onPressRightNavItemIcon = EventDispatcher()
-  
+  let onIndexChange = EventDispatcher()
 
   public func setupImageView() {
     let viewerTheme = theme.toImageViewerTheme()
     guard let childImage = getChildImageView() else {
       return
     }
-    
 
     if let urls = self.urls, let initialIndex = self.initialIndex {
       setupImageViewerWithUrls(
@@ -68,10 +66,19 @@ class GaleriaView: ExpoView {
   }
 
   private func setupImageViewerWithUrls(
-    _ childImage: UIImageView, urls: [String], initialIndex: Int, viewerTheme: ImageViewerTheme
+    _ childImage: UIImageView,
+    urls: [String],
+    initialIndex: Int,
+    viewerTheme: ImageViewerTheme
   ) {
-    let urlObjects = urls.compactMap(URL.init(string:))
     let options = buildImageViewerOptions()
+
+    let urlObjects: [URL] = urls.compactMap { string in
+      if string.hasPrefix("http://") || string.hasPrefix("https://") || string.hasPrefix("file://") {
+        return URL(string: string)
+      }
+      return URL(fileURLWithPath: string)
+    }
 
     childImage.setupImageViewer(urls: urlObjects, initialIndex: initialIndex, options: options)
   }
@@ -90,7 +97,7 @@ class GaleriaView: ExpoView {
 
   private func buildImageViewerOptions() -> [ImageViewerOption] {
     let viewerTheme = theme.toImageViewerTheme()
-      var options: [ImageViewerOption] = [.theme(viewerTheme)]
+    var options: [ImageViewerOption] = [.theme(viewerTheme)]
     let iconColor = theme.iconColor()
 
     if let closeIconName = closeIconName,
@@ -112,6 +119,11 @@ class GaleriaView: ExpoView {
         })
       options.append(rightNavItemOption)
     }
+
+    options.append(
+      .onIndexChange { [weak self] index in
+        self?.onIndexChange(["currentIndex": index])
+      })
 
     return options
   }

@@ -1,12 +1,10 @@
-import { View, Image as Nativeimage, LogBox, useColorScheme } from 'react-native'
-
-import { Galeria } from 'galeria'
+import { useTheme } from '@react-navigation/native'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
+import { Galeria } from 'galeria'
+import { View } from 'react-native'
 import { urls } from '../constants/Images'
-import {
-  useTheme
-} from '@react-navigation/native'
+
 export default function HomeScreen() {
   return (
     <View style={{ gap: 12, paddingVertical: 16, paddingHorizontal: 16 }}>
