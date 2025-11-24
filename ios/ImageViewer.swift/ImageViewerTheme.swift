@@ -14,11 +14,6 @@ public enum ImageViewerTheme {
     }
     
     var tintColor:UIColor {
-        switch self {
-            case .light:
-                return .black
-            case .dark:
-                return .white
-        }
+        return UIColor.label
     }
 }

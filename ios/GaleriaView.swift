@@ -142,11 +142,6 @@ enum Theme: String, Enumerable {
     }
   }
   func iconColor() -> UIColor {
-    switch self {
-    case .dark:
-      return .white
-    case .light:
-      return .black
-    }
+    return UIColor.label
   }
 }
