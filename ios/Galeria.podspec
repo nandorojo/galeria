@@ -23,6 +23,11 @@ Pod::Spec.new do |s|
   s.dependency 'ExpoModulesCore'
   s.dependency 'SDWebImage'
 
+  spm_dependency(s,
+    url: "https://github.com/b3ll/Motion.git",
+    requirement: {kind: "upToNextMinorVersion", minimumVersion: "0.1.5"},
+    products: ["Motion"]
+  )
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {
