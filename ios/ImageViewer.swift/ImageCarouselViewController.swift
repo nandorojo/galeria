@@ -6,24 +6,12 @@ public protocol ImageDataSource: AnyObject {
     func imageItem(at index: Int) -> ImageItem
 }
 
-public class ImageCarouselViewController:UIPageViewController, ImageViewerTransitionViewControllerConvertible {
-    var imageObservation: NSKeyValueObservation?
+// MARK: - Deprecated: ImageCarouselViewController
+// This class is deprecated in favor of ImageViewerRootView which uses DynamicTransition.
+// Kept for backwards compatibility but will be removed in a future version.
 
-    weak var initialSourceView: UIImageView?
-    var sourceView: UIImageView? {
-        guard let vc = viewControllers?.first as? ImageViewerController else {
-            return nil
-        }
-        return initialIndex == vc.index ? initialSourceView : nil
-    }
-
-    var targetView: UIImageView? {
-        guard let vc = viewControllers?.first as? ImageViewerController else {
-            return nil
-        }
-        return vc.imageView
-    }
-
+@available(*, deprecated, message: "Use ImageViewerRootView with NavigationView instead")
+public class ImageCarouselViewController: UIPageViewController {
     weak var imageDatasource: ImageDataSource?
     let imageLoader: ImageLoader
 
@@ -55,27 +43,23 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
         _v.alpha = 1.0
         return _v
     }()
-    
+
     private(set) lazy var navItem = UINavigationItem()
-    
-    private let imageViewerPresentationDelegate: ImageViewerTransitionPresentationManager
-    
+
     var onIndexChange: ((Int) -> Void)?
-    
+
     public init(
-        sourceView:UIImageView,
         imageDataSource: ImageDataSource?,
         imageLoader: ImageLoader,
-        options:[ImageViewerOption] = [],
-        initialIndex:Int = 0) {
-        
-        self.initialSourceView = sourceView
+        options: [ImageViewerOption] = [],
+        initialIndex: Int = 0
+    ) {
         self.initialIndex = initialIndex
         self.options = options
         self.imageDatasource = imageDataSource
         self.imageLoader = imageLoader
         let pageOptions = [UIPageViewController.OptionsKey.interPageSpacing: 20]
-        
+
         var _imageContentMode = imageContentMode
         options.forEach {
             switch $0 {
@@ -86,46 +70,43 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
             }
         }
         imageContentMode = _imageContentMode
-        
-        self.imageViewerPresentationDelegate = ImageViewerTransitionPresentationManager(imageContentMode: imageContentMode)
+
         super.init(
             transitionStyle: .scroll,
             navigationOrientation: .horizontal,
-            options: pageOptions)
-        
-        transitioningDelegate = imageViewerPresentationDelegate
-        modalPresentationStyle = .custom
+            options: pageOptions
+        )
+
         modalPresentationCapturesStatusBarAppearance = true
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func addNavBar() {
-        // Add Navigation Bar
         let closeBarButton = UIBarButtonItem(
             title: NSLocalizedString("Close", comment: "Close button title"),
             style: .plain,
             target: self,
-            action: #selector(dismiss(_:)))
-        
+            action: #selector(dismissVC(_:))
+        )
+
         navItem.leftBarButtonItem = closeBarButton
         navItem.leftBarButtonItem?.tintColor = theme.tintColor
         navBar.alpha = 0.0
         navBar.items = [navItem]
         navBar.insert(to: view)
     }
-    
+
     private func addBackgroundView() {
         guard let backgroundView = backgroundView else { return }
         view.addSubview(backgroundView)
         backgroundView.bindFrameToSuperview()
         view.sendSubviewToBack(backgroundView)
     }
-    
+
     private func applyOptions() {
-        
         options.forEach {
             switch $0 {
             case .theme(let theme):
@@ -139,17 +120,19 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
                     title: title,
                     style: .plain,
                     target: self,
-                    action: #selector(diTapRightNavBarItem(_:)))
+                    action: #selector(didTapRightNavBarItem(_:))
+                )
                 onRightNavBarTapped = onTap
             case .rightNavItemIcon(let icon, let onTap):
                 navItem.rightBarButtonItem = UIBarButtonItem(
                     image: icon,
                     style: .plain,
                     target: self,
-                    action: #selector(diTapRightNavBarItem(_:)))
+                    action: #selector(didTapRightNavBarItem(_:))
+                )
                 onRightNavBarTapped = onTap
             case .onIndexChange(let callback):
-                    self.onIndexChange = callback
+                self.onIndexChange = callback
             }
         }
     }
@@ -163,92 +146,85 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
 
         dataSource = self
         delegate = self
-        
+
         if let imageDatasource = imageDatasource {
-            let initialVC: ImageViewerController = .init(
+            let initialVC = ImageViewerController(
                 index: initialIndex,
                 imageItem: imageDatasource.imageItem(at: initialIndex),
-                imageLoader: imageLoader)
+                imageLoader: imageLoader
+            )
             setViewControllers([initialVC], direction: .forward, animated: true)
             onIndexChange?(initialIndex)
         }
     }
 
     @objc
-    private func dismiss(_ sender: UIBarButtonItem) {
-        self.dismiss(animated: true, completion: nil)
-    }
-
-    deinit {
-        initialSourceView?.alpha = 1.0
+    private func dismissVC(_ sender: UIBarButtonItem) {
+        dismiss(animated: true, completion: nil)
     }
 
     @objc
-    func diTapRightNavBarItem(_ sender: UIBarButtonItem) {
+    func didTapRightNavBarItem(_ sender: UIBarButtonItem) {
         guard let onTap = onRightNavBarTapped,
-            let _firstVC = viewControllers?.first as? ImageViewerController
+              let firstVC = viewControllers?.first as? ImageViewerController
         else { return }
-        onTap(_firstVC.index)
+        onTap(firstVC.index)
     }
 
     override public var preferredStatusBarStyle: UIStatusBarStyle {
-        if theme == .dark {
-            return .lightContent
-        }
-        return .default
+        theme == .dark ? .lightContent : .default
     }
 }
 
+@available(*, deprecated, message: "Use ImageViewerRootView with NavigationView instead")
 extension ImageCarouselViewController: UIPageViewControllerDataSource {
     public func pageViewController(
         _ pageViewController: UIPageViewController,
         viewControllerBefore viewController: UIViewController
     ) -> UIViewController? {
-
-        guard let vc = viewController as? ImageViewerController else { return nil }
-        guard let imageDatasource = imageDatasource else { return nil }
-        guard vc.index > 0 else { return nil }
+        guard let vc = viewController as? ImageViewerController,
+              let imageDatasource = imageDatasource,
+              vc.index > 0 else {
+            return nil
+        }
 
         let newIndex = vc.index - 1
-        return ImageViewerController.init(
+        return ImageViewerController(
             index: newIndex,
             imageItem: imageDatasource.imageItem(at: newIndex),
-            imageLoader: vc.imageLoader)
+            imageLoader: vc.imageLoader
+        )
     }
 
     public func pageViewController(
         _ pageViewController: UIPageViewController,
         viewControllerAfter viewController: UIViewController
     ) -> UIViewController? {
-
-        guard let vc = viewController as? ImageViewerController else { return nil }
-        guard let imageDatasource = imageDatasource else { return nil }
-        guard vc.index <= (imageDatasource.numberOfImages() - 2) else { return nil }
+        guard let vc = viewController as? ImageViewerController,
+              let imageDatasource = imageDatasource,
+              vc.index <= (imageDatasource.numberOfImages() - 2) else {
+            return nil
+        }
 
         let newIndex = vc.index + 1
-        return ImageViewerController.init(
+        return ImageViewerController(
             index: newIndex,
             imageItem: imageDatasource.imageItem(at: newIndex),
-            imageLoader: vc.imageLoader)
+            imageLoader: vc.imageLoader
+        )
     }
 }
 
+@available(*, deprecated, message: "Use ImageViewerRootView with NavigationView instead")
 extension ImageCarouselViewController: UIPageViewControllerDelegate {
     public func pageViewController(
-        _ pageViewController: UIPageViewController, didFinishAnimating finished: Bool,
-        previousViewControllers: [UIViewController], transitionCompleted completed: Bool
+        _ pageViewController: UIPageViewController,
+        didFinishAnimating finished: Bool,
+        previousViewControllers: [UIViewController],
+        transitionCompleted completed: Bool
     ) {
-        if completed {
-            if let currentVC = viewControllers?.first as? ImageViewerController {
-                onIndexChange?(currentVC.index)
-            }
-            imageObservation?.invalidate()
-            imageObservation = nil
-            if let dummyViews = view.superview?.subviews.filter({
-                $0 is UIImageView && $0 != targetView && $0 != sourceView
-            }), !dummyViews.isEmpty {
-                dummyViews.forEach { $0.removeFromSuperview() }
-            }
+        if completed, let currentVC = viewControllers?.first as? ImageViewerController {
+            onIndexChange?(currentVC.index)
         }
     }
 }

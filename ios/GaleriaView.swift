@@ -3,6 +3,7 @@ import UIKit
 
 class GaleriaView: ExpoView {
   private var childImageView: UIImageView?
+  private weak var currentNavigationView: NavigationView?
 
   func getChildImageView() -> UIImageView? {
     var reactSubviews: [UIView]? = nil
@@ -148,5 +149,17 @@ enum Theme: String, Enumerable {
     case .light:
       return .black
     }
+  }
+}
+
+// MARK: - MatchTransitionDelegate
+extension GaleriaView: MatchTransitionDelegate {
+  func matchedViewFor(transition: MatchTransition, otherView: UIView) -> UIView? {
+    // Return the source UIImageView as the matched element
+    return childImageView
+  }
+
+  func matchTransitionWillBegin(transition: MatchTransition) {
+    // Optional: additional setup when transition begins
   }
 }

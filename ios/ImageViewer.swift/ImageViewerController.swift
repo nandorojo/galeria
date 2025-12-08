@@ -1,86 +1,65 @@
 import UIKit
 
-class ImageViewerController:UIViewController,
-UIGestureRecognizerDelegate {
-    
+class ImageViewerController: UIViewController {
+
     var imageView: UIImageView = UIImageView(frame: .zero)
     let imageLoader: ImageLoader
-    
-    var backgroundView:UIView? {
-        guard let _parent = parent as? ImageCarouselViewController
-            else { return nil}
-        return _parent.backgroundView
-    }
-    
-    var index:Int = 0
-    var imageItem:ImageItem!
 
-    var navBar:UINavigationBar? {
-        guard let _parent = parent as? ImageCarouselViewController
-            else { return nil}
-        return _parent.navBar
-    }
-    
+    var index: Int = 0
+    var imageItem: ImageItem!
+
     // MARK: Layout Constraints
-    private var top:NSLayoutConstraint!
-    private var leading:NSLayoutConstraint!
-    private var trailing:NSLayoutConstraint!
-    private var bottom:NSLayoutConstraint!
-    
-    private var scrollView:UIScrollView!
-    
-    private var lastLocation:CGPoint = .zero
-    private var isAnimating:Bool = false
-    private var maxZoomScale:CGFloat = 1.0
-    
+    private var top: NSLayoutConstraint!
+    private var leading: NSLayoutConstraint!
+    private var trailing: NSLayoutConstraint!
+    private var bottom: NSLayoutConstraint!
+
+    private(set) var scrollView: UIScrollView!
+
+    private var maxZoomScale: CGFloat = 1.0
+
     init(
         index: Int,
-        imageItem:ImageItem,
-        imageLoader: ImageLoader) {
-
+        imageItem: ImageItem,
+        imageLoader: ImageLoader
+    ) {
         self.index = index
         self.imageItem = imageItem
         self.imageLoader = imageLoader
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func loadView() {
         let view = UIView()
-    
         view.backgroundColor = .clear
         self.view = view
-        
+
         scrollView = UIScrollView()
         scrollView.delegate = self
         scrollView.showsVerticalScrollIndicator = false
-        
-        if #available(iOS 11.0, *) {
-            scrollView.contentInsetAdjustmentBehavior = .never
-        } else {
-            // Fallback on earlier versions
-        }
+        scrollView.contentInsetAdjustmentBehavior = .never
+
         view.addSubview(scrollView)
         scrollView.bindFrameToSuperview()
         scrollView.backgroundColor = .clear
         scrollView.addSubview(imageView)
-        
+
         imageView.translatesAutoresizingMaskIntoConstraints = false
         top = imageView.topAnchor.constraint(equalTo: scrollView.topAnchor)
         leading = imageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
         trailing = scrollView.trailingAnchor.constraint(equalTo: imageView.trailingAnchor)
         bottom = scrollView.bottomAnchor.constraint(equalTo: imageView.bottomAnchor)
-        
+
         top.isActive = true
         leading.isActive = true
         trailing.isActive = true
         bottom.isActive = true
-        
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -89,132 +68,60 @@ UIGestureRecognizerDelegate {
             imageView.image = img
             imageView.layoutIfNeeded()
         case .url(let url, let placeholder):
-            imageLoader.loadImage(url, placeholder: placeholder, imageView: imageView) { (image) in
-                DispatchQueue.main.async {[weak self] in
+            imageLoader.loadImage(url, placeholder: placeholder, imageView: imageView) { [weak self] _ in
+                DispatchQueue.main.async {
                     self?.layout()
                 }
             }
         default:
             break
         }
-        
+
         addGestureRecognizers()
     }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        self.navBar?.alpha = 1.0
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        self.navBar?.alpha = 0.0
-    }
-    
+
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         layout()
     }
-    
+
     private func layout() {
         updateConstraintsForSize(view.bounds.size)
         updateMinMaxZoomScaleForSize(view.bounds.size)
     }
-    
+
     // MARK: Add Gesture Recognizers
+    // Note: Pan-to-dismiss is now handled by MatchTransition in ImageViewerRootView
     func addGestureRecognizers() {
-        
-        let panGesture = UIPanGestureRecognizer(
-            target: self, action: #selector(didPan(_:)))
-        panGesture.cancelsTouchesInView = false
-        panGesture.delegate = self
-        scrollView.addGestureRecognizer(panGesture)
-        
         let pinchRecognizer = UITapGestureRecognizer(
-            target: self, action: #selector(didPinch(_:)))
+            target: self,
+            action: #selector(didPinch(_:))
+        )
         pinchRecognizer.numberOfTapsRequired = 1
         pinchRecognizer.numberOfTouchesRequired = 2
         scrollView.addGestureRecognizer(pinchRecognizer)
-        
-        let singleTapGesture = UITapGestureRecognizer(
-            target: self, action: #selector(didSingleTap(_:)))
-        singleTapGesture.numberOfTapsRequired = 1
-        singleTapGesture.numberOfTouchesRequired = 1
-        scrollView.addGestureRecognizer(singleTapGesture)
-        
+
         let doubleTapRecognizer = UITapGestureRecognizer(
-            target: self, action: #selector(didDoubleTap(_:)))
+            target: self,
+            action: #selector(didDoubleTap(_:))
+        )
         doubleTapRecognizer.numberOfTapsRequired = 2
         doubleTapRecognizer.numberOfTouchesRequired = 1
         scrollView.addGestureRecognizer(doubleTapRecognizer)
-        
-        singleTapGesture.require(toFail: doubleTapRecognizer)
     }
-    
-    @objc
-    func didPan(_ gestureRecognizer: UIPanGestureRecognizer) {
-        guard
-            isAnimating == false,
-            scrollView.zoomScale == scrollView.minimumZoomScale
-            else { return }
-        
-        let container:UIView! = imageView
-        if gestureRecognizer.state == .began {
-            lastLocation = container.center
-        }
-        
-        if gestureRecognizer.state != .cancelled {
-            let translation: CGPoint = gestureRecognizer
-                .translation(in: view)
-            container.center = CGPoint(
-                x: lastLocation.x + translation.x,
-                y: lastLocation.y + translation.y)
-        }
-        
-        let diffY = view.center.y - container.center.y
-        backgroundView?.alpha = 1.0 - abs(diffY/view.center.y)
-        if gestureRecognizer.state == .ended {
-            if abs(diffY) > 60 {
-                dismiss(animated: true)
-            } else {
-                executeCancelAnimation()
-            }
-        }
-    }
-    
+
     @objc
     func didPinch(_ recognizer: UITapGestureRecognizer) {
         var newZoomScale = scrollView.zoomScale / 1.5
         newZoomScale = max(newZoomScale, scrollView.minimumZoomScale)
         scrollView.setZoomScale(newZoomScale, animated: true)
     }
-    
+
     @objc
-    func didSingleTap(_ recognizer: UITapGestureRecognizer) {
-        
-        let currentNavAlpha = self.navBar?.alpha ?? 0.0
-        UIView.animate(withDuration: 0.235) {
-            self.navBar?.alpha = currentNavAlpha > 0.5 ? 0.0 : 1.0
-        }
-    }
-    
-    @objc
-    func didDoubleTap(_ recognizer:UITapGestureRecognizer) {
+    func didDoubleTap(_ recognizer: UITapGestureRecognizer) {
         let pointInView = recognizer.location(in: imageView)
         zoomInOrOut(at: pointInView)
     }
-    
-    func gestureRecognizerShouldBegin(
-        _ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        guard scrollView.zoomScale == scrollView.minimumZoomScale,
-            let panGesture = gestureRecognizer as? UIPanGestureRecognizer
-            else { return false }
-        
-        let velocity = panGesture.velocity(in: scrollView)
-        return abs(velocity.y) > abs(velocity.x)
-    }
-    
-    
 }
 
 // MARK: Adjusting the dimensions
@@ -283,28 +190,13 @@ extension ImageViewerController {
     
 }
 
-// MARK: Animation Related stuff
-extension ImageViewerController {
-    
-    private func executeCancelAnimation() {
-        self.isAnimating = true
-        UIView.animate(
-            withDuration: 0.237,
-            animations: {
-                self.imageView.center = self.view.center
-                self.backgroundView?.alpha = 1.0
-        }) {[weak self] _ in
-            self?.isAnimating = false
-        }
-    }
-}
+// MARK: - UIScrollViewDelegate
+extension ImageViewerController: UIScrollViewDelegate {
 
-extension ImageViewerController:UIScrollViewDelegate {
-    
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView
     }
-    
+
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         updateConstraintsForSize(view.bounds.size)
     }
