@@ -19,6 +19,7 @@ export default function HomeScreen() {
             style={{
               height: 245,
               width: 245,
+              borderRadius: 20,
             }}
             source={{ uri: urls[0] }}
           />

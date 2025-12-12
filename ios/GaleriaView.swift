@@ -152,14 +152,31 @@ enum Theme: String, Enumerable {
   }
 }
 
-// MARK: - MatchTransitionDelegate
 extension GaleriaView: MatchTransitionDelegate {
   func matchedViewFor(transition: MatchTransition, otherView: UIView) -> UIView? {
-    // Return the source UIImageView as the matched element
-    return childImageView
+    guard let imageView = childImageView else { return nil }
+
+    if let parentCornerRadius = findCornerRadius(for: imageView), parentCornerRadius > 0 {
+      imageView.layer.cornerRadius = parentCornerRadius
+      imageView.clipsToBounds = true
+    }
+
+    return imageView
   }
 
-  func matchTransitionWillBegin(transition: MatchTransition) {
-    // Optional: additional setup when transition begins
+  func matchTransitionWillBegin(transition: MatchTransition) {}
+
+  private func findCornerRadius(for view: UIView) -> CGFloat? {
+    var current: UIView? = view.superview
+    while let parent = current {
+      if parent.layer.cornerRadius > 0 {
+        return parent.layer.cornerRadius
+      }
+      if parent === self {
+        break
+      }
+      current = parent.superview
+    }
+    return nil
   }
 }
