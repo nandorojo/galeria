@@ -1,12 +1,10 @@
 import UIKit
 import DynamicTransition
 
-// Store weak reference to current navigation view for cleanup
 private var currentNavigationView: NavigationView?
 
 extension UIImageView {
 
-    // Data holder tap recognizer
     private class TapWithDataRecognizer:UITapGestureRecognizer {
         weak var from:UIViewController?
         var imageDatasource:ImageDataSource?
@@ -110,7 +108,6 @@ extension UIImageView {
         var _tapRecognizer:TapWithDataRecognizer?
         gestureRecognizers?.forEach {
             if let _tr = $0 as? TapWithDataRecognizer {
-                // if found, just use existing
                 _tapRecognizer = _tr
             }
         }
@@ -136,7 +133,6 @@ extension UIImageView {
             _tapRecognizer!.numberOfTouchesRequired = 1
             _tapRecognizer!.numberOfTapsRequired = 1
         }
-        // Pass the Data
         _tapRecognizer!.imageDatasource = datasource
         _tapRecognizer!.imageLoader = imageLoader
         _tapRecognizer!.initialIndex = initialIndex
@@ -150,7 +146,6 @@ extension UIImageView {
         guard let sourceView = sender.view as? UIImageView else { return }
         guard let window = sourceView.window else { return }
 
-        // Use SDWebImageLoader if available, otherwise fall back to URLSessionImageLoader
         let defaultImageLoader: ImageLoader
         #if canImport(SDWebImage)
         defaultImageLoader = SDWebImageLoader()
@@ -160,15 +155,11 @@ extension UIImageView {
 
         let imageLoader = sender.imageLoader ?? defaultImageLoader
 
-        // Find the GaleriaView parent to use as MatchTransitionDelegate for background
         let galeriaView = sourceView.findSuperview(ofType: GaleriaView.self)
 
-        // Create a placeholder root view for NavigationView
-        // The placeholder acts as the "background" for the MatchTransition
         let placeholderRoot = ImageViewerPlaceholderView(sourceImageView: sourceView, galeriaView: galeriaView)
         placeholderRoot.backgroundColor = .clear
 
-        // Create NavigationView
         let navView = NavigationView(rootView: placeholderRoot)
         navView.frame = window.bounds
         navView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -178,16 +169,8 @@ extension UIImageView {
         // Get the source image for transition
         // Note: SDAnimatedImageView/ExpoImage may not return image via .image property
         // so we try multiple approaches
-        var sourceImage: UIImage? = sourceView.image
-        print("[showImageViewer] sourceView.image = \(String(describing: sourceImage))")
+        let sourceImage: UIImage? = sourceView.image
 
-        // If .image is nil, try to get the displayed image from the layer
-        if sourceImage == nil {
-//            sourceImage = UIImage(cgImage: cgImage)
-            print("[showImageViewer] Got image from layer.contents: \(String(describing: sourceImage))")
-        }
-
-        // Create the image viewer with source image for transition
         let viewerView = ImageViewerRootView(
             imageDataSource: sender.imageDatasource,
             imageLoader: imageLoader,
@@ -196,18 +179,15 @@ extension UIImageView {
             sourceImage: sourceImage
         )
 
-        // Set up dismiss callback to clean up NavigationView
         viewerView.onDismiss = { [weak navView] in
             navView?.removeFromSuperview()
             currentNavigationView = nil
         }
 
-        // Push the viewer onto the navigation stack
         navView.pushView(viewerView, animated: true)
     }
 }
 
-// MARK: - Helper extension to find superview of type
 extension UIView {
     func findSuperview<T: UIView>(ofType type: T.Type) -> T? {
         var currentView: UIView? = self
@@ -221,7 +201,6 @@ extension UIView {
     }
 }
 
-// MARK: - Placeholder view that acts as background during transition
 class ImageViewerPlaceholderView: UIView, MatchTransitionDelegate {
     weak var sourceImageView: UIImageView?
     weak var galeriaView: GaleriaView?
@@ -230,7 +209,6 @@ class ImageViewerPlaceholderView: UIView, MatchTransitionDelegate {
         self.sourceImageView = sourceImageView
         self.galeriaView = galeriaView
         super.init(frame: .zero)
-        print("[ImageViewerPlaceholderView] init with sourceImageView: \(String(describing: sourceImageView)), galeriaView: \(String(describing: galeriaView))")
     }
 
     required init?(coder: NSCoder) {
@@ -238,20 +216,14 @@ class ImageViewerPlaceholderView: UIView, MatchTransitionDelegate {
     }
 
     func matchedViewFor(transition: MatchTransition, otherView: UIView) -> UIView? {
-        // Return the source image view as the matched element
-        // Either from GaleriaView or directly from the tapped image
-        print("[ImageViewerPlaceholderView] matchedViewFor called, otherView: \(type(of: otherView))")
         if let galeriaView = galeriaView {
             let result = galeriaView.matchedViewFor(transition: transition, otherView: otherView)
-            print("[ImageViewerPlaceholderView] returning from galeriaView: \(String(describing: result))")
             return result
         }
-        print("[ImageViewerPlaceholderView] returning sourceImageView: \(String(describing: sourceImageView))")
         return sourceImageView
     }
 
     func matchTransitionWillBegin(transition: MatchTransition) {
-        print("[ImageViewerPlaceholderView] matchTransitionWillBegin")
         galeriaView?.matchTransitionWillBegin(transition: transition)
     }
 }

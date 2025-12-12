@@ -1,17 +1,9 @@
-//
-//  ImageViewerRootView.swift
-//  Galeria
-//
-//  Created for DynamicTransition integration
-//
-
 import UIKit
 import DynamicTransition
 
 class ImageViewerRootView: UIView, RootViewType {
     let transition = MatchTransition()
 
-    // MARK: - Data
     weak var imageDatasource: ImageDataSource?
     let imageLoader: ImageLoader
     var initialIndex: Int = 0
@@ -19,11 +11,8 @@ class ImageViewerRootView: UIView, RootViewType {
     var options: [ImageViewerOption] = []
     var onIndexChange: ((Int) -> Void)?
     var onDismiss: (() -> Void)?
-
-    // Source image used for transition (displayed immediately while full image loads)
     var sourceImage: UIImage?
 
-    // MARK: - Views
     private var pageViewController: UIPageViewController!
     private(set) lazy var backgroundView: UIView = {
         let view = UIView()
@@ -42,25 +31,16 @@ class ImageViewerRootView: UIView, RootViewType {
     private lazy var navItem = UINavigationItem()
     private var onRightNavBarTapped: ((Int) -> Void)?
 
-    // MARK: - State
     private var currentIndex: Int = 0
-
-    // Store direct reference to initial view controller for transition matching
     private var initialViewController: ImageViewerController?
 
-    // MARK: - Computed Properties
     var currentImageView: UIImageView? {
-        // Try pageViewController first
         if let vc = pageViewController?.viewControllers?.first as? ImageViewerController {
-            print("[ImageViewerRootView] currentImageView from pageVC: \(vc.imageView)")
             return vc.imageView
         }
-        // Fall back to stored initial view controller
         if let vc = initialViewController {
-            print("[ImageViewerRootView] currentImageView from initialVC: \(vc.imageView)")
             return vc.imageView
         }
-        print("[ImageViewerRootView] currentImageView: nil")
         return nil
     }
 
@@ -71,7 +51,6 @@ class ImageViewerRootView: UIView, RootViewType {
         return initialViewController?.scrollView
     }
 
-    // MARK: - RootViewType
     var preferredStatusBarStyle: UIStatusBarStyle {
         theme == .dark ? .lightContent : .default
     }
@@ -99,7 +78,6 @@ class ImageViewerRootView: UIView, RootViewType {
         onDismiss?()
     }
 
-    // MARK: - Init
     init(
         imageDataSource: ImageDataSource?,
         imageLoader: ImageLoader,
@@ -113,7 +91,6 @@ class ImageViewerRootView: UIView, RootViewType {
         self.initialIndex = initialIndex
         self.currentIndex = initialIndex
         self.sourceImage = sourceImage
-        print("[ImageViewerRootView] init: sourceImage = \(String(describing: sourceImage))")
         super.init(frame: .zero)
         setupViews()
         applyOptions()
@@ -124,12 +101,9 @@ class ImageViewerRootView: UIView, RootViewType {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Setup
     private func setupViews() {
-        // Background
         addSubview(backgroundView)
 
-        // Page view controller
         let pageOptions = [UIPageViewController.OptionsKey.interPageSpacing: 20]
         pageViewController = UIPageViewController(
             transitionStyle: .scroll,
@@ -142,43 +116,27 @@ class ImageViewerRootView: UIView, RootViewType {
 
         addSubview(pageViewController.view)
 
-        // Set initial view controller
         if let datasource = imageDatasource {
             let initialVC = ImageViewerController(
                 index: initialIndex,
                 imageItem: datasource.imageItem(at: initialIndex),
                 imageLoader: imageLoader
             )
-            // Store reference for transition matching
             self.initialViewController = initialVC
-
-            // Remove the pan gesture from ImageViewerController since MatchTransition handles it
-            // Accessing .view triggers viewDidLoad
             initialVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
             pageViewController.setViewControllers([initialVC], direction: .forward, animated: false)
 
-            // Pre-populate with source image for transition animation
-            // IMPORTANT: This must happen AFTER viewDidLoad (triggered by accessing .view above)
-            // because viewDidLoad may overwrite the image when loading from URL
-            print("[ImageViewerRootView] setupViews: self.sourceImage = \(String(describing: self.sourceImage))")
             if let sourceImage = self.sourceImage {
-                print("[ImageViewerRootView] setupViews: Setting sourceImage on imageView (after viewDidLoad)")
                 initialVC.imageView.image = sourceImage
                 initialVC.imageView.contentMode = .scaleAspectFit
-                print("[ImageViewerRootView] setupViews: imageView.image after setting = \(String(describing: initialVC.imageView.image))")
-            } else {
-                print("[ImageViewerRootView] setupViews: sourceImage is nil, not setting")
             }
 
-            // Force layout so imageView has proper frame before transition
             initialVC.view.setNeedsLayout()
             initialVC.view.layoutIfNeeded()
 
             onIndexChange?(initialIndex)
-            print("[ImageViewerRootView] setupViews: initialVC set, imageView = \(initialVC.imageView), image = \(String(describing: initialVC.imageView.image))")
         }
 
-        // Nav bar
         let closeBarButton = UIBarButtonItem(
             title: NSLocalizedString("Close", comment: "Close button title"),
             style: .plain,
@@ -219,29 +177,25 @@ class ImageViewerRootView: UIView, RootViewType {
             case .onIndexChange(let callback):
                 self.onIndexChange = callback
             case .contentMode:
-                break // Handled by ImageViewerController
+                break
             }
         }
     }
 
     private func setupGestures() {
-        // Vertical pan to dismiss
         addGestureRecognizer(transition.verticalDismissGestureRecognizer)
         transition.verticalDismissGestureRecognizer.delegate = self
 
-        // Single tap to toggle nav bar
         let singleTapGesture = UITapGestureRecognizer(target: self, action: #selector(didSingleTap))
         singleTapGesture.numberOfTapsRequired = 1
         addGestureRecognizer(singleTapGesture)
     }
 
-    // MARK: - Layout
     override func layoutSubviews() {
         super.layoutSubviews()
         backgroundView.frame = bounds
         pageViewController.view.frame = bounds
 
-        // Force layout on page view controller's children so imageView gets proper frame
         pageViewController.view.setNeedsLayout()
         pageViewController.view.layoutIfNeeded()
         for child in pageViewController.children {
@@ -249,7 +203,6 @@ class ImageViewerRootView: UIView, RootViewType {
             child.view.layoutIfNeeded()
         }
 
-        // Layout nav bar
         let navBarHeight: CGFloat = 44
         let statusBarHeight = safeAreaInsets.top
         navBar.frame = CGRect(
@@ -260,7 +213,6 @@ class ImageViewerRootView: UIView, RootViewType {
         )
     }
 
-    // MARK: - Actions
     @objc private func dismissViewer() {
         navigationView?.popView(animated: true)
     }
@@ -277,33 +229,25 @@ class ImageViewerRootView: UIView, RootViewType {
     }
 }
 
-// MARK: - TransitionProvider
 extension ImageViewerRootView: TransitionProvider {
     func transitionFor(presenting: Bool, otherView: UIView) -> Transition? {
         return transition
     }
 }
 
-// MARK: - MatchTransitionDelegate
 extension ImageViewerRootView: MatchTransitionDelegate {
     func matchedViewFor(transition: MatchTransition, otherView: UIView) -> UIView? {
-        // Return the current image view as the matched element
         let imageView = currentImageView
-        print("[ImageViewerRootView] matchedViewFor called, returning: \(String(describing: imageView)), otherView: \(type(of: otherView))")
         return imageView
     }
 
     func matchTransitionWillBegin(transition: MatchTransition) {
-        // Hide nav bar during transition
         navBar.alpha = 0
-        print("[ImageViewerRootView] matchTransitionWillBegin")
     }
 }
 
-// MARK: - UIGestureRecognizerDelegate
 extension ImageViewerRootView: UIGestureRecognizerDelegate {
     override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        // Disable dismiss gesture when zoomed in
         if let scrollView = currentScrollView {
             return scrollView.zoomScale <= scrollView.minimumZoomScale + 0.01
         }
@@ -318,7 +262,6 @@ extension ImageViewerRootView: UIGestureRecognizerDelegate {
     }
 }
 
-// MARK: - UIPageViewControllerDataSource
 extension ImageViewerRootView: UIPageViewControllerDataSource {
     func pageViewController(
         _ pageViewController: UIPageViewController,
@@ -336,7 +279,6 @@ extension ImageViewerRootView: UIPageViewControllerDataSource {
             imageItem: datasource.imageItem(at: newIndex),
             imageLoader: imageLoader
         )
-        // Remove pan gesture
         newVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
         return newVC
     }
@@ -357,13 +299,11 @@ extension ImageViewerRootView: UIPageViewControllerDataSource {
             imageItem: datasource.imageItem(at: newIndex),
             imageLoader: imageLoader
         )
-        // Remove pan gesture
         newVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
         return newVC
     }
 }
 
-// MARK: - UIPageViewControllerDelegate
 extension ImageViewerRootView: UIPageViewControllerDelegate {
     func pageViewController(
         _ pageViewController: UIPageViewController,

@@ -8,7 +8,6 @@ class ImageViewerController: UIViewController {
     var index: Int = 0
     var imageItem: ImageItem!
 
-    // MARK: Layout Constraints
     private var top: NSLayoutConstraint!
     private var leading: NSLayoutConstraint!
     private var trailing: NSLayoutConstraint!
@@ -90,8 +89,6 @@ class ImageViewerController: UIViewController {
         updateMinMaxZoomScaleForSize(view.bounds.size)
     }
 
-    // MARK: Add Gesture Recognizers
-    // Note: Pan-to-dismiss is now handled by MatchTransition in ImageViewerRootView
     func addGestureRecognizers() {
         let pinchRecognizer = UITapGestureRecognizer(
             target: self,
@@ -124,12 +121,10 @@ class ImageViewerController: UIViewController {
     }
 }
 
-// MARK: Adjusting the dimensions
 extension ImageViewerController {
     
     func updateMinMaxZoomScaleForSize(_ size: CGSize) {
         
-        // Get the image size instead of the UIImageView bounds  
         guard let image = imageView.image else { return }
         let imageSize = image.size
         
@@ -138,7 +133,6 @@ extension ImageViewerController {
         }
         
         
-        // Calcuate scale based on image size
         let minScale = min(
             size.width/imageSize.width,   
             size.height/imageSize.height)  
@@ -169,19 +163,16 @@ extension ImageViewerController {
     }
     
     func updateConstraintsForSize(_ size: CGSize) {
-        // Get the image size
         guard let image = imageView.image else { return }
         let imageSize = image.size
         
         let scaledImageWidth = imageSize.width * scrollView.zoomScale
         let scaledImageHeight = imageSize.height * scrollView.zoomScale
         
-        // Calculate vertical offset for centering
         let yOffset = max(0, (size.height - scaledImageHeight) / 2)
         top.constant = yOffset
         bottom.constant = yOffset
         
-        // Calculate horizontal offset for centering
         let xOffset = max(0, (size.width - scaledImageWidth) / 2)
         leading.constant = xOffset
         trailing.constant = xOffset
@@ -190,7 +181,6 @@ extension ImageViewerController {
     
 }
 
-// MARK: - UIScrollViewDelegate
 extension ImageViewerController: UIScrollViewDelegate {
 
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
