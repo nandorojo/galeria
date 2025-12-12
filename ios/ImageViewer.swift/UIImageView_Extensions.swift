@@ -1,8 +1,10 @@
 import UIKit
+import DynamicTransition
+
+private var currentNavigationView: NavigationView?
 
 extension UIImageView {
-    
-    // Data holder tap recognizer
+
     private class TapWithDataRecognizer:UITapGestureRecognizer {
         weak var from:UIViewController?
         var imageDatasource:ImageDataSource?
@@ -10,13 +12,7 @@ extension UIImageView {
         var initialIndex:Int = 0
         var options:[ImageViewerOption] = []
     }
-    
-    private var vc:UIViewController? {
-        guard let rootVC = UIApplication.shared.keyWindow?.rootViewController
-            else { return nil }
-        return rootVC.presentedViewController != nil ? rootVC.presentedViewController : rootVC
-    }
-    
+
     public func setupImageViewer(
         options:[ImageViewerOption] = [],
         from:UIViewController? = nil,
@@ -35,7 +31,7 @@ extension UIImageView {
         options:[ImageViewerOption] = [],
         from:UIViewController? = nil,
         imageLoader:ImageLoader? = nil) {
-        
+
         let datasource = SimpleImageDatasource(
             imageItems: [url].compactMap {
                 ImageItem.url($0, placeholder: placeholder)
@@ -47,14 +43,14 @@ extension UIImageView {
             from: from,
             imageLoader: imageLoader)
     }
-    
+
     public func setupImageViewer(
         images:[UIImage],
         initialIndex:Int = 0,
         options:[ImageViewerOption] = [],
         from:UIViewController? = nil,
         imageLoader:ImageLoader? = nil) {
-        
+
         let datasource = SimpleImageDatasource(
             imageItems: images.compactMap {
                 ImageItem.image($0)
@@ -74,7 +70,7 @@ extension UIImageView {
         placeholder: UIImage? = nil,
         from:UIViewController? = nil,
         imageLoader:ImageLoader? = nil) {
-        
+
         let datasource = SimpleImageDatasource(
             imageItems: urls.compactMap {
                 ImageItem.url($0, placeholder: placeholder)
@@ -86,14 +82,14 @@ extension UIImageView {
             from: from,
             imageLoader: imageLoader)
     }
-    
+
     public func setupImageViewer(
         datasource:ImageDataSource,
         initialIndex:Int = 0,
         options:[ImageViewerOption] = [],
         from:UIViewController? = nil,
         imageLoader:ImageLoader? = nil) {
-        
+
         setup(
             datasource: datasource,
             initialIndex: initialIndex,
@@ -101,24 +97,23 @@ extension UIImageView {
             from: from,
             imageLoader: imageLoader)
     }
-    
+
     private func setup(
         datasource:ImageDataSource?,
         initialIndex:Int = 0,
         options:[ImageViewerOption] = [],
         from: UIViewController? = nil,
         imageLoader:ImageLoader? = nil) {
-        
+
         var _tapRecognizer:TapWithDataRecognizer?
         gestureRecognizers?.forEach {
             if let _tr = $0 as? TapWithDataRecognizer {
-                // if found, just use existing
                 _tapRecognizer = _tr
             }
         }
-        
+
         isUserInteractionEnabled = true
-        
+
         var imageContentMode: UIView.ContentMode = .scaleAspectFill
         options.forEach {
             switch $0 {
@@ -129,16 +124,15 @@ extension UIImageView {
             }
         }
         contentMode = imageContentMode
-        
+
         clipsToBounds = true
-        
+
         if _tapRecognizer == nil {
             _tapRecognizer = TapWithDataRecognizer(
                 target: self, action: #selector(showImageViewer(_:)))
             _tapRecognizer!.numberOfTouchesRequired = 1
             _tapRecognizer!.numberOfTapsRequired = 1
         }
-        // Pass the Data
         _tapRecognizer!.imageDatasource = datasource
         _tapRecognizer!.imageLoader = imageLoader
         _tapRecognizer!.initialIndex = initialIndex
@@ -146,35 +140,90 @@ extension UIImageView {
         _tapRecognizer!.from = from
         addGestureRecognizer(_tapRecognizer!)
     }
-    
-    private func topMostViewController(_ rootViewController: UIViewController?) -> UIViewController? {
-        var topController = rootViewController
-        while let presented = topController?.presentedViewController {
-            topController = presented
-        }
-        return topController
-    }
-    
+
     @objc
     private func showImageViewer(_ sender:TapWithDataRecognizer) {
         guard let sourceView = sender.view as? UIImageView else { return }
-        // Use SDWebImageLoader if available, otherwise fall back to URLSessionImageLoader
+        guard let window = sourceView.window else { return }
+
         let defaultImageLoader: ImageLoader
         #if canImport(SDWebImage)
         defaultImageLoader = SDWebImageLoader()
         #else
         defaultImageLoader = URLSessionImageLoader()
         #endif
-        
-        let imageCarousel = ImageCarouselViewController.init(
-            sourceView: sourceView,
+
+        let imageLoader = sender.imageLoader ?? defaultImageLoader
+
+        let galeriaView = sourceView.findSuperview(ofType: GaleriaView.self)
+
+        let placeholderRoot = ImageViewerPlaceholderView(sourceImageView: sourceView, galeriaView: galeriaView)
+        placeholderRoot.backgroundColor = .clear
+
+        let navView = NavigationView(rootView: placeholderRoot)
+        navView.frame = window.bounds
+        navView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        window.addSubview(navView)
+        currentNavigationView = navView
+
+        // Get the source image for transition
+        // Note: SDAnimatedImageView/ExpoImage may not return image via .image property
+        // so we try multiple approaches
+        let sourceImage: UIImage? = sourceView.image
+
+        let viewerView = ImageViewerRootView(
             imageDataSource: sender.imageDatasource,
-            imageLoader: sender.imageLoader ?? defaultImageLoader,
+            imageLoader: imageLoader,
             options: sender.options,
-            initialIndex: sender.initialIndex)
-     
-        let rootVC = sender.from ?? vc
-        let presentFromVC = topMostViewController(rootVC)
-        presentFromVC?.present(imageCarousel, animated: true)
+            initialIndex: sender.initialIndex,
+            sourceImage: sourceImage
+        )
+
+        viewerView.onDismiss = { [weak navView] in
+            navView?.removeFromSuperview()
+            currentNavigationView = nil
+        }
+
+        navView.pushView(viewerView, animated: true)
+    }
+}
+
+extension UIView {
+    func findSuperview<T: UIView>(ofType type: T.Type) -> T? {
+        var currentView: UIView? = self
+        while let view = currentView {
+            if let typedView = view as? T {
+                return typedView
+            }
+            currentView = view.superview
+        }
+        return nil
+    }
+}
+
+class ImageViewerPlaceholderView: UIView, MatchTransitionDelegate {
+    weak var sourceImageView: UIImageView?
+    weak var galeriaView: GaleriaView?
+
+    init(sourceImageView: UIImageView, galeriaView: GaleriaView?) {
+        self.sourceImageView = sourceImageView
+        self.galeriaView = galeriaView
+        super.init(frame: .zero)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func matchedViewFor(transition: MatchTransition, otherView: UIView) -> UIView? {
+        if let galeriaView = galeriaView {
+            let result = galeriaView.matchedViewFor(transition: transition, otherView: otherView)
+            return result
+        }
+        return sourceImageView
+    }
+
+    func matchTransitionWillBegin(transition: MatchTransition) {
+        galeriaView?.matchTransitionWillBegin(transition: transition)
     }
 }

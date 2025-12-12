@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.license        = package['license']
   s.author         = package['author']
   s.homepage       = package['homepage']
-  s.platform       = :ios, '13.0'
+  s.platform       = :ios, '16.0'
   s.swift_version  = '5.4'
   s.source         = { git: 'https://github.com/nandorojo/galeria' }
   s.static_framework = true
@@ -23,6 +23,11 @@ Pod::Spec.new do |s|
   s.dependency 'ExpoModulesCore'
   s.dependency 'SDWebImage'
 
+  spm_dependency(s,
+    url: "https://github.com/lkzhao/DynamicTransition.git",
+    requirement: {kind: "branch", branch: "main"},
+    products: ["DynamicTransition"]
+  )
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {

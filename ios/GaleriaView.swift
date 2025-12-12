@@ -1,8 +1,10 @@
 import ExpoModulesCore
 import UIKit
+import DynamicTransition
 
 class GaleriaView: ExpoView {
   private var childImageView: UIImageView?
+  private weak var currentNavigationView: NavigationView?
 
   func getChildImageView() -> UIImageView? {
     var reactSubviews: [UIView]? = nil
@@ -148,5 +150,34 @@ enum Theme: String, Enumerable {
     case .light:
       return .black
     }
+  }
+}
+
+extension GaleriaView: MatchTransitionDelegate {
+  func matchedViewFor(transition: MatchTransition, otherView: UIView) -> UIView? {
+    guard let imageView = childImageView else { return nil }
+
+    if let parentCornerRadius = findCornerRadius(for: imageView), parentCornerRadius > 0 {
+      imageView.layer.cornerRadius = parentCornerRadius
+      imageView.clipsToBounds = true
+    }
+
+    return imageView
+  }
+
+  func matchTransitionWillBegin(transition: MatchTransition) {}
+
+  private func findCornerRadius(for view: UIView) -> CGFloat? {
+    var current: UIView? = view.superview
+    while let parent = current {
+      if parent.layer.cornerRadius > 0 {
+        return parent.layer.cornerRadius
+      }
+      if parent === self {
+        break
+      }
+      current = parent.superview
+    }
+    return nil
   }
 }
