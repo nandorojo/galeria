@@ -1,4 +1,5 @@
 import UIKit
+import DynamicTransition
 
 // Store weak reference to current navigation view for cleanup
 private var currentNavigationView: NavigationView?
