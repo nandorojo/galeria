@@ -179,7 +179,9 @@ extension UIImageView {
             sourceImage: sourceImage
         )
 
+        let optionsDismissCallback = viewerView.onDismiss
         viewerView.onDismiss = { [weak navView] in
+            optionsDismissCallback?()
             navView?.removeFromSuperview()
             currentNavigationView = nil
         }

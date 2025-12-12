@@ -5,6 +5,7 @@ import DynamicTransition
 class GaleriaView: ExpoView {
   private var childImageView: UIImageView?
   private weak var currentNavigationView: NavigationView?
+  private weak var previousFirstResponder: UIResponder?
 
   func getChildImageView() -> UIImageView? {
     var reactSubviews: [UIView]? = nil
@@ -126,6 +127,11 @@ class GaleriaView: ExpoView {
       .onIndexChange { [weak self] index in
         self?.onIndexChange(["currentIndex": index])
       })
+      
+      options.append(
+        .onDismiss { [weak self] in
+            self?.restoreKeyboard()
+        })
 
     return options
   }
@@ -165,7 +171,17 @@ extension GaleriaView: MatchTransitionDelegate {
     return imageView
   }
 
-  func matchTransitionWillBegin(transition: MatchTransition) {}
+    func matchTransitionWillBegin(transition: MatchTransition) {
+        guard previousFirstResponder == nil else { return }
+        
+        previousFirstResponder = UIResponder.currentFirstResponder
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
+    func restoreKeyboard() {
+        previousFirstResponder?.becomeFirstResponder()
+        previousFirstResponder = nil
+    }
 
   private func findCornerRadius(for view: UIView) -> CGFloat? {
     var current: UIView? = view.superview
@@ -180,4 +196,18 @@ extension GaleriaView: MatchTransitionDelegate {
     }
     return nil
   }
+}
+
+extension UIResponder {
+    private static weak var _currentFirstResponder: UIResponder?
+    
+    static var currentFirstResponder: UIResponder? {
+        _currentFirstResponder = nil
+        UIApplication.shared.sendAction(#selector(findFirstResponder(_:)), to: nil, from: nil, for: nil)
+        return _currentFirstResponder
+    }
+    
+    @objc private func findFirstResponder(_ sender: Any) {
+        UIResponder._currentFirstResponder = self
+    }
 }

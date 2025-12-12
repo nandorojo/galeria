@@ -176,6 +176,8 @@ class ImageViewerRootView: UIView, RootViewType {
                 onRightNavBarTapped = onTap
             case .onIndexChange(let callback):
                 self.onIndexChange = callback
+            case .onDismiss(let callback):
+                self.onDismiss = callback
             case .contentMode:
                 break
             }
