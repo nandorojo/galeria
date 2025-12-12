@@ -143,8 +143,8 @@ class ImageViewerRootView: UIView, RootViewType {
             target: self,
             action: #selector(dismissViewer)
         )
+        closeBarButton.tintColor = theme.tintColor
         navItem.leftBarButtonItem = closeBarButton
-        navItem.leftBarButtonItem?.tintColor = theme.tintColor
         navBar.items = [navItem]
         addSubview(navBar)
     }
@@ -207,10 +207,11 @@ class ImageViewerRootView: UIView, RootViewType {
 
         let navBarHeight: CGFloat = 44
         let statusBarHeight = safeAreaInsets.top
+        let horizontalPadding: CGFloat = 16
         navBar.frame = CGRect(
-            x: 0,
+            x: horizontalPadding,
             y: statusBarHeight,
-            width: bounds.width,
+            width: bounds.width - (horizontalPadding * 2),
             height: navBarHeight
         )
     }

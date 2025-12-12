@@ -13,7 +13,7 @@ export default function HomeScreen() {
       <LinkItem href="/modal">Modal</LinkItem>
       <LinkItem href="/masonry">Masonry</LinkItem>
 
-      <Galeria urls={urls} theme="light">
+      <Galeria urls={urls} theme="light" closeIconName='xmark'>
         <Galeria.Image id={urls[0]} index={0}>
           <Image
             style={{
