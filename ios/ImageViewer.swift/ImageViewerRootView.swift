@@ -123,13 +123,16 @@ class ImageViewerRootView: UIView, RootViewType {
                 imageLoader: imageLoader
             )
             self.initialViewController = initialVC
+            
+            // Set the placeholder BEFORE accessing .view to avoid overwriting loaded images
+            // The placeholder will be used during URL loading and replaced with full-res when loaded
+            if let sourceImage = self.sourceImage {
+                initialVC.initialPlaceholder = sourceImage
+            }
+            
+            // Now access .view which triggers viewDidLoad - the placeholder is already set
             initialVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
             pageViewController.setViewControllers([initialVC], direction: .forward, animated: false)
-
-            if let sourceImage = self.sourceImage {
-                initialVC.imageView.image = sourceImage
-                initialVC.imageView.contentMode = .scaleAspectFit
-            }
 
             initialVC.view.setNeedsLayout()
             initialVC.view.layoutIfNeeded()
