@@ -31,7 +31,7 @@ class ImageViewerRootView: UIView, RootViewType {
     private lazy var navItem = UINavigationItem()
     private var onRightNavBarTapped: ((Int) -> Void)?
 
-    private var currentIndex: Int = 0
+    private(set) var currentIndex: Int = 0
     private var initialViewController: ImageViewerController?
 
     var currentImageView: UIImageView? {
@@ -123,13 +123,13 @@ class ImageViewerRootView: UIView, RootViewType {
                 imageLoader: imageLoader
             )
             self.initialViewController = initialVC
+            
+            if let sourceImage = self.sourceImage {
+                initialVC.initialPlaceholder = sourceImage
+            }
+            
             initialVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
             pageViewController.setViewControllers([initialVC], direction: .forward, animated: false)
-
-            if let sourceImage = self.sourceImage {
-                initialVC.imageView.image = sourceImage
-                initialVC.imageView.contentMode = .scaleAspectFit
-            }
 
             initialVC.view.setNeedsLayout()
             initialVC.view.layoutIfNeeded()
@@ -144,35 +144,47 @@ class ImageViewerRootView: UIView, RootViewType {
             action: #selector(dismissViewer)
         )
         closeBarButton.tintColor = theme.tintColor
-        navItem.leftBarButtonItem = closeBarButton
+        navItem.rightBarButtonItem = closeBarButton
         navBar.items = [navItem]
         addSubview(navBar)
     }
 
     private func applyOptions() {
+        let closeButton = navItem.rightBarButtonItem
+        
         options.forEach { option in
             switch option {
             case .theme(let newTheme):
                 self.theme = newTheme
                 backgroundView.backgroundColor = newTheme.color
-                navItem.leftBarButtonItem?.tintColor = newTheme.tintColor
+                closeButton?.tintColor = newTheme.tintColor
             case .closeIcon(let icon):
-                navItem.leftBarButtonItem?.image = icon
+                closeButton?.image = icon
             case .rightNavItemTitle(let title, let onTap):
-                navItem.rightBarButtonItem = UIBarButtonItem(
+                let customButton = UIBarButtonItem(
                     title: title,
                     style: .plain,
                     target: self,
                     action: #selector(didTapRightNavItem)
                 )
+                if let closeButton = closeButton {
+                    navItem.rightBarButtonItems = [closeButton, customButton]
+                } else {
+                    navItem.rightBarButtonItem = customButton
+                }
                 onRightNavBarTapped = onTap
             case .rightNavItemIcon(let icon, let onTap):
-                navItem.rightBarButtonItem = UIBarButtonItem(
+                let customButton = UIBarButtonItem(
                     image: icon,
                     style: .plain,
                     target: self,
                     action: #selector(didTapRightNavItem)
                 )
+                if let closeButton = closeButton {
+                    navItem.rightBarButtonItems = [closeButton, customButton]
+                } else {
+                    navItem.rightBarButtonItem = customButton
+                }
                 onRightNavBarTapped = onTap
             case .onIndexChange(let callback):
                 self.onIndexChange = callback

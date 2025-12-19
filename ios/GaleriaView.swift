@@ -6,6 +6,32 @@ class GaleriaView: ExpoView {
   private var childImageView: UIImageView?
   private weak var currentNavigationView: NavigationView?
   private weak var previousFirstResponder: UIResponder?
+  private var isRegistered = false
+  
+  var groupId: String? {
+    guard let urls = urls, !urls.isEmpty else { return nil }
+    return String(urls.joined(separator: ",").hashValue)
+  }
+  
+  deinit {
+    unregisterFromRegistry()
+  }
+  
+  private func registerWithRegistry() {
+    guard let groupId = groupId, let index = initialIndex else { return }
+    GaleriaViewRegistry.shared.register(view: self, groupId: groupId, index: index)
+    isRegistered = true
+  }
+  
+  private func unregisterFromRegistry() {
+    guard isRegistered, let groupId = groupId, let index = initialIndex else { return }
+    GaleriaViewRegistry.shared.unregister(groupId: groupId, index: index)
+    isRegistered = false
+  }
+  
+  class func findView(groupId: String, index: Int) -> GaleriaView? {
+    return GaleriaViewRegistry.shared.view(forGroupId: groupId, index: index)
+  }
 
   func getChildImageView() -> UIImageView? {
     var reactSubviews: [UIView]? = nil
@@ -42,6 +68,7 @@ class GaleriaView: ExpoView {
     override func unmountChildComponentView(_ childComponentView: UIView, index: Int) {
       childImageView?.gestureRecognizers?.removeAll()
       childImageView = nil
+      unregisterFromRegistry()
       super.unmountChildComponentView(childComponentView, index: index)
     }
   #endif
@@ -59,6 +86,8 @@ class GaleriaView: ExpoView {
     guard let childImage = getChildImageView() else {
       return
     }
+
+    registerWithRegistry()
 
     if let urls = self.urls, let initialIndex = self.initialIndex {
       setupImageViewerWithUrls(
