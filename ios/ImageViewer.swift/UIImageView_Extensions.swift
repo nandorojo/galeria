@@ -166,9 +166,6 @@ extension UIImageView {
         window.addSubview(navView)
         currentNavigationView = navView
 
-        // Get the source image for transition
-        // Note: SDAnimatedImageView/ExpoImage may not return image via .image property
-        // so we try multiple approaches
         let sourceImage: UIImage? = sourceView.image
 
         let viewerView = ImageViewerRootView(
@@ -178,6 +175,8 @@ extension UIImageView {
             initialIndex: sender.initialIndex,
             sourceImage: sourceImage
         )
+        
+        placeholderRoot.viewerRootView = viewerView
 
         let optionsDismissCallback = viewerView.onDismiss
         viewerView.onDismiss = { [weak navView] in
@@ -206,6 +205,7 @@ extension UIView {
 class ImageViewerPlaceholderView: UIView, MatchTransitionDelegate {
     weak var sourceImageView: UIImageView?
     weak var galeriaView: GaleriaView?
+    weak var viewerRootView: ImageViewerRootView?
 
     init(sourceImageView: UIImageView, galeriaView: GaleriaView?) {
         self.sourceImageView = sourceImageView
@@ -218,14 +218,28 @@ class ImageViewerPlaceholderView: UIView, MatchTransitionDelegate {
     }
 
     func matchedViewFor(transition: MatchTransition, otherView: UIView) -> UIView? {
+        if let viewerRoot = viewerRootView ?? (otherView as? ImageViewerRootView),
+           let groupId = galeriaView?.groupId {
+            let currentIndex = viewerRoot.currentIndex
+            
+            if let targetView = GaleriaView.findView(groupId: groupId, index: currentIndex) {
+                return targetView.matchedViewFor(transition: transition, otherView: otherView)
+            }
+        }
+        
         if let galeriaView = galeriaView {
-            let result = galeriaView.matchedViewFor(transition: transition, otherView: otherView)
-            return result
+            return galeriaView.matchedViewFor(transition: transition, otherView: otherView)
         }
         return sourceImageView
     }
 
     func matchTransitionWillBegin(transition: MatchTransition) {
+        if let viewerRoot = viewerRootView,
+           let groupId = galeriaView?.groupId,
+           let targetView = GaleriaView.findView(groupId: groupId, index: viewerRoot.currentIndex) {
+            targetView.matchTransitionWillBegin(transition: transition)
+            return
+        }
         galeriaView?.matchTransitionWillBegin(transition: transition)
     }
 }

@@ -144,7 +144,6 @@ extension ImageViewerController {
             return
         }
         
-        // Account for safe area when calculating scale
         let safeAreaInsets = view.safeAreaInsets
         let availableWidth = size.width - safeAreaInsets.left - safeAreaInsets.right
         let availableHeight = size.height - safeAreaInsets.top - safeAreaInsets.bottom
@@ -182,7 +181,6 @@ extension ImageViewerController {
         guard let image = imageView.image else { return }
         let imageSize = image.size
         
-        // Account for safe area when centering
         let safeAreaInsets = view.safeAreaInsets
         let availableWidth = size.width - safeAreaInsets.left - safeAreaInsets.right
         let availableHeight = size.height - safeAreaInsets.top - safeAreaInsets.bottom

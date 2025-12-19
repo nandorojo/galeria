@@ -31,7 +31,7 @@ class ImageViewerRootView: UIView, RootViewType {
     private lazy var navItem = UINavigationItem()
     private var onRightNavBarTapped: ((Int) -> Void)?
 
-    private var currentIndex: Int = 0
+    private(set) var currentIndex: Int = 0
     private var initialViewController: ImageViewerController?
 
     var currentImageView: UIImageView? {
