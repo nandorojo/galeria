@@ -123,6 +123,11 @@ class ImageViewerController: UIViewController {
 
 extension ImageViewerController {
     
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        layout()
+    }
+    
     func updateMinMaxZoomScaleForSize(_ size: CGSize) {
         
         guard let image = imageView.image else { return }
@@ -132,14 +137,18 @@ extension ImageViewerController {
             return
         }
         
+        // Account for safe area when calculating scale
+        let safeAreaInsets = view.safeAreaInsets
+        let availableWidth = size.width - safeAreaInsets.left - safeAreaInsets.right
+        let availableHeight = size.height - safeAreaInsets.top - safeAreaInsets.bottom
         
         let minScale = min(
-            size.width/imageSize.width,   
-            size.height/imageSize.height)  
+            availableWidth/imageSize.width,   
+            availableHeight/imageSize.height)  
         
         let maxScale = max(
-            (size.width + 1.0) / imageSize.width,
-            (size.height + 1.0) / imageSize.height)
+            (availableWidth + 1.0) / imageSize.width,
+            (availableHeight + 1.0) / imageSize.height)
         
 
         scrollView.minimumZoomScale = minScale
@@ -166,16 +175,21 @@ extension ImageViewerController {
         guard let image = imageView.image else { return }
         let imageSize = image.size
         
+        // Account for safe area when centering
+        let safeAreaInsets = view.safeAreaInsets
+        let availableWidth = size.width - safeAreaInsets.left - safeAreaInsets.right
+        let availableHeight = size.height - safeAreaInsets.top - safeAreaInsets.bottom
+        
         let scaledImageWidth = imageSize.width * scrollView.zoomScale
         let scaledImageHeight = imageSize.height * scrollView.zoomScale
         
-        let yOffset = max(0, (size.height - scaledImageHeight) / 2)
-        top.constant = yOffset
-        bottom.constant = yOffset
+        let verticalPadding = max(0, (availableHeight - scaledImageHeight) / 2)
+        top.constant = verticalPadding + safeAreaInsets.top
+        bottom.constant = verticalPadding + safeAreaInsets.bottom
         
-        let xOffset = max(0, (size.width - scaledImageWidth) / 2)
-        leading.constant = xOffset
-        trailing.constant = xOffset
+        let horizontalPadding = max(0, (availableWidth - scaledImageWidth) / 2)
+        leading.constant = horizontalPadding + safeAreaInsets.left
+        trailing.constant = horizontalPadding + safeAreaInsets.right
         view.layoutIfNeeded()
     }
     
