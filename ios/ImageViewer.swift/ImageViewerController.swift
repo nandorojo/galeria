@@ -8,7 +8,6 @@ class ImageViewerController: UIViewController {
     var index: Int = 0
     var imageItem: ImageItem!
     
-    /// Placeholder image to use while loading URL images (set before view loads)
     var initialPlaceholder: UIImage?
 
     private var top: NSLayoutConstraint!
@@ -70,9 +69,8 @@ class ImageViewerController: UIViewController {
             imageView.image = img ?? initialPlaceholder
             imageView.layoutIfNeeded()
         case .url(let url, let placeholder):
-            // Use initialPlaceholder if no placeholder was provided with the URL
             let effectivePlaceholder = placeholder ?? initialPlaceholder
-            if let effectivePlaceholder = effectivePlaceholder {
+            if let effectivePlaceholder {
                 imageView.image = effectivePlaceholder
                 imageView.contentMode = .scaleAspectFit
             }
