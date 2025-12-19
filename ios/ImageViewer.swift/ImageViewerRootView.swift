@@ -317,6 +317,14 @@ extension ImageViewerRootView: UIPageViewControllerDataSource {
         newVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
         return newVC
     }
+    
+    func presentationCount(for pageViewController: UIPageViewController) -> Int {
+        return imageDatasource?.numberOfImages() ?? 0
+    }
+    
+    func presentationIndex(for pageViewController: UIPageViewController) -> Int {
+        return currentIndex
+    }
 }
 
 extension ImageViewerRootView: UIPageViewControllerDelegate {
