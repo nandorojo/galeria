@@ -6,7 +6,6 @@ import {
   useRef,
   useEffect,
   useContext,
-  useLayoutEffect,
   isValidElement,
   cloneElement,
 } from 'react'
