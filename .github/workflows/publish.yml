@@ -1,18 +1,24 @@
 name: Publish Package to npmjs
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
-      dist-tag:
-        description: "npm dist-tag to publish under"
-        required: false
+      release-type:
+        description: "Release type"
+        required: true
         default: "alpha"
+        type: choice
+        options:
+          - alpha
+          - beta
+          - latest
+          - patch
+          - minor
+          - major
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 jobs:
   publish:
@@ -20,13 +26,46 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
       - name: Install npm 11.5.1+ (required for trusted publishing)
         run: npm install -g npm@latest
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
       - run: yarn install --immutable
-      - run: yarn build
-      - name: Publish to npm
-        run: npm publish --access public --tag ${{ github.event.inputs.dist-tag || 'alpha' }}
+      - name: Release (alpha)
+        if: ${{ github.event.inputs.release-type == 'alpha' }}
+        run: yarn release-it --preRelease=alpha --npm.tag=alpha --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release (beta)
+        if: ${{ github.event.inputs.release-type == 'beta' }}
+        run: yarn release-it --preRelease=beta --npm.tag=beta --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release (latest)
+        if: ${{ github.event.inputs.release-type == 'latest' }}
+        run: yarn release-it --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release (patch)
+        if: ${{ github.event.inputs.release-type == 'patch' }}
+        run: yarn release-it patch --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release (minor)
+        if: ${{ github.event.inputs.release-type == 'minor' }}
+        run: yarn release-it minor --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release (major)
+        if: ${{ github.event.inputs.release-type == 'major' }}
+        run: yarn release-it major --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
