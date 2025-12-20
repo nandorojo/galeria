@@ -24,6 +24,9 @@ jobs:
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
+      - name: Install npm 11.5.1+ (required for trusted publishing)
+        run: npm install -g npm@latest
       - run: yarn install --immutable
       - run: yarn build
-      - run: npm publish --access public --tag ${{ github.event.inputs.dist-tag || 'alpha' }}
+      - name: Publish to npm
+        run: npm publish --access public --tag ${{ github.event.inputs.dist-tag || 'alpha' }}
