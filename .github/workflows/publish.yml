@@ -10,12 +10,13 @@ on:
         required: false
         default: "alpha"
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
@@ -23,8 +24,5 @@ jobs:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
       - run: yarn install --immutable
-      - run: yarn npm publish --access public --tag ${{ github.event.inputs.dist-tag || 'alpha' }}
-        env:
-          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
+      - run: yarn build
+      - run: npm publish --access public --tag ${{ github.event.inputs.dist-tag || 'alpha' }}
