@@ -8,6 +8,6 @@ public enum ImageViewerOption {
     case rightNavItemIcon(UIImage, onTap: ((Int) -> Void)?)
     case onIndexChange((_ index: Int) -> Void)
     case onDismiss(() -> Void)
-    case blurOverlayVisible(Bool)
-    case isPageIndicatorsVisible(Bool)
+    case hideBlurOverlay(Bool)
+    case hidePageIndicators(Bool)
 }

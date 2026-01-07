@@ -12,8 +12,8 @@ const NativeImage = requireNativeView<
     closeIconName?: SFSymbol
     theme: 'dark' | 'light'
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
-    isBlurOverlayVisible?: boolean
-    isPageIndicatorsVisible?: boolean
+    hideBlurOverlay?: boolean
+    hidePageIndicators?: boolean
   }
 >('Galeria')
 
@@ -26,12 +26,12 @@ const Galeria = Object.assign(
     urls,
     theme = 'dark',
     ids,
-    isBlurOverlayVisible = true,
-    isPageIndicatorsVisible = true,
+    hideBlurOverlay = false,
+    hidePageIndicators = false,
   }: {
     children: React.ReactNode
   } & Partial<
-    Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName' | 'isBlurOverlayVisible' | 'isPageIndicatorsVisible'>
+    Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName' | 'hideBlurOverlay' | 'hidePageIndicators'>
   >) {
     return (
       <GaleriaContext.Provider
@@ -44,8 +44,8 @@ const Galeria = Object.assign(
           src: '',
           setOpen: noop,
           ids,
-          isBlurOverlayVisible,
-          isPageIndicatorsVisible,
+          hideBlurOverlay,
+          hidePageIndicators,
         }}
       >
         {children}
@@ -54,15 +54,15 @@ const Galeria = Object.assign(
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme, urls, initialIndex, closeIconName, isBlurOverlayVisible, isPageIndicatorsVisible } =
+      const { theme, urls, initialIndex, closeIconName, hideBlurOverlay, hidePageIndicators } =
         useContext(GaleriaContext)
       return (
         <NativeImage
           onIndexChange={props.onIndexChange}
           closeIconName={closeIconName}
           theme={theme}
-          isBlurOverlayVisible={props.isBlurOverlayVisible ?? isBlurOverlayVisible}
-          isPageIndicatorsVisible={props.isPageIndicatorsVisible ?? isPageIndicatorsVisible}
+          hideBlurOverlay={props.hideBlurOverlay ?? hideBlurOverlay}
+          hidePageIndicators={props.hidePageIndicators ?? hidePageIndicators}
           urls={urls?.map((url) => {
             if (typeof url === 'string') {
               return url
