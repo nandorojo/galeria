@@ -319,7 +319,8 @@ extension ImageViewerRootView: UIPageViewControllerDataSource {
     }
     
     func presentationCount(for pageViewController: UIPageViewController) -> Int {
-        return imageDatasource?.numberOfImages() ?? 0
+        let count = imageDatasource?.numberOfImages() ?? 0
+        return count > 1 ? count : 0
     }
     
     func presentationIndex(for pageViewController: UIPageViewController) -> Int {
