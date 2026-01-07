@@ -215,6 +215,8 @@ function Root({
   return (
     <GaleriaContext.Provider
       value={{
+        hideBlurOverlay: false,
+        hidePageIndicators: false,
         closeIconName: undefined,
         setOpen,
         urls,
