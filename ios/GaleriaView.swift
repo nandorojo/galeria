@@ -78,6 +78,7 @@ class GaleriaView: ExpoView {
   var initialIndex: Int?
   var closeIconName: String?
   var rightNavItemIconName: String?
+  var isBlurOverlayVisible: Bool = true
   let onPressRightNavItemIcon = EventDispatcher()
   let onIndexChange = EventDispatcher()
 
@@ -156,11 +157,13 @@ class GaleriaView: ExpoView {
       .onIndexChange { [weak self] index in
         self?.onIndexChange(["currentIndex": index])
       })
-      
+
       options.append(
         .onDismiss { [weak self] in
             self?.restoreKeyboard()
         })
+
+    options.append(.blurOverlayVisible(isBlurOverlayVisible))
 
     return options
   }

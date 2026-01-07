@@ -12,6 +12,7 @@ class ImageViewerRootView: UIView, RootViewType {
     var onIndexChange: ((Int) -> Void)?
     var onDismiss: (() -> Void)?
     var sourceImage: UIImage?
+    var isBlurOverlayVisible: Bool = true
 
     private var pageViewController: UIPageViewController!
     private(set) lazy var backgroundView: UIView = {
@@ -192,6 +193,8 @@ class ImageViewerRootView: UIView, RootViewType {
                 self.onDismiss = callback
             case .contentMode:
                 break
+            case .blurOverlayVisible(let visible):
+                self.isBlurOverlayVisible = visible
             }
         }
     }
@@ -258,6 +261,7 @@ extension ImageViewerRootView: MatchTransitionDelegate {
 
     func matchTransitionWillBegin(transition: MatchTransition) {
         navBar.alpha = 0
+        transition.overlayView?.isHidden = !isBlurOverlayVisible
     }
 }
 

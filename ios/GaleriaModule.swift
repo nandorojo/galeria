@@ -29,6 +29,10 @@ public class GaleriaModule: Module {
         view.rightNavItemIconName = rightNavItemIconName
       }
 
+      Prop("isBlurOverlayVisible") { (view, isBlurOverlayVisible: Bool?) in
+        view.isBlurOverlayVisible = isBlurOverlayVisible ?? true
+      }
+
     }
   }
 

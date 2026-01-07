@@ -139,6 +139,7 @@ export default function Masonry() {
                 width,
               }}
               index={index}
+              isBlurOverlayVisible={false}
             >
               <Image
                 source={{ uri: item.url }}

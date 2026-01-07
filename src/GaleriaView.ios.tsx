@@ -12,6 +12,7 @@ const NativeImage = requireNativeView<
     closeIconName?: SFSymbol
     theme: 'dark' | 'light'
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
+    isBlurOverlayVisible?: boolean
   }
 >('Galeria')
 
@@ -24,10 +25,11 @@ const Galeria = Object.assign(
     urls,
     theme = 'dark',
     ids,
+    isBlurOverlayVisible = true,
   }: {
     children: React.ReactNode
   } & Partial<
-    Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName'>
+    Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName' | 'isBlurOverlayVisible'>
   >) {
     return (
       <GaleriaContext.Provider
@@ -40,6 +42,7 @@ const Galeria = Object.assign(
           src: '',
           setOpen: noop,
           ids,
+          isBlurOverlayVisible,
         }}
       >
         {children}
@@ -48,13 +51,14 @@ const Galeria = Object.assign(
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme, urls, initialIndex, closeIconName } =
+      const { theme, urls, initialIndex, closeIconName, isBlurOverlayVisible } =
         useContext(GaleriaContext)
       return (
         <NativeImage
           onIndexChange={props.onIndexChange}
           closeIconName={closeIconName}
           theme={theme}
+          isBlurOverlayVisible={props.isBlurOverlayVisible ?? isBlurOverlayVisible}
           urls={urls?.map((url) => {
             if (typeof url === 'string') {
               return url

@@ -25,4 +25,5 @@ export interface GaleriaViewProps {
   dynamicAspectRatio?: boolean
   edgeToEdge?: boolean
   onIndexChange?: (event: GaleriaIndexChangedEvent) => void
+  isBlurOverlayVisible?: boolean
 }
