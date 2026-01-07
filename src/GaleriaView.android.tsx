@@ -34,6 +34,8 @@ const Galeria = Object.assign(
     return (
       <GaleriaContext.Provider
         value={{
+          hideBlurOverlay: false,
+          hidePageIndicators: false,
           closeIconName: undefined,
           urls,
           theme,
