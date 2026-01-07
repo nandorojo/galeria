@@ -12,6 +12,8 @@ class ImageViewerRootView: UIView, RootViewType {
     var onIndexChange: ((Int) -> Void)?
     var onDismiss: (() -> Void)?
     var sourceImage: UIImage?
+    var hideBlurOverlay: Bool = false
+    var hidePageIndicators: Bool = false
 
     private var pageViewController: UIPageViewController!
     private(set) lazy var backgroundView: UIView = {
@@ -91,6 +93,13 @@ class ImageViewerRootView: UIView, RootViewType {
         self.initialIndex = initialIndex
         self.currentIndex = initialIndex
         self.sourceImage = sourceImage
+
+        for option in options {
+            if case .hidePageIndicators(let hide) = option {
+                self.hidePageIndicators = hide
+            }
+        }
+
         super.init(frame: .zero)
         setupViews()
         applyOptions()
@@ -192,6 +201,10 @@ class ImageViewerRootView: UIView, RootViewType {
                 self.onDismiss = callback
             case .contentMode:
                 break
+            case .hideBlurOverlay(let hide):
+                self.hideBlurOverlay = hide
+            case .hidePageIndicators(let hide):
+                self.hidePageIndicators = hide
             }
         }
     }
@@ -258,6 +271,7 @@ extension ImageViewerRootView: MatchTransitionDelegate {
 
     func matchTransitionWillBegin(transition: MatchTransition) {
         navBar.alpha = 0
+        transition.overlayView?.isHidden = hideBlurOverlay
     }
 }
 
@@ -319,7 +333,9 @@ extension ImageViewerRootView: UIPageViewControllerDataSource {
     }
     
     func presentationCount(for pageViewController: UIPageViewController) -> Int {
-        return imageDatasource?.numberOfImages() ?? 0
+        guard !hidePageIndicators else { return 0 }
+        let count = imageDatasource?.numberOfImages() ?? 0
+        return count > 1 ? count : 0
     }
     
     func presentationIndex(for pageViewController: UIPageViewController) -> Int {

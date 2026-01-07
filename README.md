@@ -175,6 +175,28 @@ To get the index of the currently shown image in the image viewer use `onIndexCh
 </Galeria>
 ```
 
+### Hide Blur Overlay
+*iOS only*
+
+Hide the blur overlay that appears behind the image viewer.
+
+```tsx
+<Galeria.Image hideBlurOverlay>
+  <Image source={{ uri: url }} style={style} />
+</Galeria.Image>
+```
+
+### Hide Page Indicators
+*iOS only*
+
+Hide the page indicator dots when viewing multiple images.
+
+```tsx
+<Galeria.Image hidePageIndicators>
+  <Image source={{ uri: url }} style={style} />
+</Galeria.Image>
+```
+
 ### Plain Web Support
 
 Galeria does not use _any_ React Native code on the web. It is a pure React component library.
@@ -307,6 +329,7 @@ npx expo run:ios # or npx expo run:android
 
 - Under the hood, Galeria uses native libraries on iOS and Android.
 - On Web, Galeria uses Framer Motion.
+- Thanks to [Luke Zhao](https://github.com/lkzhao/DynamicTransition) for DynamicTransition
 - Thanks to [Michael Henry](https://github.com/michaelhenry/ImageViewer.swift) for the iOS Image Viewer
 - Thanks to [iielse](https://github.com/iielse/imageviewer) for the Android Image Viewer
 - Thanks to [Alan](https://github.com/alantoa) for building the Android integration.

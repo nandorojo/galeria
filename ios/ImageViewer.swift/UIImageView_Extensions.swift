@@ -205,7 +205,7 @@ extension UIView {
 class ImageViewerPlaceholderView: UIView, MatchTransitionDelegate {
     weak var sourceImageView: UIImageView?
     weak var galeriaView: GaleriaView?
-    weak var viewerRootView: ImageViewerRootView?
+    var viewerRootView: ImageViewerRootView?
 
     init(sourceImageView: UIImageView, galeriaView: GaleriaView?) {
         self.sourceImageView = sourceImageView

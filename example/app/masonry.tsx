@@ -139,6 +139,8 @@ export default function Masonry() {
                 width,
               }}
               index={index}
+              hideBlurOverlay={true}
+              hidePageIndicators={false}
             >
               <Image
                 source={{ uri: item.url }}

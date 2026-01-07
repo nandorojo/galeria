@@ -29,6 +29,14 @@ public class GaleriaModule: Module {
         view.rightNavItemIconName = rightNavItemIconName
       }
 
+      Prop("hideBlurOverlay") { (view, hideBlurOverlay: Bool?) in
+        view.hideBlurOverlay = hideBlurOverlay ?? false
+      }
+
+      Prop("hidePageIndicators") { (view, hidePageIndicators: Bool?) in
+        view.hidePageIndicators = hidePageIndicators ?? false
+      }
+
     }
   }
 
