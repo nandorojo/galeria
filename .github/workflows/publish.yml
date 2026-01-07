@@ -5,6 +5,9 @@ on:
     types: [published]
   workflow_dispatch:
     inputs:
+      version:
+        description: "Version to publish (e.g. 2.0.0-alpha.4)"
+        required: true
       dist-tag:
         description: "npm dist-tag to publish under"
         required: false
@@ -28,5 +31,7 @@ jobs:
         run: npm install -g npm@latest
       - run: yarn install --immutable
       - run: yarn build
+      - name: Set version
+        run: npm version ${{ github.event.inputs.version }} --no-git-tag-version
       - name: Publish to npm
         run: npm publish --access public --tag ${{ github.event.inputs.dist-tag || 'alpha' }}
