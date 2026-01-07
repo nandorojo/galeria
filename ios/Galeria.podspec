@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
   s.dependency 'SDWebImage'
 
   spm_dependency(s,
-    url: "https://github.com/lkzhao/DynamicTransition.git",
+    url: "https://github.com/gtokman/DynamicTransition.git",
     requirement: {kind: "branch", branch: "main"},
     products: ["DynamicTransition"]
   )
