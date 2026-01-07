@@ -21,6 +21,7 @@ export const GaleriaContext = createContext({
   theme: 'dark' as 'dark' | 'light',
   src: '',
   isBlurOverlayVisible: true,
+  isPageIndicatorsVisible: true,
 })
 
 export type GaleriaContext = ContextType<typeof GaleriaContext>

@@ -13,6 +13,7 @@ const NativeImage = requireNativeView<
     theme: 'dark' | 'light'
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
     isBlurOverlayVisible?: boolean
+    isPageIndicatorsVisible?: boolean
   }
 >('Galeria')
 
@@ -26,10 +27,11 @@ const Galeria = Object.assign(
     theme = 'dark',
     ids,
     isBlurOverlayVisible = true,
+    isPageIndicatorsVisible = true,
   }: {
     children: React.ReactNode
   } & Partial<
-    Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName' | 'isBlurOverlayVisible'>
+    Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName' | 'isBlurOverlayVisible' | 'isPageIndicatorsVisible'>
   >) {
     return (
       <GaleriaContext.Provider
@@ -43,6 +45,7 @@ const Galeria = Object.assign(
           setOpen: noop,
           ids,
           isBlurOverlayVisible,
+          isPageIndicatorsVisible,
         }}
       >
         {children}
@@ -51,7 +54,7 @@ const Galeria = Object.assign(
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme, urls, initialIndex, closeIconName, isBlurOverlayVisible } =
+      const { theme, urls, initialIndex, closeIconName, isBlurOverlayVisible, isPageIndicatorsVisible } =
         useContext(GaleriaContext)
       return (
         <NativeImage
@@ -59,6 +62,7 @@ const Galeria = Object.assign(
           closeIconName={closeIconName}
           theme={theme}
           isBlurOverlayVisible={props.isBlurOverlayVisible ?? isBlurOverlayVisible}
+          isPageIndicatorsVisible={props.isPageIndicatorsVisible ?? isPageIndicatorsVisible}
           urls={urls?.map((url) => {
             if (typeof url === 'string') {
               return url

@@ -13,6 +13,7 @@ class ImageViewerRootView: UIView, RootViewType {
     var onDismiss: (() -> Void)?
     var sourceImage: UIImage?
     var isBlurOverlayVisible: Bool = true
+    var isPageIndicatorsVisible: Bool = true
 
     private var pageViewController: UIPageViewController!
     private(set) lazy var backgroundView: UIView = {
@@ -92,6 +93,13 @@ class ImageViewerRootView: UIView, RootViewType {
         self.initialIndex = initialIndex
         self.currentIndex = initialIndex
         self.sourceImage = sourceImage
+
+        for option in options {
+            if case .isPageIndicatorsVisible(let visible) = option {
+                self.isPageIndicatorsVisible = visible
+            }
+        }
+
         super.init(frame: .zero)
         setupViews()
         applyOptions()
@@ -195,6 +203,8 @@ class ImageViewerRootView: UIView, RootViewType {
                 break
             case .blurOverlayVisible(let visible):
                 self.isBlurOverlayVisible = visible
+            case .isPageIndicatorsVisible(let visible):
+                self.isPageIndicatorsVisible = visible
             }
         }
     }
@@ -323,6 +333,7 @@ extension ImageViewerRootView: UIPageViewControllerDataSource {
     }
     
     func presentationCount(for pageViewController: UIPageViewController) -> Int {
+        guard isPageIndicatorsVisible else { return 0 }
         let count = imageDatasource?.numberOfImages() ?? 0
         return count > 1 ? count : 0
     }

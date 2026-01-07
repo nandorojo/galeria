@@ -33,6 +33,10 @@ public class GaleriaModule: Module {
         view.isBlurOverlayVisible = isBlurOverlayVisible ?? true
       }
 
+      Prop("isPageIndicatorsVisible") { (view, isPageIndicatorsVisible: Bool?) in
+        view.isPageIndicatorsVisible = isPageIndicatorsVisible ?? true
+      }
+
     }
   }
 

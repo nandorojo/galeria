@@ -79,6 +79,7 @@ class GaleriaView: ExpoView {
   var closeIconName: String?
   var rightNavItemIconName: String?
   var isBlurOverlayVisible: Bool = true
+  var isPageIndicatorsVisible: Bool = true
   let onPressRightNavItemIcon = EventDispatcher()
   let onIndexChange = EventDispatcher()
 
@@ -164,6 +165,7 @@ class GaleriaView: ExpoView {
         })
 
     options.append(.blurOverlayVisible(isBlurOverlayVisible))
+    options.append(.isPageIndicatorsVisible(isPageIndicatorsVisible))
 
     return options
   }

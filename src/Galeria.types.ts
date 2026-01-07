@@ -26,4 +26,5 @@ export interface GaleriaViewProps {
   edgeToEdge?: boolean
   onIndexChange?: (event: GaleriaIndexChangedEvent) => void
   isBlurOverlayVisible?: boolean
+  isPageIndicatorsVisible?: boolean
 }
