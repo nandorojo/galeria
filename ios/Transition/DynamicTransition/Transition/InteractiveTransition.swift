@@ -40,6 +40,7 @@ open class InteractiveTransition: NSObject, Transition {
     }
 
     public func animateTransition(context: TransitionContext) {
+        print("[DynamicTransition] animateTransition called - isPresenting: \(context.isPresenting), isInteractive: \(isInteractive)")
         let animator = TransitionAnimator(response: response, dampingRatio: dampingRatio)
         animator.addCompletion { position in
             self.didCompleteTransitionAnimation(position: position)
@@ -54,8 +55,12 @@ open class InteractiveTransition: NSObject, Transition {
 
         TransitionContainerTracker.shared.transitionStart(from: context.from, to: context.to)
 
+        print("[DynamicTransition] animateTransition after setup - isInteractive: \(isInteractive)")
         if !isInteractive {
+            print("[DynamicTransition] animateTransition calling animateTo")
             animateTo(position: context.isPresenting ? .presented : .dismissed)
+        } else {
+            print("[DynamicTransition] animateTransition skipping animateTo (isInteractive)")
         }
     }
 
@@ -68,10 +73,15 @@ open class InteractiveTransition: NSObject, Transition {
     // MARK: - Private
 
     private func didCompleteTransitionAnimation(position: TransitionEndPosition) {
-        guard let context else { return }
+        print("[DynamicTransition] didCompleteTransitionAnimation - position: \(position)")
+        guard let context else {
+            print("[DynamicTransition] didCompleteTransitionAnimation - no context!")
+            return
+        }
         cleanupTransition(endPosition: position)
         let didComplete = (position == .presented) == context.isPresenting
         TransitionContainerTracker.shared.transitionEnd(from: context.from, to: context.to, completed: didComplete)
+        print("[DynamicTransition] didCompleteTransitionAnimation - cleaning up, setting context/animator to nil")
         self.animator = nil
         self.context = nil
         self.isInteractive = false
@@ -81,21 +91,26 @@ open class InteractiveTransition: NSObject, Transition {
     // MARK: - Subclass callable
 
     public func beginInteractiveTransition() {
+        print("[DynamicTransition] beginInteractiveTransition - context: \(context != nil), animator: \(animator != nil)")
         isInteractive = true
         animator?.pause()
         context?.beginInteractiveTransition()
     }
 
     public func animateTo(position: TransitionEndPosition) {
+        print("[DynamicTransition] animateTo(\(position)) - animator: \(animator != nil), context: \(context != nil), isInteractive: \(isInteractive)")
         guard let animator, let context else {
+            print("[DynamicTransition] animateTo - missing animator or context!")
             assertionFailure()
             return
         }
         if isInteractive {
+            print("[DynamicTransition] animateTo - ending interactive transition")
             isInteractive = false
             context.endInteractiveTransition((position == .presented) == context.isPresenting)
         }
         animationWillStart(targetPosition: position)
+        print("[DynamicTransition] animateTo - calling animator.animateTo")
         animator.animateTo(position: position)
     }
     
