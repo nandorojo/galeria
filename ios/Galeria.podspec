@@ -24,9 +24,9 @@ Pod::Spec.new do |s|
   s.dependency 'SDWebImage'
 
   spm_dependency(s,
-    url: "https://github.com/lkzhao/DynamicTransition.git",
+    url: "https://github.com/b3ll/Motion.git",
     requirement: {kind: "branch", branch: "main"},
-    products: ["DynamicTransition"]
+    products: ["Motion"]
   )
 
   # Swift/Objective-C compatibility

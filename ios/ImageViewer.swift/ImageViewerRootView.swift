@@ -1,5 +1,4 @@
 import UIKit
-import DynamicTransition
 
 class ImageViewerRootView: UIView, RootViewType {
     let transition = MatchTransition()

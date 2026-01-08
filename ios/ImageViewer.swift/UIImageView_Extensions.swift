@@ -1,5 +1,4 @@
 import UIKit
-import DynamicTransition
 
 private var currentNavigationView: NavigationView?
 
