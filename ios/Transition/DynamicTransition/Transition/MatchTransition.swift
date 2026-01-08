@@ -53,11 +53,13 @@ public class MatchTransition: InteractiveTransition {
     }
 
     public override func setupTransition(context: any TransitionContext, animator: TransitionAnimator) {
+        print("[DynamicTransition] setupTransition called - isPresenting: \(context.isPresenting)")
         let container = context.container
         let foreground = context.foreground
         let background = context.background
         let foregroundDelegate = foreground as? MatchTransitionDelegate
         let backgroundDelegate = background as? MatchTransitionDelegate
+        print("[DynamicTransition] setupTransition - foregroundDelegate: \(foregroundDelegate != nil), backgroundDelegate: \(backgroundDelegate != nil)")
 
         let overlayView = BlurOverlayView()
         let foregroundContainerView = ShadowContainerView()
@@ -170,7 +172,11 @@ public class MatchTransition: InteractiveTransition {
     }
 
     public override func cleanupTransition(endPosition: TransitionEndPosition) {
-        guard let context else { return }
+        print("[DynamicTransition] cleanupTransition - endPosition: \(endPosition)")
+        guard let context else {
+            print("[DynamicTransition] cleanupTransition - no context!")
+            return
+        }
         let didPresent = endPosition == .presented
 
         if didPresent, let foregroundContainerView {
@@ -231,6 +237,7 @@ public class MatchTransition: InteractiveTransition {
     }
 
     var totalTranslation: CGPoint = .zero
+    var didForceCompletePresent: Bool = false
     @objc func handlePan(gr: UIPanGestureRecognizer) {
         guard let view = gr.view else { return }
         func progressFrom(offset: CGPoint) -> CGFloat {
@@ -242,13 +249,39 @@ public class MatchTransition: InteractiveTransition {
         }
         switch gr.state {
         case .began:
+            print("[DynamicTransition] handlePan .began - context: \(context != nil), isAnimating: \(isAnimating), isInteractive: \(isInteractive), isPresenting: \(context?.isPresenting ?? false)")
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            beginInteractiveTransition()
+
+            // Reset flag at start of new gesture
+            didForceCompletePresent = false
+
+            // If we're interrupting a PRESENT animation, we need to cancel it and start a fresh dismiss
+            // Otherwise the transition is set up for presenting, not dismissing
+            let wasInterruptingPresent = context?.isPresenting == true && isAnimating
+
+            if wasInterruptingPresent {
+                // Force complete the present animation first so we can start a fresh dismiss
+                print("[DynamicTransition] handlePan - forcing present to complete before dismiss")
+                didForceCompletePresent = true
+                beginInteractiveTransition() // This pauses the animation (required before forceCompletion)
+                forceCompletion(position: .presented)
+            } else {
+                beginInteractiveTransition()
+            }
+            print("[DynamicTransition] handlePan after beginInteractiveTransition - context: \(context != nil), isAnimating: \(isAnimating), wasInterruptingPresent: \(wasInterruptingPresent)")
+
+            // Call popView if: no context, OR we interrupted a present animation
             if context == nil, let navigationView = view.navigationView, navigationView.views.count > 1 {
+                print("[DynamicTransition] handlePan calling popView")
                 navigationView.popView(animated: true)
+            } else {
+                print("[DynamicTransition] handlePan NOT calling popView - context: \(context != nil), navView: \(view.navigationView != nil), viewCount: \(view.navigationView?.views.count ?? 0)")
             }
             totalTranslation = .zero
         case .changed:
+            // If we forced complete a present animation, the dismiss is now running non-interactively
+            // Don't interfere with it
+            if didForceCompletePresent { return }
             guard let animator, let foregroundContainerView else { return }
             let translation = gr.translation(in: nil)
             gr.setTranslation(.zero, in: nil)
@@ -260,6 +293,12 @@ public class MatchTransition: InteractiveTransition {
             animator[foregroundContainerView, \UIView.rotation].currentValue += translation.x * 0.0003
             animator.shift(progress: progress)
         default:
+            // If we forced complete a present animation, the dismiss is already animating
+            // Don't call animateTo again
+            if didForceCompletePresent {
+                didForceCompletePresent = false
+                return
+            }
             guard let context, let animator, let foregroundContainerView else { return }
             let velocity = gr.velocity(in: nil)
             let translationPlusVelocity = totalTranslation + velocity / 2
