@@ -24,7 +24,7 @@ import UIKit
 open class InteractiveTransition: NSObject, Transition {
     public private(set) var context: TransitionContext?
     public private(set) var animator: TransitionAnimator?
-    public private(set) var isInteractive: Bool = false
+    public var isInteractive: Bool = false
 
     public var response: CGFloat = 0.3
     public var dampingRatio: CGFloat = 1.0
