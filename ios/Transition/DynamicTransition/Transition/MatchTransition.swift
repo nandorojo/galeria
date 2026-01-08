@@ -158,11 +158,9 @@ public class MatchTransition: InteractiveTransition {
                 context.background.bringSubviewToFront(foregroundContainerView)
             }
             context.container.addGestureRecognizer(interruptibleVerticalDismissGestureRecognizer)
-            context.container.addGestureRecognizer(interruptibleHorizontalDismissGestureRecognizer)
             interruptibleTapRepresentGestureRecognizer.view?.removeGestureRecognizer(interruptibleTapRepresentGestureRecognizer)
         } else {
             interruptibleVerticalDismissGestureRecognizer.view?.removeGestureRecognizer(interruptibleVerticalDismissGestureRecognizer)
-            interruptibleHorizontalDismissGestureRecognizer.view?.removeGestureRecognizer(interruptibleHorizontalDismissGestureRecognizer)
             context.container.addGestureRecognizer(interruptibleTapRepresentGestureRecognizer)
         }
         foregroundContainerView?.isUserInteractionEnabled = isPresenting
@@ -187,7 +185,6 @@ public class MatchTransition: InteractiveTransition {
         self.sourceViewSnapshot?.removeFromSuperview()
 
         interruptibleVerticalDismissGestureRecognizer.view?.removeGestureRecognizer(interruptibleVerticalDismissGestureRecognizer)
-        interruptibleHorizontalDismissGestureRecognizer.view?.removeGestureRecognizer(interruptibleHorizontalDismissGestureRecognizer)
         interruptibleTapRepresentGestureRecognizer.view?.removeGestureRecognizer(interruptibleTapRepresentGestureRecognizer)
 
         self.sourceViewSnapshot = nil
@@ -243,7 +240,22 @@ public class MatchTransition: InteractiveTransition {
         switch gr.state {
         case .began:
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            beginInteractiveTransition()
+
+            // If we're interrupting a PRESENT animation, we need to cancel it and start a fresh dismiss
+            // Otherwise the transition is set up for presenting, not dismissing
+            let wasInterruptingPresent = context?.isPresenting == true && isAnimating
+
+            if wasInterruptingPresent {
+                // Force complete the present animation first so we can start a fresh dismiss
+                beginInteractiveTransition()
+                forceCompletion(position: .presented)
+                // After forceCompletion, isInteractive was reset to false
+                // Set it back to true so the new dismiss transition starts interactively
+                isInteractive = true
+            } else {
+                beginInteractiveTransition()
+            }
+
             if context == nil, let navigationView = view.navigationView, navigationView.views.count > 1 {
                 navigationView.popView(animated: true)
             }
