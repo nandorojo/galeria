@@ -1,6 +1,5 @@
 import ExpoModulesCore
 import UIKit
-import DynamicTransition
 
 class GaleriaView: ExpoView {
   private var childImageView: UIImageView?
