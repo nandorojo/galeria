@@ -158,11 +158,9 @@ public class MatchTransition: InteractiveTransition {
                 context.background.bringSubviewToFront(foregroundContainerView)
             }
             context.container.addGestureRecognizer(interruptibleVerticalDismissGestureRecognizer)
-            context.container.addGestureRecognizer(interruptibleHorizontalDismissGestureRecognizer)
             interruptibleTapRepresentGestureRecognizer.view?.removeGestureRecognizer(interruptibleTapRepresentGestureRecognizer)
         } else {
             interruptibleVerticalDismissGestureRecognizer.view?.removeGestureRecognizer(interruptibleVerticalDismissGestureRecognizer)
-            interruptibleHorizontalDismissGestureRecognizer.view?.removeGestureRecognizer(interruptibleHorizontalDismissGestureRecognizer)
             context.container.addGestureRecognizer(interruptibleTapRepresentGestureRecognizer)
         }
         foregroundContainerView?.isUserInteractionEnabled = isPresenting
@@ -187,7 +185,6 @@ public class MatchTransition: InteractiveTransition {
         self.sourceViewSnapshot?.removeFromSuperview()
 
         interruptibleVerticalDismissGestureRecognizer.view?.removeGestureRecognizer(interruptibleVerticalDismissGestureRecognizer)
-        interruptibleHorizontalDismissGestureRecognizer.view?.removeGestureRecognizer(interruptibleHorizontalDismissGestureRecognizer)
         interruptibleTapRepresentGestureRecognizer.view?.removeGestureRecognizer(interruptibleTapRepresentGestureRecognizer)
 
         self.sourceViewSnapshot = nil
