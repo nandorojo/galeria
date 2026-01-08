@@ -53,13 +53,11 @@ public class MatchTransition: InteractiveTransition {
     }
 
     public override func setupTransition(context: any TransitionContext, animator: TransitionAnimator) {
-        print("[DynamicTransition] setupTransition called - isPresenting: \(context.isPresenting)")
         let container = context.container
         let foreground = context.foreground
         let background = context.background
         let foregroundDelegate = foreground as? MatchTransitionDelegate
         let backgroundDelegate = background as? MatchTransitionDelegate
-        print("[DynamicTransition] setupTransition - foregroundDelegate: \(foregroundDelegate != nil), backgroundDelegate: \(backgroundDelegate != nil)")
 
         let overlayView = BlurOverlayView()
         let foregroundContainerView = ShadowContainerView()
@@ -172,11 +170,7 @@ public class MatchTransition: InteractiveTransition {
     }
 
     public override func cleanupTransition(endPosition: TransitionEndPosition) {
-        print("[DynamicTransition] cleanupTransition - endPosition: \(endPosition)")
-        guard let context else {
-            print("[DynamicTransition] cleanupTransition - no context!")
-            return
-        }
+        guard let context else { return }
         let didPresent = endPosition == .presented
 
         if didPresent, let foregroundContainerView {
@@ -248,7 +242,6 @@ public class MatchTransition: InteractiveTransition {
         }
         switch gr.state {
         case .began:
-            print("[DynamicTransition] handlePan .began - context: \(context != nil), isAnimating: \(isAnimating), isInteractive: \(isInteractive), isPresenting: \(context?.isPresenting ?? false)")
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
             // If we're interrupting a PRESENT animation, we need to cancel it and start a fresh dismiss
@@ -257,8 +250,7 @@ public class MatchTransition: InteractiveTransition {
 
             if wasInterruptingPresent {
                 // Force complete the present animation first so we can start a fresh dismiss
-                print("[DynamicTransition] handlePan - forcing present to complete before dismiss")
-                beginInteractiveTransition() // This pauses the animation (required before forceCompletion)
+                beginInteractiveTransition()
                 forceCompletion(position: .presented)
                 // After forceCompletion, isInteractive was reset to false
                 // Set it back to true so the new dismiss transition starts interactively
@@ -266,14 +258,9 @@ public class MatchTransition: InteractiveTransition {
             } else {
                 beginInteractiveTransition()
             }
-            print("[DynamicTransition] handlePan after beginInteractiveTransition - context: \(context != nil), isAnimating: \(isAnimating), wasInterruptingPresent: \(wasInterruptingPresent)")
 
-            // Call popView if: no context, OR we interrupted a present animation
             if context == nil, let navigationView = view.navigationView, navigationView.views.count > 1 {
-                print("[DynamicTransition] handlePan calling popView")
                 navigationView.popView(animated: true)
-            } else {
-                print("[DynamicTransition] handlePan NOT calling popView - context: \(context != nil), navView: \(view.navigationView != nil), viewCount: \(view.navigationView?.views.count ?? 0)")
             }
             totalTranslation = .zero
         case .changed:
