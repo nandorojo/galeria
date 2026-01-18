@@ -296,6 +296,13 @@ export const FastImage = () => (
 
 ## Installation
 
+### iOS notes
+
+Galeria `v2.0+` requires **iOS 16+**.
+
+- Bare RN: update `ios/Podfile`
+- Expo: set it via `expo-build-properties` (example): https://github.com/nandorojo/galeria/blob/09abe1985c48590c626475fbc146a85a2bd5ce37/example/app.json#L49
+
 ```bash
 yarn add @nandorojo/galeria
 
