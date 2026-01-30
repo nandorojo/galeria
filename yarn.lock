@@ -3049,6 +3049,9 @@ __metadata:
     react: "*"
     react-dom: "*"
     react-native: "*"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
   languageName: unknown
   linkType: soft
 
