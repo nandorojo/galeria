@@ -50,6 +50,11 @@
     "react-dom": "*",
     "react-native": "*"
   },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    }
+  },
   "prettier": {
     "singleQuote": true,
     "semi": false
