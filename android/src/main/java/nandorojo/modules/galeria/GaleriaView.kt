@@ -11,6 +11,7 @@ import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.annotation.Keep
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.RecyclerView
@@ -44,6 +45,7 @@ fun convertToPhotos(ids: Array<String>): List<Photo> {
 }
 
 
+@Keep
 class GaleriaView(context: Context) : ViewGroup(context) {
     private lateinit var viewer: ImageViewerBuilder
     lateinit var urls: Array<String>
