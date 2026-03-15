@@ -1,5 +1,16 @@
 import UIKit
 
+// MARK: - Protocol shared by ImageViewerController and VideoViewerController
+
+protocol GaleriaPageViewController: AnyObject {
+    var index: Int { get }
+}
+
+extension ImageViewerController: GaleriaPageViewController {}
+extension VideoViewerController: GaleriaPageViewController {}
+
+// MARK: - ImageViewerRootView
+
 class ImageViewerRootView: UIView, RootViewType {
     let transition = MatchTransition()
 
@@ -33,23 +44,29 @@ class ImageViewerRootView: UIView, RootViewType {
     private var onRightNavBarTapped: ((Int) -> Void)?
 
     private(set) var currentIndex: Int = 0
-    private var initialViewController: ImageViewerController?
+    /// Holds the initial VC (image or video) before pageVC takes over.
+    private var initialViewController: UIViewController?
+
+    // MARK: - Current views (for transition matching & pan dismiss)
 
     var currentImageView: UIImageView? {
-        if let vc = pageViewController?.viewControllers?.first as? ImageViewerController {
-            return vc.imageView
+        let vc = pageViewController?.viewControllers?.first ?? initialViewController
+        if let imageVC = vc as? ImageViewerController {
+            return imageVC.imageView
         }
-        if let vc = initialViewController {
-            return vc.imageView
+        if let videoVC = vc as? VideoViewerController {
+            return videoVC.thumbnailImageView
         }
         return nil
     }
 
     var currentScrollView: UIScrollView? {
-        if let vc = pageViewController?.viewControllers?.first as? ImageViewerController {
-            return vc.scrollView
+        let vc = pageViewController?.viewControllers?.first ?? initialViewController
+        if let imageVC = vc as? ImageViewerController {
+            return imageVC.scrollView
         }
-        return initialViewController?.scrollView
+        // Videos don't have a scroll view — returning nil lets pan dismiss work freely
+        return nil
     }
 
     var preferredStatusBarStyle: UIStatusBarStyle {
@@ -109,6 +126,8 @@ class ImageViewerRootView: UIView, RootViewType {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Setup
+
     private func setupViews() {
         addSubview(backgroundView)
 
@@ -125,17 +144,13 @@ class ImageViewerRootView: UIView, RootViewType {
         addSubview(pageViewController.view)
 
         if let datasource = imageDatasource {
-            let initialVC = ImageViewerController(
-                index: initialIndex,
-                imageItem: datasource.imageItem(at: initialIndex),
-                imageLoader: imageLoader
-            )
+            let initialVC = makeViewController(for: initialIndex, datasource: datasource)
             self.initialViewController = initialVC
-            
-            if let sourceImage = self.sourceImage {
-                initialVC.initialPlaceholder = sourceImage
+
+            if let imageVC = initialVC as? ImageViewerController, let sourceImage = self.sourceImage {
+                imageVC.initialPlaceholder = sourceImage
             }
-            
+
             initialVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
             pageViewController.setViewControllers([initialVC], direction: .forward, animated: false)
 
@@ -157,9 +172,26 @@ class ImageViewerRootView: UIView, RootViewType {
         addSubview(navBar)
     }
 
+    // MARK: - Factory
+
+    /// Creates the correct VC type (image or video) for the given index.
+    private func makeViewController(for index: Int, datasource: ImageDataSource) -> UIViewController {
+        let item = datasource.imageItem(at: index)
+        let vc: UIViewController
+        if case .video(let url, let placeholder) = item {
+            let videoVC = VideoViewerController(index: index, videoURL: url, placeholder: placeholder)
+            vc = videoVC
+        } else {
+            let imageVC = ImageViewerController(index: index, imageItem: item, imageLoader: imageLoader)
+            vc = imageVC
+        }
+        vc.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
+        return vc
+    }
+
     private func applyOptions() {
         let closeButton = navItem.rightBarButtonItem
-        
+
         options.forEach { option in
             switch option {
             case .theme(let newTheme):
@@ -217,6 +249,8 @@ class ImageViewerRootView: UIView, RootViewType {
         addGestureRecognizer(singleTapGesture)
     }
 
+    // MARK: - Layout
+
     override func layoutSubviews() {
         super.layoutSubviews()
         backgroundView.frame = bounds
@@ -240,6 +274,8 @@ class ImageViewerRootView: UIView, RootViewType {
         )
     }
 
+    // MARK: - Actions
+
     @objc private func dismissViewer() {
         navigationView?.popView(animated: true)
     }
@@ -256,16 +292,19 @@ class ImageViewerRootView: UIView, RootViewType {
     }
 }
 
+// MARK: - TransitionProvider
+
 extension ImageViewerRootView: TransitionProvider {
     func transitionFor(presenting: Bool, otherView: UIView) -> Transition? {
         return transition
     }
 }
 
+// MARK: - MatchTransitionDelegate
+
 extension ImageViewerRootView: MatchTransitionDelegate {
     func matchedViewFor(transition: MatchTransition, otherView: UIView) -> UIView? {
-        let imageView = currentImageView
-        return imageView
+        return currentImageView
     }
 
     func matchTransitionWillBegin(transition: MatchTransition) {
@@ -274,11 +313,14 @@ extension ImageViewerRootView: MatchTransitionDelegate {
     }
 }
 
+// MARK: - UIGestureRecognizerDelegate
+
 extension ImageViewerRootView: UIGestureRecognizerDelegate {
     override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if let scrollView = currentScrollView {
             return scrollView.zoomScale <= scrollView.minimumZoomScale + 0.01
         }
+        // No scroll view (e.g. video) — always allow pan-to-dismiss
         return true
     }
 
@@ -290,57 +332,49 @@ extension ImageViewerRootView: UIGestureRecognizerDelegate {
     }
 }
 
+// MARK: - UIPageViewControllerDataSource
+
 extension ImageViewerRootView: UIPageViewControllerDataSource {
     func pageViewController(
         _ pageViewController: UIPageViewController,
         viewControllerBefore viewController: UIViewController
     ) -> UIViewController? {
-        guard let vc = viewController as? ImageViewerController,
+        guard let indexed = viewController as? GaleriaPageViewController,
               let datasource = imageDatasource,
-              vc.index > 0 else {
+              indexed.index > 0 else {
             return nil
         }
 
-        let newIndex = vc.index - 1
-        let newVC = ImageViewerController(
-            index: newIndex,
-            imageItem: datasource.imageItem(at: newIndex),
-            imageLoader: imageLoader
-        )
-        newVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
-        return newVC
+        let newIndex = indexed.index - 1
+        return makeViewController(for: newIndex, datasource: datasource)
     }
 
     func pageViewController(
         _ pageViewController: UIPageViewController,
         viewControllerAfter viewController: UIViewController
     ) -> UIViewController? {
-        guard let vc = viewController as? ImageViewerController,
+        guard let indexed = viewController as? GaleriaPageViewController,
               let datasource = imageDatasource,
-              vc.index < datasource.numberOfImages() - 1 else {
+              indexed.index < datasource.numberOfImages() - 1 else {
             return nil
         }
 
-        let newIndex = vc.index + 1
-        let newVC = ImageViewerController(
-            index: newIndex,
-            imageItem: datasource.imageItem(at: newIndex),
-            imageLoader: imageLoader
-        )
-        newVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
-        return newVC
+        let newIndex = indexed.index + 1
+        return makeViewController(for: newIndex, datasource: datasource)
     }
-    
+
     func presentationCount(for pageViewController: UIPageViewController) -> Int {
         guard !hidePageIndicators else { return 0 }
         let count = imageDatasource?.numberOfImages() ?? 0
         return count > 1 ? count : 0
     }
-    
+
     func presentationIndex(for pageViewController: UIPageViewController) -> Int {
         return currentIndex
     }
 }
+
+// MARK: - UIPageViewControllerDelegate
 
 extension ImageViewerRootView: UIPageViewControllerDelegate {
     func pageViewController(
@@ -349,9 +383,25 @@ extension ImageViewerRootView: UIPageViewControllerDelegate {
         previousViewControllers: [UIViewController],
         transitionCompleted completed: Bool
     ) {
-        if completed, let currentVC = pageViewController.viewControllers?.first as? ImageViewerController {
-            currentIndex = currentVC.index
-            onIndexChange?(currentIndex)
+        guard completed else { return }
+
+        // Pause any video that was previously playing
+        for previous in previousViewControllers {
+            if let videoVC = previous as? VideoViewerController {
+                videoVC.pause()
+            }
+        }
+
+        if let currentVC = pageViewController.viewControllers?.first {
+            // Auto-play if the new page is a video
+            if let videoVC = currentVC as? VideoViewerController {
+                videoVC.play()
+            }
+
+            if let indexed = currentVC as? GaleriaPageViewController {
+                currentIndex = indexed.index
+                onIndexChange?(currentIndex)
+            }
         }
     }
 }

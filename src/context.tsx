@@ -22,6 +22,11 @@ export const GaleriaContext = createContext({
   src: '',
   hideBlurOverlay: false,
   hidePageIndicators: false,
+  /**
+   * Per-item media types. Must be same length as `urls`.
+   * Accepted values: "image" | "video". Defaults to "image" when omitted.
+   */
+  mediaTypes: undefined as string[] | undefined,
 })
 
 export type GaleriaContext = ContextType<typeof GaleriaContext>

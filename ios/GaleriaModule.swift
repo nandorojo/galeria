@@ -22,9 +22,11 @@ public class GaleriaModule: Module {
       Prop("theme") { (view, theme: Theme?) in
         view.theme = theme ?? .dark
       }
+
       Prop("closeIconName") { (view, closeIconName: String?) in
         view.closeIconName = closeIconName
       }
+
       Prop("rightNavItemIconName") { (view, rightNavItemIconName: String) in
         view.rightNavItemIconName = rightNavItemIconName
       }
@@ -37,6 +39,9 @@ public class GaleriaModule: Module {
         view.hidePageIndicators = hidePageIndicators ?? false
       }
 
+      Prop("mediaTypes") { (view, mediaTypes: [String]?) in
+        view.mediaTypes = mediaTypes
+      }
     }
   }
 

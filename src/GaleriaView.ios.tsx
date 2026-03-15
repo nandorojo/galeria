@@ -14,6 +14,7 @@ const NativeImage = requireNativeView<
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
     hideBlurOverlay?: boolean
     hidePageIndicators?: boolean
+    mediaTypes?: string[]
   }
 >('Galeria')
 
@@ -28,10 +29,20 @@ const Galeria = Object.assign(
     ids,
     hideBlurOverlay = false,
     hidePageIndicators = false,
+    mediaTypes,
   }: {
     children: React.ReactNode
   } & Partial<
-    Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName' | 'hideBlurOverlay' | 'hidePageIndicators'>
+    Pick<
+      GaleriaContext,
+      | 'theme'
+      | 'ids'
+      | 'urls'
+      | 'closeIconName'
+      | 'hideBlurOverlay'
+      | 'hidePageIndicators'
+      | 'mediaTypes'
+    >
   >) {
     return (
       <GaleriaContext.Provider
@@ -46,6 +57,7 @@ const Galeria = Object.assign(
           ids,
           hideBlurOverlay,
           hidePageIndicators,
+          mediaTypes,
         }}
       >
         {children}
@@ -54,8 +66,15 @@ const Galeria = Object.assign(
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme, urls, initialIndex, closeIconName, hideBlurOverlay, hidePageIndicators } =
-        useContext(GaleriaContext)
+      const {
+        theme,
+        urls,
+        initialIndex,
+        closeIconName,
+        hideBlurOverlay,
+        hidePageIndicators,
+        mediaTypes,
+      } = useContext(GaleriaContext)
       return (
         <NativeImage
           onIndexChange={props.onIndexChange}
@@ -71,6 +90,7 @@ const Galeria = Object.assign(
             return Image.resolveAssetSource(url).uri
           })}
           index={initialIndex}
+          mediaTypes={mediaTypes}
           {...props}
         />
       )

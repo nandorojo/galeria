@@ -6,28 +6,28 @@ class GaleriaView: ExpoView {
   private weak var currentNavigationView: NavigationView?
   private weak var previousFirstResponder: UIResponder?
   private var isRegistered = false
-  
+
   var groupId: String? {
     guard let urls = urls, !urls.isEmpty else { return nil }
     return String(urls.joined(separator: ",").hashValue)
   }
-  
+
   deinit {
     unregisterFromRegistry()
   }
-  
+
   private func registerWithRegistry() {
     guard let groupId = groupId, let index = initialIndex else { return }
     GaleriaViewRegistry.shared.register(view: self, groupId: groupId, index: index)
     isRegistered = true
   }
-  
+
   private func unregisterFromRegistry() {
     guard isRegistered, let groupId = groupId, let index = initialIndex else { return }
     GaleriaViewRegistry.shared.unregister(groupId: groupId, index: index)
     isRegistered = false
   }
-  
+
   class func findView(groupId: String, index: Int) -> GaleriaView? {
     return GaleriaViewRegistry.shared.view(forGroupId: groupId, index: index)
   }
@@ -79,6 +79,9 @@ class GaleriaView: ExpoView {
   var rightNavItemIconName: String?
   var hideBlurOverlay: Bool = false
   var hidePageIndicators: Bool = false
+  /// Per-item media types. Must be same length as `urls`.
+  /// Supported values: "image", "video". Defaults to "image" when nil or out of bounds.
+  var mediaTypes: [String]?
   let onPressRightNavItemIcon = EventDispatcher()
   let onIndexChange = EventDispatcher()
 
@@ -113,7 +116,20 @@ class GaleriaView: ExpoView {
       return URL(fileURLWithPath: string)
     }
 
-    childImage.setupImageViewer(urls: urlObjects, initialIndex: initialIndex, options: options)
+    // Build ImageItem array respecting mediaTypes
+    let items: [ImageItem] = urlObjects.enumerated().map { (i, url) in
+      if let types = self.mediaTypes, i < types.count, types[i] == "video" {
+        return .video(url, placeholder: nil)
+      }
+      return .url(url, placeholder: nil)
+    }
+
+    let datasource = SimpleImageDatasource(imageItems: items)
+    childImage.setupImageViewer(
+      datasource: datasource,
+      initialIndex: initialIndex,
+      options: options
+    )
   }
 
   private func setupImageViewerWithSingleImage(
@@ -138,7 +154,6 @@ class GaleriaView: ExpoView {
         iconColor, renderingMode: .alwaysOriginal)
     {
       options.append(ImageViewerOption.closeIcon(closeIconImage))
-
     }
 
     if let rightIconName = rightNavItemIconName,
@@ -158,10 +173,10 @@ class GaleriaView: ExpoView {
         self?.onIndexChange(["currentIndex": index])
       })
 
-      options.append(
-        .onDismiss { [weak self] in
-            self?.restoreKeyboard()
-        })
+    options.append(
+      .onDismiss { [weak self] in
+        self?.restoreKeyboard()
+      })
 
     options.append(.hideBlurOverlay(hideBlurOverlay))
     options.append(.hidePageIndicators(hidePageIndicators))
@@ -199,17 +214,18 @@ extension GaleriaView: MatchTransitionDelegate {
     return imageView
   }
 
-    func matchTransitionWillBegin(transition: MatchTransition) {
-        guard previousFirstResponder == nil else { return }
-        
-        previousFirstResponder = UIResponder.currentFirstResponder
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
-    
-    func restoreKeyboard() {
-        previousFirstResponder?.becomeFirstResponder()
-        previousFirstResponder = nil
-    }
+  func matchTransitionWillBegin(transition: MatchTransition) {
+    guard previousFirstResponder == nil else { return }
+
+    previousFirstResponder = UIResponder.currentFirstResponder
+    UIApplication.shared.sendAction(
+      #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+  }
+
+  func restoreKeyboard() {
+    previousFirstResponder?.becomeFirstResponder()
+    previousFirstResponder = nil
+  }
 
   private func findCornerRadius(for view: UIView) -> CGFloat? {
     var current: UIView? = view.superview
@@ -227,15 +243,16 @@ extension GaleriaView: MatchTransitionDelegate {
 }
 
 extension UIResponder {
-    private static weak var _currentFirstResponder: UIResponder?
-    
-    static var currentFirstResponder: UIResponder? {
-        _currentFirstResponder = nil
-        UIApplication.shared.sendAction(#selector(findFirstResponder(_:)), to: nil, from: nil, for: nil)
-        return _currentFirstResponder
-    }
-    
-    @objc private func findFirstResponder(_ sender: Any) {
-        UIResponder._currentFirstResponder = self
-    }
+  private static weak var _currentFirstResponder: UIResponder?
+
+  static var currentFirstResponder: UIResponder? {
+    _currentFirstResponder = nil
+    UIApplication.shared.sendAction(
+      #selector(findFirstResponder(_:)), to: nil, from: nil, for: nil)
+    return _currentFirstResponder
+  }
+
+  @objc private func findFirstResponder(_ sender: Any) {
+    UIResponder._currentFirstResponder = self
+  }
 }
