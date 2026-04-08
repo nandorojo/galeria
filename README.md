@@ -24,7 +24,7 @@ https://github.com/user-attachments/assets/5062e949-b205-4260-830c-38041cec26db
 - Clean API
 - Web support
 - Remote URLs & local images
-- New Architecture support
+- New Architecture (Fabric) – required
 - Supports different images when collapsed and expanded
   - This lets you show smaller thumbnails with higher resolution expanded images
 - Works with _any image component_
@@ -32,7 +32,6 @@ https://github.com/user-attachments/assets/5062e949-b205-4260-830c-38041cec26db
   - `<SolitoImage />` from `solito/image`
   - `<Image />` from `next/image`
   - `<Image />` from `expo-image`
-  - `<FastImage />` from `react-native-fast-image`
   - `<img />` on web
   - ...etc
 
@@ -122,9 +121,7 @@ export const FlashListSupport = () => {
           return (
             <Galeria.Image index={index}>
               <Image
-                style={styles.image}
                 source={src(item)}
-                recyclingKey={item + index}
                 style={{ width: size, height: size }}
               />
             </Galeria.Image>
@@ -274,34 +271,16 @@ export const ExpoImage = () => (
 )
 ```
 
-### React Native Fast Image
-
-```tsx
-import { Galeria } from '@nandorojo/galeria'
-import FastImage from 'react-native-fast-image'
-
-const urls = ['https://my-image.com/image.jpg']
-
-export const FastImage = () => (
-  <Galeria urls={urls}>
-    <Galeria.Image>
-      <FastImage
-        source={{ uri: urls[0] }}
-        style={{ width: 100, height: 100 }}
-      />
-    </Galeria.Image>
-  </Galeria>
-)
-```
-
 ## Installation
 
-### iOS notes
+### Requirements
 
-Galeria `v2.0+` requires **iOS 16+**.
+- **New Architecture (Fabric)** – Galeria v3.0+ requires the new architecture. This means Expo SDK 54+ or React Native 0.79+.
+- **iOS 16+**
 
-- Bare RN: update `ios/Podfile`
-- Expo: set it via `expo-build-properties` (example): https://github.com/nandorojo/galeria/blob/09abe1985c48590c626475fbc146a85a2bd5ce37/example/app.json#L49
+For iOS 16+ deployment target:
+- Bare RN: set it in `ios/Podfile`
+- Expo: set it via [`expo-build-properties`](https://docs.expo.dev/versions/latest/sdk/build-properties/)
 
 ```bash
 yarn add @nandorojo/galeria
