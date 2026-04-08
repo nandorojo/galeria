@@ -1,5 +1,4 @@
 import UIKit
-import Motion
 import simd
 
 public class TransitionAnimator {

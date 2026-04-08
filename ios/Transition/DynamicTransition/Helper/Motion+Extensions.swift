@@ -1,4 +1,4 @@
-import Motion
+import Foundation
 
 extension SupportedSIMD where Scalar: SupportedScalar {
     func distance(between other: Self) -> Scalar {

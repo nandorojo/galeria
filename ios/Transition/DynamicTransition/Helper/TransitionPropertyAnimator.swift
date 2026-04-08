@@ -1,5 +1,4 @@
 import UIKit
-import Motion
 
 internal protocol AnyTransitionPropertyAnimator {
     func seekTo(position: TransitionEndPosition)

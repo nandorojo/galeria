@@ -1,5 +1,4 @@
 import UIKit
-import Motion
 
 internal struct AnimationTarget<View: UIView, Value: SIMDRepresentable>: Hashable {
     public let id: ObjectIdentifier

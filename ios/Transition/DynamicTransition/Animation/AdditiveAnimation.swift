@@ -1,5 +1,4 @@
 import UIKit
-import Motion
 
 public class AdditiveAnimation<View: UIView, Value: SIMDRepresentable> {
     internal let target: AnimationTarget<View, Value>
@@ -85,21 +84,21 @@ private class AdditiveCummulator<View: UIView, Value: SIMDRepresentable> {
     let target: AnimationTarget<View, Value>
 
     var baseValue: Value
-    var animations: [Motion.ValueAnimation<Value>] = []
+    var animations: [ValueAnimation<Value>] = []
 
     init(target: AnimationTarget<View, Value>) {
         self.target = target
         self.baseValue = target.value
     }
 
-    func add(animation: Motion.ValueAnimation<Value>) {
+    func add(animation: ValueAnimation<Value>) {
         animation.onValueChanged { [weak self] value in
             self?.animationDidUpdate()
         }
         animations.append(animation)
     }
 
-    func remove(animation: Motion.ValueAnimation<Value>) {
+    func remove(animation: ValueAnimation<Value>) {
         animations = animations.filter { $0 != animation }
         animationDidUpdate()
     }
