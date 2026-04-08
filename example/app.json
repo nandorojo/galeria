@@ -7,19 +7,19 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "newArchEnabled": true,
-    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "nandorojo.modules.galeria.example",
       "infoPlist": {
-        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "UIBackgroundModes": [
+          "fetch",
+          "remote-notification"
+        ],
         "UIViewControllerBasedStatusBarAppearance": true
       }
     },
@@ -49,7 +49,6 @@
             "deploymentTarget": "16.0",
             "unstable_networkInspector": true
           },
-
           "android": {
             "compileSdkVersion": 35,
             "targetSdkVersion": 35,
@@ -58,7 +57,8 @@
             "unstable_networkInspector": true
           }
         }
-      ]
+      ],
+      "expo-image"
     ]
   }
 }

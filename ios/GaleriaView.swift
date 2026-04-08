@@ -33,16 +33,7 @@ class GaleriaView: ExpoView {
   }
 
   func getChildImageView() -> UIImageView? {
-    var reactSubviews: [UIView]? = nil
-    if RCTIsNewArchEnabled() {
-      reactSubviews = self.subviews
-    } else {
-      reactSubviews = self.reactSubviews()
-    }
-
-    guard let reactSubviews else { return nil }
-
-    for reactSubview in reactSubviews {
+    for reactSubview in self.subviews {
       for subview in reactSubview.subviews {
         if let imageView = subview as? UIImageView {
           childImageView = imageView
@@ -53,24 +44,6 @@ class GaleriaView: ExpoView {
 
     return nil
   }
-
-  #if !RCT_NEW_ARCH_ENABLED
-    override func insertReactSubview(_ subview: UIView!, at atIndex: Int) {
-      super.insertReactSubview(subview, at: atIndex)
-      setupImageView()
-    }
-  #endif
-
-  #if RCT_NEW_ARCH_ENABLED
-    // https://github.com/nandorojo/galeria/issues/19
-    // Cleanup gesture recognizers from the image view to work with fabric view recycling
-    override func unmountChildComponentView(_ childComponentView: UIView, index: Int) {
-      childImageView?.gestureRecognizers?.removeAll()
-      childImageView = nil
-      unregisterFromRegistry()
-      super.unmountChildComponentView(childComponentView, index: index)
-    }
-  #endif
 
   var theme: Theme = .dark
   var urls: [String]?
@@ -83,6 +56,11 @@ class GaleriaView: ExpoView {
   let onIndexChange = EventDispatcher()
 
   public func setupImageView() {
+    // Clean up previous state for Fabric view recycling (see #19)
+    childImageView?.gestureRecognizers?.removeAll()
+    childImageView = nil
+    unregisterFromRegistry()
+
     let viewerTheme = theme.toImageViewerTheme()
     guard let childImage = getChildImageView() else {
       return
