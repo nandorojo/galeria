@@ -1,4 +1,4 @@
-import { MasonryFlashList } from '@shopify/flash-list'
+import { FlashList } from '@shopify/flash-list'
 import { Galeria } from 'galeria'
 import { forwardRef } from 'react'
 import { Dimensions, Image, Platform, View } from 'react-native'
@@ -124,7 +124,8 @@ const CellRendererComponent = forwardRef<View, any>(
 export default function Masonry() {
   return (
     <Galeria urls={images.map((image) => image.url)} theme="dark">
-      <MasonryFlashList
+      <FlashList
+        masonry
         data={images}
         contentContainerStyle={{ backgroundColor: 'black' }}
         CellRendererComponent={Platform.select({ web: CellRendererComponent })}

@@ -92,7 +92,7 @@ function Message({ text, url, sender }: MessageProps) {
               width: 245,
               objectFit: 'cover',
             }}
-            source={{ uri: url }}
+            source={typeof url === 'string' ? { uri: url } : url}
           />
         </Galeria.Image>
       )}
