@@ -23,15 +23,21 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v5
+      # Trusted publishing needs npm ≥11.5.1 *and* a current Node; Node 22 still
+      # ships npm 10, whose OIDC handshake fails with a misleading 404. Node 24+
+      # bundles npm 11 — see https://docs.npmjs.com/trusted-publishers/
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
+          node-version: '24'
+          check-latest: true
           registry-url: 'https://registry.npmjs.org'
-      - name: Install npm 11.5.1+ (required for trusted publishing)
-        run: npm install -g npm@latest
       - run: yarn install --immutable
       - run: yarn build
       - name: Set version
         run: npm version ${{ github.event.inputs.version }} --no-git-tag-version
+      # Do not set NODE_AUTH_TOKEN here; an empty env var blocks OIDC (npm uses
+      # the classic token path instead). Unset in case the environment defines it.
       - name: Publish to npm
-        run: npm publish --access public --tag ${{ github.event.inputs.dist-tag || 'alpha' }}
+        run: |
+          unset NODE_AUTH_TOKEN
+          npm publish --access public --tag ${{ github.event.inputs.dist-tag || 'alpha' }}
