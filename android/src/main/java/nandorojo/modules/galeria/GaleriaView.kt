@@ -50,6 +50,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     private lateinit var viewer: ImageViewerBuilder
     lateinit var urls: Array<String>
     val onIndexChange by EventDispatcher()
+    val onLongPress by EventDispatcher()
     var theme: Theme = Theme.Dark
     var initialIndex: Int = 0
     var disableHiddenOriginalImage = false
@@ -130,6 +131,10 @@ class GaleriaView(context: Context) : ViewGroup(context) {
 
                     viewer.show()
 
+                }
+                childView.setOnLongClickListener {
+                    onLongPress(emptyMap<String, Any>())
+                    true
                 }
             } else if (childView is ViewGroup) {
                 setupImageViewer(childView)
