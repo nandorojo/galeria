@@ -54,6 +54,7 @@ class GaleriaView: ExpoView {
   var hidePageIndicators: Bool = false
   let onPressRightNavItemIcon = EventDispatcher()
   let onIndexChange = EventDispatcher()
+  let onLongPress = EventDispatcher()
 
   public func setupImageView() {
     // Clean up previous state for Fabric view recycling (see #19)
@@ -73,6 +74,22 @@ class GaleriaView: ExpoView {
         childImage, urls: urls, initialIndex: initialIndex, viewerTheme: viewerTheme)
     } else {
       setupImageViewerWithSingleImage(childImage, viewerTheme: viewerTheme)
+    }
+
+    attachLongPressRecognizer(to: childImage)
+  }
+
+  private func attachLongPressRecognizer(to imageView: UIImageView) {
+    let longPress = UILongPressGestureRecognizer(
+      target: self, action: #selector(handleLongPress(_:)))
+    longPress.minimumPressDuration = 0.5
+    imageView.addGestureRecognizer(longPress)
+    imageView.isUserInteractionEnabled = true
+  }
+
+  @objc private func handleLongPress(_ recognizer: UILongPressGestureRecognizer) {
+    if recognizer.state == .began {
+      onLongPress()
     }
   }
 
