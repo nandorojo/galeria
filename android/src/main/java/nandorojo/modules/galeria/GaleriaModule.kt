@@ -17,7 +17,8 @@ class GaleriaModule : Module() {
         // the view definition: Prop, Events.
         View(GaleriaView::class) {
             Events(
-                "onIndexChange"
+                "onIndexChange",
+                "onDismiss"
             )
             // Defines a setter for the `name` prop.
             Prop("theme") { view: GaleriaView, theme: Theme ->

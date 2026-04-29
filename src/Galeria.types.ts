@@ -15,6 +15,8 @@ type GaleriaIndexChangedPayload = {
 export type GaleriaIndexChangedEvent =
   NativeSyntheticEvent<GaleriaIndexChangedPayload>
 
+export type GaleriaDismissEvent = NativeSyntheticEvent<Record<string, never>>
+
 export interface GaleriaViewProps {
   index?: number
   id?: string
@@ -25,6 +27,8 @@ export interface GaleriaViewProps {
   dynamicAspectRatio?: boolean
   edgeToEdge?: boolean
   onIndexChange?: (event: GaleriaIndexChangedEvent) => void
+  /** Fired after the fullscreen viewer is dismissed. */
+  onDismiss?: (event: GaleriaDismissEvent) => void
   hideBlurOverlay?: boolean
   hidePageIndicators?: boolean
 }
