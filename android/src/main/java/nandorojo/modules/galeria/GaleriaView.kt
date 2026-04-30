@@ -58,6 +58,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     var edgeToEdge = false
     var transitionOffsetY: Int? = null
     var transitionOffsetX: Int? = 0
+    var longPressEnabled: Boolean = false
     val viewModel: ImageViewerActionViewModel by lazy {
         ViewModelProvider(getViewModelOwner(context)).get(ImageViewerActionViewModel::class.java)
     }
@@ -133,9 +134,14 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                     viewer.show()
 
                 }
-                childView.setOnLongClickListener {
-                    onLongPress(emptyMap<String, Any>())
-                    true
+                if (longPressEnabled) {
+                    childView.setOnLongClickListener {
+                        onLongPress(emptyMap<String, Any>())
+                        true
+                    }
+                } else {
+                    childView.setOnLongClickListener(null)
+                    childView.isLongClickable = false
                 }
             } else if (childView is ViewGroup) {
                 setupImageViewer(childView)

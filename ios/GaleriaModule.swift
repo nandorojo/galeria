@@ -39,6 +39,10 @@ public class GaleriaModule: Module {
         view.hidePageIndicators = hidePageIndicators ?? false
       }
 
+      Prop("longPressEnabled") { (view, longPressEnabled: Bool?) in
+        view.longPressEnabled = longPressEnabled ?? false
+      }
+
     }
   }
 
