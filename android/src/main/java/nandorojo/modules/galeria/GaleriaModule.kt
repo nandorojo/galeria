@@ -19,6 +19,7 @@ class GaleriaModule : Module() {
             Events(
                 "onIndexChange",
                 "onLongPress"
+                "onDismiss"
             )
             // Defines a setter for the `name` prop.
             Prop("theme") { view: GaleriaView, theme: Theme ->

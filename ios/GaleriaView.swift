@@ -55,6 +55,7 @@ class GaleriaView: ExpoView {
   let onPressRightNavItemIcon = EventDispatcher()
   let onIndexChange = EventDispatcher()
   let onLongPress = EventDispatcher()
+  let onDismiss = EventDispatcher()
 
   public func setupImageView() {
     // Clean up previous state for Fabric view recycling (see #19)
@@ -156,6 +157,7 @@ class GaleriaView: ExpoView {
       options.append(
         .onDismiss { [weak self] in
             self?.restoreKeyboard()
+            self?.onDismiss()
         })
 
     options.append(.hideBlurOverlay(hideBlurOverlay))

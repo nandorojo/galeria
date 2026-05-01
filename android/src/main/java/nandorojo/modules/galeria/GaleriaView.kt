@@ -51,6 +51,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     lateinit var urls: Array<String>
     val onIndexChange by EventDispatcher()
     val onLongPress by EventDispatcher()
+    val onDismiss by EventDispatcher()
     var theme: Theme = Theme.Dark
     var initialIndex: Int = 0
     var disableHiddenOriginalImage = false
@@ -114,13 +115,13 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                         }
                     }
                 )
-                if (edgeToEdge) {
-                    viewer.setViewerFactory(object : ImageViewerDialogFragment.Factory() {
-                        override fun build() = EdgeToEdgeImageViewerDialogFragment(
-                            theme.toAppearanceLightSystemBars()
-                        )
-                    })
-                }
+                viewer.setViewerFactory(object : ImageViewerDialogFragment.Factory() {
+                    override fun build() = EdgeToEdgeImageViewerDialogFragment(
+                        isAppearanceLightSystemBars =
+                            if (edgeToEdge) theme.toAppearanceLightSystemBars() else null,
+                        onDismissCallback = { onDismiss(emptyMap<String, Any>()) },
+                    )
+                })
                 childView.setOnClickListener {
                     setupConfig()
                     if (!disableHiddenOriginalImage) {

@@ -16,12 +16,16 @@ export type GaleriaIndexChangedEvent =
   NativeSyntheticEvent<GaleriaIndexChangedPayload>
 
 export type GaleriaLongPressEvent = NativeSyntheticEvent<Record<string, never>>
+export type GaleriaRightNavItemPressedEvent =
+  NativeSyntheticEvent<{ index: number }>
+export type GaleriaDismissEvent = NativeSyntheticEvent<Record<string, never>>
 
 export interface GaleriaViewProps {
   index?: number
   id?: string
   children: React.ReactElement
   closeIconName?: SFSymbol
+  rightNavItemIconName?: SFSymbol
   __web?: ComponentProps<(typeof motion)['div']>
   style?: ViewStyle
   dynamicAspectRatio?: boolean
@@ -29,6 +33,8 @@ export interface GaleriaViewProps {
   onIndexChange?: (event: GaleriaIndexChangedEvent) => void
   /** Fired on long-press of the inline trigger image, before the viewer opens. */
   onLongPress?: (event: GaleriaLongPressEvent) => void
+  onPressRightNavItemIcon?: (event: GaleriaRightNavItemPressedEvent) => void
+  onDismiss?: (event: GaleriaDismissEvent) => void
   hideBlurOverlay?: boolean
   hidePageIndicators?: boolean
 }
