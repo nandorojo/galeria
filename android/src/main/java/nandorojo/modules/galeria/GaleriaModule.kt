@@ -18,6 +18,7 @@ class GaleriaModule : Module() {
         View(GaleriaView::class) {
             Events(
                 "onIndexChange",
+                "onLongPress"
                 "onDismiss"
             )
             // Defines a setter for the `name` prop.

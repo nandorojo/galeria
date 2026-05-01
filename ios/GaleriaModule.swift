@@ -5,6 +5,7 @@ public class GaleriaModule: Module {
     Name("Galeria")
 
     View(GaleriaView.self) {
+      Events("onIndexChange", "onLongPress")
       Events("onIndexChange", "onPressRightNavItemIcon")
       Events("onIndexChange", "onDismiss")
 
