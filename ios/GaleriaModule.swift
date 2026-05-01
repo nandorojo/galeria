@@ -5,7 +5,7 @@ public class GaleriaModule: Module {
     Name("Galeria")
 
     View(GaleriaView.self) {
-      Events("onIndexChange")
+      Events("onIndexChange", "onDismiss")
 
       OnViewDidUpdateProps { (view) in
         view.setupImageView()
