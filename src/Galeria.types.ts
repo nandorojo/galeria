@@ -17,21 +17,21 @@ export type GaleriaIndexChangedEvent =
 
 export type GaleriaRightNavItemPressedEvent =
   NativeSyntheticEvent<{ index: number }>
+export type GaleriaDismissEvent = NativeSyntheticEvent<Record<string, never>>
 
 export interface GaleriaViewProps {
   index?: number
   id?: string
   children: React.ReactElement
   closeIconName?: SFSymbol
-  /** iOS only: SF Symbol name for an action button shown in the viewer's top-right nav bar. */
   rightNavItemIconName?: SFSymbol
   __web?: ComponentProps<(typeof motion)['div']>
   style?: ViewStyle
   dynamicAspectRatio?: boolean
   edgeToEdge?: boolean
   onIndexChange?: (event: GaleriaIndexChangedEvent) => void
-  /** iOS only: fired when the right nav item button is tapped inside the viewer. */
   onPressRightNavItemIcon?: (event: GaleriaRightNavItemPressedEvent) => void
+  onDismiss?: (event: GaleriaDismissEvent) => void
   hideBlurOverlay?: boolean
   hidePageIndicators?: boolean
 }

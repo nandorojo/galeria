@@ -6,6 +6,7 @@ public class GaleriaModule: Module {
 
     View(GaleriaView.self) {
       Events("onIndexChange", "onPressRightNavItemIcon")
+      Events("onIndexChange", "onDismiss")
 
       OnViewDidUpdateProps { (view) in
         view.setupImageView()
