@@ -8,7 +8,9 @@ import android.content.ContextWrapper
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.Keep
@@ -58,6 +60,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     var edgeToEdge = false
     var transitionOffsetY: Int? = null
     var transitionOffsetX: Int? = 0
+    var longPressEnabled: Boolean = false
     val viewModel: ImageViewerActionViewModel by lazy {
         ViewModelProvider(getViewModelOwner(context)).get(ImageViewerActionViewModel::class.java)
     }
@@ -133,10 +136,12 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                     viewer.show()
 
                 }
-                childView.setOnLongClickListener {
-                    onLongPress(emptyMap<String, Any>())
-                    true
+                if (longPressEnabled) {
+                    installLongPressTouch(childView)
+                } else {
+                    childView.setOnTouchListener(null)
                 }
+                childView.isLongClickable = false
             } else if (childView is ViewGroup) {
                 setupImageViewer(childView)
             }
@@ -175,6 +180,71 @@ class GaleriaView(context: Context) : ViewGroup(context) {
 
     override fun onLayout(p0: Boolean, p1: Int, p2: Int, p3: Int, p4: Int) {
         setupImageViewer(this)
+    }
+
+    /**
+     * Wires a long-press detector on top of [childView] using a fixed 500 ms
+     * threshold (intentionally independent of the device's
+     * [ViewConfiguration.getLongPressTimeout]). This matches the iOS side,
+     * which uses [UILongPressGestureRecognizer] with `minimumPressDuration =
+     * 0.5`.
+     *
+     * On ACTION_DOWN we post a 500 ms Runnable; if it fires we emit the
+     * [onLongPress] event and remember that. On ACTION_UP we cancel the
+     * pending Runnable (a no-op if it already ran) and, if the long-press
+     * fired, swallow the UP event so [View.onTouchEvent] never observes the
+     * full down/up sequence — which is what suppresses the `setOnClickListener`
+     * fallback that otherwise opens the viewer. ACTION_MOVE that exceeds the
+     * touch slop, and ACTION_CANCEL, both cancel the pending Runnable.
+     *
+     * Returning `false` from DOWN/MOVE/non-suppressed UP keeps the existing
+     * click handling intact: the View still tracks the press and dispatches
+     * the click on UP via the normal flow.
+     */
+    private fun installLongPressTouch(childView: ImageView) {
+        val handler = Handler(Looper.getMainLooper())
+        val downPos = floatArrayOf(0f, 0f)
+        val touchSlop = ViewConfiguration.get(childView.context).scaledTouchSlop.toFloat()
+        var longPressFired = false
+
+        val longPressRunnable = Runnable {
+            longPressFired = true
+            onLongPress(emptyMap<String, Any>())
+        }
+
+        childView.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    longPressFired = false
+                    downPos[0] = event.rawX
+                    downPos[1] = event.rawY
+                    handler.postDelayed(longPressRunnable, 500L)
+                    false
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val dx = event.rawX - downPos[0]
+                    val dy = event.rawY - downPos[1]
+                    if (dx * dx + dy * dy > touchSlop * touchSlop) {
+                        handler.removeCallbacks(longPressRunnable)
+                    }
+                    false
+                }
+                MotionEvent.ACTION_UP -> {
+                    handler.removeCallbacks(longPressRunnable)
+                    if (longPressFired) {
+                        v.isPressed = false
+                        true
+                    } else {
+                        false
+                    }
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    handler.removeCallbacks(longPressRunnable)
+                    false
+                }
+                else -> false
+            }
+        }
     }
 
 
