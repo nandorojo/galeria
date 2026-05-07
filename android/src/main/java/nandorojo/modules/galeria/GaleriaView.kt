@@ -27,7 +27,9 @@ import com.github.iielse.imageviewer.core.SimpleDataProvider
 import com.github.iielse.imageviewer.core.Transformer
 import com.github.iielse.imageviewer.core.ViewerCallback
 import com.github.iielse.imageviewer.utils.Config
+import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
+import expo.modules.kotlin.views.ExpoView
 
 
 class StringPhoto(private val id: Long, private val data: String) : Photo {
@@ -46,7 +48,7 @@ fun convertToPhotos(ids: Array<String>): List<Photo> {
 
 
 @Keep
-class GaleriaView(context: Context) : ViewGroup(context) {
+class GaleriaView(context: Context, appContext: AppContext) : ExpoView(context, appContext) {
     private lateinit var viewer: ImageViewerBuilder
     lateinit var urls: Array<String>
     val onIndexChange by EventDispatcher()
@@ -226,7 +228,6 @@ class SimpleImageLoader : ImageLoader {
             .into(view)
     }
 }
-
 
 
 
