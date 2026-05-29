@@ -17,6 +17,7 @@ const NativeImage = requireNativeView<
     urls?: string[]
     theme: 'dark' | 'light'
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
+    longPressEnabled?: boolean
   }
 >('Galeria')
 
@@ -72,6 +73,7 @@ const Galeria = Object.assign(
             return Image.resolveAssetSource(url).uri
           })}
           {...props}
+          longPressEnabled={!!props.onLongPress}
         />
       )
     },

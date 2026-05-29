@@ -43,6 +43,9 @@ class GaleriaModule : Module() {
             Prop("transitionOffsetX") { view: GaleriaView, transitionOffsetX: Int? ->
                 view.transitionOffsetX = transitionOffsetX
             }
+            Prop("longPressEnabled") { view: GaleriaView, longPressEnabled: Boolean ->
+                view.longPressEnabled = longPressEnabled
+            }
         }
     }
 }

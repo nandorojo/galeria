@@ -14,6 +14,7 @@ const NativeImage = requireNativeView<
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
     hideBlurOverlay?: boolean
     hidePageIndicators?: boolean
+    longPressEnabled?: boolean
   }
 >('Galeria')
 
@@ -72,6 +73,7 @@ const Galeria = Object.assign(
           })}
           index={initialIndex}
           {...props}
+          longPressEnabled={!!props.onLongPress}
         />
       )
     },
