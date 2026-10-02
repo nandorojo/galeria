@@ -123,6 +123,7 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
         // onTouchStart={onClick}
         onClick={onClick}
         layoutId={id}
+        layout={isVideo ? 'preserve-aspect' : undefined}
       >
         {isValidElement(children)
           ? cloneElement(children, { draggable: false } as object)
@@ -166,6 +167,7 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
                   <motion.video
                     ref={videoRef}
                     layoutId={id}
+                    layout="preserve-aspect"
                     src={url as string}
                     poster={poster}
                     controls
