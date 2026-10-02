@@ -15,6 +15,8 @@ const NativeImage = requireNativeView<
   GaleriaViewProps & {
     edgeToEdge: boolean
     urls?: string[]
+    mediaTypes?: ('photo' | 'video')[]
+    autoPlayVideo: boolean
     theme: 'dark' | 'light'
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
   }
@@ -54,7 +56,7 @@ const GaleriaRoot = Object.assign(
   },
   {
     Image({ edgeToEdge, ...props }: GaleriaViewProps) {
-      const { theme, urls } = useContext(GaleriaContext)
+      const { theme, urls, autoPlayVideo } = useContext(GaleriaContext)
 
       if (__DEV__) {
         // warn the user once about unnecessary defined prop
@@ -66,6 +68,12 @@ const GaleriaRoot = Object.assign(
           onIndexChange={props.onIndexChange}
           edgeToEdge={EDGE_TO_EDGE || (edgeToEdge ?? false)}
           theme={theme}
+          autoPlayVideo={autoPlayVideo}
+          mediaTypes={urls?.map((source) =>
+            typeof source === 'object' && source !== null && 'source' in source
+              ? source.type
+              : 'photo',
+          )}
           urls={urls?.map((item) => {
             const source =
               typeof item === 'object' && item !== null && 'source' in item

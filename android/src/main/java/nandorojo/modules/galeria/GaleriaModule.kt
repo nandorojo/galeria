@@ -28,6 +28,12 @@ class GaleriaModule : Module() {
             Prop("urls") { view: GaleriaView, urls: Array<String> ->
                 view.urls = urls
             }
+            Prop("mediaTypes") { view: GaleriaView, mediaTypes: Array<String> ->
+                view.mediaTypes = mediaTypes
+            }
+            Prop("autoPlayVideo") { view: GaleriaView, autoPlayVideo: Boolean ->
+                view.autoPlayVideo = autoPlayVideo
+            }
             Prop("index") { view: GaleriaView, index: Int ->
                 view.initialIndex = index
             }

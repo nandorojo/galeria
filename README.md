@@ -89,7 +89,7 @@ export const MutliImage = ({ style }) => (
 ```
 
 ### Photos and Videos
-*iOS only*
+*iOS and Android*
 
 Pass `{ type: 'video', source }` entries alongside photos in `urls`. Existing image
 URLs and local image assets still work. A typed entry's `source` accepts a URL
@@ -122,8 +122,8 @@ export const MixedGallery = () => (
 ```
 
 Videos open paused by default. Set `autoPlayVideo` to start playback when a video
-page becomes active. Playback uses native AVKit controls; tap the video to reveal
-them. Playback pauses when leaving the page, dismissing the viewer, or putting
+page becomes active. Playback uses native AVKit controls on iOS and ExoPlayer controls on Android.
+Tap the video to reveal the controls. Playback pauses when leaving the page, dismissing the viewer, or putting
 the app in the background.
 
 Provide your own thumbnail image, either from your server or generated in your
@@ -131,8 +131,7 @@ app. Galeria reuses the loaded image from the mounted item as the video's poster
 and transition image. It does not extract video thumbnails. If the item is not
 mounted or its image has not loaded, the poster may be unavailable.
 
-Video playback is not implemented on Android or web. Supply image-only galleries
-on those platforms.
+Video playback is not implemented on web. Supply image-only galleries there.
 
 ### Dark Mode
 

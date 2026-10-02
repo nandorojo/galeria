@@ -6,41 +6,40 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Color
-import android.os.Handler
-import android.os.Looper
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.Keep
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.facebook.react.views.image.ReactImageView
 import com.github.iielse.imageviewer.ImageViewerActionViewModel
 import com.github.iielse.imageviewer.ImageViewerBuilder
 import com.github.iielse.imageviewer.ImageViewerDialogFragment
 import com.github.iielse.imageviewer.R
-import com.github.iielse.imageviewer.core.ImageLoader
+import com.github.iielse.imageviewer.adapter.ItemType
+import java.util.Collections
+import java.util.WeakHashMap
 import com.github.iielse.imageviewer.core.Photo
 import com.github.iielse.imageviewer.core.SimpleDataProvider
 import com.github.iielse.imageviewer.core.Transformer
-import com.github.iielse.imageviewer.core.ViewerCallback
 import com.github.iielse.imageviewer.utils.Config
 import expo.modules.kotlin.viewevent.EventDispatcher
 
 
-class StringPhoto(private val id: Long, private val data: String) : Photo {
+class StringPhoto(private val id: Long, private val data: String, private val video: Boolean) : Photo {
     override fun id(): Long = id
 
-    override fun itemType(): Int = 1
+    override fun itemType(): Int = if (video) ItemType.VIDEO else ItemType.PHOTO
 
     override fun extra(): Any = data
 }
 
-fun convertToPhotos(ids: Array<String>): List<Photo> {
+fun convertToPhotos(ids: Array<String>, mediaTypes: Array<String>): List<Photo> {
     return ids.mapIndexed { index, data ->
-        StringPhoto(index.toLong(), data)  // Use index as the id, and data as the image data.
+        StringPhoto(index.toLong(), data, mediaTypes.getOrNull(index) == "video")
     }
 }
 
@@ -49,6 +48,44 @@ fun convertToPhotos(ids: Array<String>): List<Photo> {
 class GaleriaView(context: Context) : ViewGroup(context) {
     private lateinit var viewer: ImageViewerBuilder
     lateinit var urls: Array<String>
+    var mediaTypes: Array<String> = emptyArray()
+    var autoPlayVideo = false
+
+    companion object {
+        private val mountedViews: MutableSet<GaleriaView> =
+            Collections.newSetFromMap(WeakHashMap<GaleriaView, Boolean>())
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        mountedViews.add(this)
+    }
+
+    override fun onDetachedFromWindow() {
+        mountedViews.remove(this)
+        super.onDetachedFromWindow()
+    }
+
+    private fun childImage(view: ViewGroup): ImageView? {
+        for (index in view.childCount - 1 downTo 0) {
+            val child = view.getChildAt(index)
+            if (child.visibility != View.VISIBLE) continue
+            if (child is ImageView && child.drawable != null) return child
+            if (child is ViewGroup) childImage(child)?.let { return it }
+        }
+        return null
+    }
+
+    private fun thumbnail(index: Int): Bitmap? {
+        val source = mountedViews.firstOrNull {
+            it.initialIndex == index && it.urls.contentEquals(urls)
+        }?.let { childImage(it) } ?: return null
+        if (source.width == 0 || source.height == 0) return null
+        // Snapshot the caller's rendered thumbnail, including Fresco-backed images.
+        return Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888).also {
+            source.draw(Canvas(it))
+        }
+    }
     val onIndexChange by EventDispatcher()
     val onLongPress by EventDispatcher()
     val onDismiss by EventDispatcher()
@@ -95,7 +132,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
 
     private fun setupImageViewer(parentView: ViewGroup) {
 
-        val photos = convertToPhotos(urls)
+        val photos = convertToPhotos(urls, mediaTypes)
         val clickedData = photos[initialIndex]
         for (i in 0 until parentView.childCount) {
             val childView = parentView.getChildAt(i)
@@ -105,33 +142,46 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                     val activityContext = getActivity(childView.context)
                     imageViewContext = activityContext
                 }
-                viewer = ImageViewerBuilder(
-                    context = imageViewContext,
-                    dataProvider = SimpleDataProvider(clickedData, photos),
-                    imageLoader = SimpleImageLoader(),
-                    transformer = object : Transformer {
-                        override fun getView(key: Long): ImageView {
-                            return fakeStartView(parentView)
-                        }
-                    }
-                )
-                viewer.setViewerFactory(object : ImageViewerDialogFragment.Factory() {
-                    override fun build() = EdgeToEdgeImageViewerDialogFragment(
-                        isAppearanceLightSystemBars =
-                            if (edgeToEdge) theme.toAppearanceLightSystemBars() else null,
-                        onDismissCallback = { onDismiss(emptyMap<String, Any>()) },
-                    )
-                })
                 childView.setOnClickListener {
                     setupConfig()
-                    if (!disableHiddenOriginalImage) {
-                        viewer.setViewerCallback(CustomViewerCallback(childView as ImageView) { index ->
-                            onIndexChange(mapOf("currentIndex" to index))
-                        })
-                    }
-
+                    val session = VideoViewerSession(
+                        autoPlayVideo = autoPlayVideo,
+                        thumbnail = { index -> thumbnail(index) },
+                        onIndexChange = { index -> onIndexChange(mapOf("currentIndex" to index)) },
+                        originalImage = if (disableHiddenOriginalImage) null else childView,
+                    )
+                    viewer = ImageViewerBuilder(
+                        context = imageViewContext,
+                        dataProvider = SimpleDataProvider(clickedData, photos),
+                        imageLoader = session,
+                        transformer = object : Transformer {
+                            override fun getView(key: Long): ImageView? {
+                                val target = mountedViews.firstOrNull {
+                                    it.initialIndex.toLong() == key && it.urls.contentEquals(urls)
+                                }?.let { childImage(it) } ?: return null
+                                return fakeStartView(target)
+                            }
+                        }
+                    )
+                    viewer.setVHCustomizer(session)
+                    viewer.setViewerCallback(session)
+                    viewer.setViewerFactory(object : ImageViewerDialogFragment.Factory() {
+                        override fun build() = EdgeToEdgeImageViewerDialogFragment(
+                            isAppearanceLightSystemBars =
+                                if (edgeToEdge) theme.toAppearanceLightSystemBars() else null,
+                            onResumeCallback = { session.isForeground = true },
+                            onPauseCallback = {
+                                session.isForeground = false
+                                session.pause()
+                            },
+                            onDestroyCallback = { session.release() },
+                            onDismissCallback = {
+                                session.release()
+                                onDismiss(emptyMap<String, Any>())
+                            },
+                        )
+                    })
                     viewer.show()
-
                 }
                 childView.setOnLongClickListener {
                     onLongPress(emptyMap<String, Any>())
@@ -180,24 +230,6 @@ class GaleriaView(context: Context) : ViewGroup(context) {
 
 }
 
-class CustomViewerCallback(private val childView: ImageView, private val onIndexChange: (Int) -> Unit) : ViewerCallback {
-    override fun onInit(viewHolder: RecyclerView.ViewHolder, position: Int) {
-        childView.animate().alpha(0f).setDuration(180).start()
-
-    }
-
-
-    override fun onRelease(viewHolder: RecyclerView.ViewHolder, view: View) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            childView.alpha = 1f
-        }, 230)
-    }
-
-    override fun onPageSelected(position: Int, viewHolder: RecyclerView.ViewHolder) {
-        onIndexChange(position)
-    }
-}
-
 enum class Theme(val value: String) {
     Dark("dark"),
     Light("light");
@@ -216,17 +248,4 @@ enum class Theme(val value: String) {
         }
     }
 }
-
-class SimpleImageLoader : ImageLoader {
-    override fun load(view: ImageView, data: Photo, viewHolder: RecyclerView.ViewHolder) {
-//        Todo: Since React-Native's Image is using Fresco as the image loader, we may need to handle it differently.
-        val it = data.extra() as? String
-        Glide.with(view).load(it)
-            .placeholder(view.drawable)
-            .into(view)
-    }
-}
-
-
-
 
