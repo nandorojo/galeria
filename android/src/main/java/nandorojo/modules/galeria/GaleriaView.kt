@@ -46,7 +46,6 @@ fun convertToPhotos(ids: Array<String>, mediaTypes: Array<String>): List<Photo> 
 
 @Keep
 class GaleriaView(context: Context) : ViewGroup(context) {
-    private lateinit var viewer: ImageViewerBuilder
     lateinit var urls: Array<String>
     var mediaTypes: Array<String> = emptyArray()
     var autoPlayVideo = false
@@ -76,10 +75,14 @@ class GaleriaView(context: Context) : ViewGroup(context) {
         return null
     }
 
+    private fun imageViewAt(index: Long): ImageView? {
+        return mountedViews.firstOrNull {
+            it.initialIndex.toLong() == index && it.urls.contentEquals(urls)
+        }?.let { childImage(it) }
+    }
+
     private fun thumbnail(index: Int): Bitmap? {
-        val source = mountedViews.firstOrNull {
-            it.initialIndex == index && it.urls.contentEquals(urls)
-        }?.let { childImage(it) } ?: return null
+        val source = imageViewAt(index.toLong()) ?: return null
         if (source.width == 0 || source.height == 0) return null
         // Snapshot the caller's rendered thumbnail, including Fresco-backed images.
         return Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888).also {
@@ -150,15 +153,13 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                         onIndexChange = { index -> onIndexChange(mapOf("currentIndex" to index)) },
                         originalImage = if (disableHiddenOriginalImage) null else childView,
                     )
-                    viewer = ImageViewerBuilder(
+                    val viewer = ImageViewerBuilder(
                         context = imageViewContext,
                         dataProvider = SimpleDataProvider(clickedData, photos),
                         imageLoader = session,
                         transformer = object : Transformer {
                             override fun getView(key: Long): ImageView? {
-                                val target = mountedViews.firstOrNull {
-                                    it.initialIndex.toLong() == key && it.urls.contentEquals(urls)
-                                }?.let { childImage(it) } ?: return null
+                                val target = imageViewAt(key) ?: return null
                                 return fakeStartView(target)
                             }
                         }
@@ -248,4 +249,3 @@ enum class Theme(val value: String) {
         }
     }
 }
-
