@@ -3429,7 +3429,6 @@ __metadata:
     sf-symbols-typescript: "npm:^2.1.0"
   peerDependencies:
     expo: "*"
-    expo-asset: "*"
     react: "*"
     react-dom: "*"
     react-native: "*"

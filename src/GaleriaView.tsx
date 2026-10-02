@@ -10,7 +10,6 @@ import {
   cloneElement,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { Asset } from 'expo-asset'
 import { useWindowDimensions } from 'react-native' // TODO: remove this
 
 import { GaleriaViewProps } from './Galeria.types'
@@ -41,9 +40,7 @@ function Image({
   const url =
     typeof source === 'object' && source !== null && 'uri' in source
       ? source.uri
-      : typeof source === 'number'
-        ? Asset.fromModule(source).uri
-        : source
+      : source
   const videoRef = useRef<HTMLVideoElement>(null)
   const [poster, setPoster] = useState<string>()
   useEffect(() => {

@@ -48,8 +48,7 @@
     "expo": "*",
     "react": "*",
     "react-dom": "*",
-    "react-native": "*",
-    "expo-asset": "*"
+    "react-native": "*"
   },
   "peerDependenciesMeta": {
     "react-dom": {

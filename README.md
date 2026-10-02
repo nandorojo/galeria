@@ -132,11 +132,12 @@ app. Galeria reuses the loaded image from the mounted item as the video's poster
 and transition image. It does not extract video thumbnails. If the item is not
 mounted or its image has not loaded, the poster may be unavailable.
 
-Web requires `expo-asset` to resolve bundled media (`npx expo install expo-asset`).
 Web retains the single-item viewer and its existing close and scroll behavior.
 Browser autoplay policies still apply; if playback is blocked, use the play button.
-Local media on web must be a bundled asset or a browser-accessible URL, not a native
-file URI. Web reuses the caller's image URL as the poster.
+Web uses URL strings or `{ uri }` sources directly, including bundled assets that
+your web bundler emits in those forms. Native numeric asset IDs and native file
+URIs must be resolved by the caller before passing them to web. Galeria reuses the
+caller's image URL as the poster.
 
 ### Dark Mode
 
