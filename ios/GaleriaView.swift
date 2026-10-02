@@ -41,9 +41,7 @@ class GaleriaView: ExpoView {
       return nil
     }
     childImageView = findImage(in: self)
-    if let childImageView { return childImageView }
-
-    return nil
+    return childImageView
   }
 
   var theme: Theme = .dark
