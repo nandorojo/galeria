@@ -33,20 +33,23 @@ class GaleriaView: ExpoView {
   }
 
   func getChildImageView() -> UIImageView? {
-    for reactSubview in self.subviews {
-      for subview in reactSubview.subviews {
-        if let imageView = subview as? UIImageView {
-          childImageView = imageView
-          return imageView
-        }
+    func findImage(in view: UIView) -> UIImageView? {
+      if let image = view as? UIImageView { return image }
+      for child in view.subviews {
+        if let image = findImage(in: child) { return image }
       }
+      return nil
     }
+    childImageView = findImage(in: self)
+    if let childImageView { return childImageView }
 
     return nil
   }
 
   var theme: Theme = .dark
   var urls: [String]?
+  var mediaTypes: [String]?
+  var autoPlayVideo = false
   var initialIndex: Int?
   var closeIconName: String?
   var rightNavItemIconName: String?
@@ -109,7 +112,16 @@ class GaleriaView: ExpoView {
       return URL(fileURLWithPath: string)
     }
 
-    childImage.setupImageViewer(urls: urlObjects, initialIndex: initialIndex, options: options)
+    let items = urlObjects.enumerated().map { index, url -> ImageItem in
+      if mediaTypes?.indices.contains(index) == true, mediaTypes?[index] == "video" {
+        return .video(url)
+      }
+      return .url(url, placeholder: nil)
+    }
+    childImage.setupImageViewer(
+      datasource: SimpleImageDatasource(imageItems: items),
+      initialIndex: initialIndex, options: options)
+
   }
 
   private func setupImageViewerWithSingleImage(
@@ -126,7 +138,7 @@ class GaleriaView: ExpoView {
 
   private func buildImageViewerOptions() -> [ImageViewerOption] {
     let viewerTheme = theme.toImageViewerTheme()
-    var options: [ImageViewerOption] = [.theme(viewerTheme)]
+    var options: [ImageViewerOption] = [.theme(viewerTheme), .autoPlayVideo(autoPlayVideo)]
     let iconColor = theme.iconColor()
 
     if let closeIconName = closeIconName,

@@ -1,6 +1,7 @@
 import UIKit
 
 public enum ImageViewerOption {
+    case autoPlayVideo(Bool)
     case theme(ImageViewerTheme)
     case contentMode(UIView.ContentMode)
     case closeIcon(UIImage)

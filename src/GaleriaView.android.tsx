@@ -22,18 +22,20 @@ const NativeImage = requireNativeView<
 
 const noop = () => {}
 
-const Galeria = Object.assign(
+const GaleriaRoot = Object.assign(
   function Galeria({
     children,
     urls,
     theme = 'dark',
+    autoPlayVideo = false,
     ids,
   }: {
     children: React.ReactNode
-  } & Partial<Pick<GaleriaContext, 'theme' | 'ids' | 'urls'>>) {
+  } & Partial<Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'autoPlayVideo'>>) {
     return (
       <GaleriaContext.Provider
         value={{
+          autoPlayVideo,
           hideBlurOverlay: false,
           hidePageIndicators: false,
           closeIconName: undefined,
@@ -69,6 +71,10 @@ const Galeria = Object.assign(
               return url
             }
 
+            if (typeof url === 'object' && url !== null && 'url' in url) {
+              return url.url
+            }
+
             return Image.resolveAssetSource(url).uri
           })}
           {...props}
@@ -80,5 +86,7 @@ const Galeria = Object.assign(
     }>,
   },
 )
+
+const Galeria = Object.assign(GaleriaRoot, { Item: GaleriaRoot.Image })
 
 export default Galeria

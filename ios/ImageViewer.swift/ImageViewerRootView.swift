@@ -11,8 +11,11 @@ class ImageViewerRootView: UIView, RootViewType {
     var onIndexChange: ((Int) -> Void)?
     var onDismiss: (() -> Void)?
     var sourceImage: UIImage?
+    private let groupId: String?
     var hideBlurOverlay: Bool = false
     var hidePageIndicators: Bool = false
+    private var autoPlayVideo = false
+    private var isVisible = false
 
     private var pageViewController: UIPageViewController!
     private(set) lazy var backgroundView: UIView = {
@@ -33,23 +36,31 @@ class ImageViewerRootView: UIView, RootViewType {
     private var onRightNavBarTapped: ((Int) -> Void)?
 
     private(set) var currentIndex: Int = 0
-    private var initialViewController: ImageViewerController?
+    private var initialViewController: UIViewController?
 
-    var currentImageView: UIImageView? {
-        if let vc = pageViewController?.viewControllers?.first as? ImageViewerController {
-            return vc.imageView
-        }
-        if let vc = initialViewController {
-            return vc.imageView
-        }
-        return nil
+    private var currentPage: GalleryPage? {
+        (pageViewController?.viewControllers?.first ?? initialViewController) as? GalleryPage
     }
 
-    var currentScrollView: UIScrollView? {
-        if let vc = pageViewController?.viewControllers?.first as? ImageViewerController {
-            return vc.scrollView
+    var currentImageView: UIImageView? { currentPage?.transitionImageView }
+    var currentScrollView: UIScrollView? { currentPage?.zoomScrollView }
+
+    private func updatePlayback() {
+        (currentPage as? VideoViewerController)?.setActive(isVisible, autoPlayVideo: autoPlayVideo)
+    }
+
+    private func makePage(index: Int, datasource: ImageDataSource) -> UIViewController {
+        let item = datasource.imageItem(at: index)
+        if case .video(let url) = item {
+            let thumbnail = groupId.flatMap {
+                GaleriaView.findView(groupId: $0, index: index)?.getChildImageView()?.image
+            }
+            return VideoViewerController(index: index, url: url,
+                placeholder: thumbnail ?? (index == initialIndex ? sourceImage : nil))
         }
-        return initialViewController?.scrollView
+        let page = ImageViewerController(index: index, imageItem: item, imageLoader: imageLoader)
+        if index == initialIndex { page.initialPlaceholder = sourceImage }
+        return page
     }
 
     var preferredStatusBarStyle: UIStatusBarStyle {
@@ -64,12 +75,16 @@ class ImageViewerRootView: UIView, RootViewType {
     }
 
     func didAppear(animated: Bool) {
+        isVisible = true
+        updatePlayback()
         UIView.animate(withDuration: 0.25) {
             self.navBar.alpha = 1.0
         }
     }
 
     func willDisappear(animated: Bool) {
+        isVisible = false
+        updatePlayback()
         UIView.animate(withDuration: 0.25) {
             self.navBar.alpha = 0
         }
@@ -84,7 +99,8 @@ class ImageViewerRootView: UIView, RootViewType {
         imageLoader: ImageLoader,
         options: [ImageViewerOption] = [],
         initialIndex: Int = 0,
-        sourceImage: UIImage? = nil
+        sourceImage: UIImage? = nil,
+        groupId: String? = nil
     ) {
         self.imageDatasource = imageDataSource
         self.imageLoader = imageLoader
@@ -92,6 +108,7 @@ class ImageViewerRootView: UIView, RootViewType {
         self.initialIndex = initialIndex
         self.currentIndex = initialIndex
         self.sourceImage = sourceImage
+        self.groupId = groupId
 
         for option in options {
             if case .hidePageIndicators(let hide) = option {
@@ -100,6 +117,7 @@ class ImageViewerRootView: UIView, RootViewType {
         }
 
         super.init(frame: .zero)
+        accessibilityViewIsModal = true
         setupViews()
         applyOptions()
         setupGestures()
@@ -125,17 +143,9 @@ class ImageViewerRootView: UIView, RootViewType {
         addSubview(pageViewController.view)
 
         if let datasource = imageDatasource {
-            let initialVC = ImageViewerController(
-                index: initialIndex,
-                imageItem: datasource.imageItem(at: initialIndex),
-                imageLoader: imageLoader
-            )
+            let initialVC = makePage(index: initialIndex, datasource: datasource)
             self.initialViewController = initialVC
-            
-            if let sourceImage = self.sourceImage {
-                initialVC.initialPlaceholder = sourceImage
-            }
-            
+
             initialVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
             pageViewController.setViewControllers([initialVC], direction: .forward, animated: false)
 
@@ -162,6 +172,8 @@ class ImageViewerRootView: UIView, RootViewType {
         
         options.forEach { option in
             switch option {
+            case .autoPlayVideo(let value):
+                autoPlayVideo = value
             case .theme(let newTheme):
                 self.theme = newTheme
                 backgroundView.backgroundColor = newTheme.color
@@ -214,6 +226,8 @@ class ImageViewerRootView: UIView, RootViewType {
 
         let singleTapGesture = UITapGestureRecognizer(target: self, action: #selector(didSingleTap))
         singleTapGesture.numberOfTapsRequired = 1
+        singleTapGesture.cancelsTouchesInView = false
+        singleTapGesture.delegate = self
         addGestureRecognizer(singleTapGesture)
     }
 
@@ -276,6 +290,15 @@ extension ImageViewerRootView: MatchTransitionDelegate {
 
 extension ImageViewerRootView: UIGestureRecognizerDelegate {
     override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if currentPage is VideoViewerController {
+            if gestureRecognizer is UITapGestureRecognizer { return false }
+            if let pan = gestureRecognizer as? UIPanGestureRecognizer {
+                let velocity = pan.velocity(in: self)
+                let point = pan.location(in: self)
+                // Leave the player's bottom controls and horizontal scrubbing alone.
+                return abs(velocity.y) > abs(velocity.x) && point.y < bounds.height - 180
+            }
+        }
         if let scrollView = currentScrollView {
             return scrollView.zoomScale <= scrollView.minimumZoomScale + 0.01
         }
@@ -295,18 +318,14 @@ extension ImageViewerRootView: UIPageViewControllerDataSource {
         _ pageViewController: UIPageViewController,
         viewControllerBefore viewController: UIViewController
     ) -> UIViewController? {
-        guard let vc = viewController as? ImageViewerController,
+        guard let vc = viewController as? GalleryPage,
               let datasource = imageDatasource,
               vc.index > 0 else {
             return nil
         }
 
         let newIndex = vc.index - 1
-        let newVC = ImageViewerController(
-            index: newIndex,
-            imageItem: datasource.imageItem(at: newIndex),
-            imageLoader: imageLoader
-        )
+        let newVC = makePage(index: newIndex, datasource: datasource)
         newVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
         return newVC
     }
@@ -315,18 +334,14 @@ extension ImageViewerRootView: UIPageViewControllerDataSource {
         _ pageViewController: UIPageViewController,
         viewControllerAfter viewController: UIViewController
     ) -> UIViewController? {
-        guard let vc = viewController as? ImageViewerController,
+        guard let vc = viewController as? GalleryPage,
               let datasource = imageDatasource,
               vc.index < datasource.numberOfImages() - 1 else {
             return nil
         }
 
         let newIndex = vc.index + 1
-        let newVC = ImageViewerController(
-            index: newIndex,
-            imageItem: datasource.imageItem(at: newIndex),
-            imageLoader: imageLoader
-        )
+        let newVC = makePage(index: newIndex, datasource: datasource)
         newVC.view.gestureRecognizers?.removeAll(where: { $0 is UIPanGestureRecognizer })
         return newVC
     }
@@ -349,8 +364,12 @@ extension ImageViewerRootView: UIPageViewControllerDelegate {
         previousViewControllers: [UIViewController],
         transitionCompleted completed: Bool
     ) {
-        if completed, let currentVC = pageViewController.viewControllers?.first as? ImageViewerController {
+        if completed, let currentVC = pageViewController.viewControllers?.first as? GalleryPage {
+            for previous in previousViewControllers {
+                (previous as? VideoViewerController)?.setActive(false, autoPlayVideo: autoPlayVideo)
+            }
             currentIndex = currentVC.index
+            updatePlayback()
             onIndexChange?(currentIndex)
         }
     }

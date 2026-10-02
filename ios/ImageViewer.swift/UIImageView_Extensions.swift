@@ -172,7 +172,8 @@ extension UIImageView {
             imageLoader: imageLoader,
             options: sender.options,
             initialIndex: sender.initialIndex,
-            sourceImage: sourceImage
+            sourceImage: sourceImage,
+            groupId: galeriaView?.groupId
         )
         
         placeholderRoot.viewerRootView = viewerView

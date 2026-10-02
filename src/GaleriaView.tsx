@@ -27,7 +27,11 @@ function Image({
 }: GaleriaViewProps) {
   const [isOpen, setIsOpen] = useState(false)
   const { urls, theme } = useContext(GaleriaContext)
-  const url = urls?.[index]
+  const source = urls?.[index]
+  const url =
+    typeof source === 'object' && source !== null && 'url' in source
+      ? source.url
+      : source
   const [aspectRatio, setAspectRatio] = useState(1)
   const id = useId()
   const getFirstImageChild = (node: Node): HTMLImageElement | null => {
@@ -199,6 +203,7 @@ function Root({
   children,
   urls,
   theme = 'dark',
+  autoPlayVideo = false,
   ids,
 }: ComponentProps<typeof Native>) {
   const [openState, setOpen] = useState({
@@ -215,6 +220,7 @@ function Root({
   return (
     <GaleriaContext.Provider
       value={{
+        autoPlayVideo,
         hideBlurOverlay: false,
         hidePageIndicators: false,
         closeIconName: undefined,
@@ -311,6 +317,7 @@ function PopupModal({
 
 const Galeria: typeof Native = Object.assign(Root, {
   Image,
+  Item: Image,
   Popup: () => null,
 })
 
