@@ -83,22 +83,21 @@ const GaleriaRoot = Object.assign(
           theme={theme}
           autoPlayVideo={autoPlayVideo}
           mediaTypes={urls?.map((source) =>
-            typeof source === 'object' && source !== null && 'url' in source
+            typeof source === 'object' && source !== null && 'source' in source
               ? source.type
               : 'photo',
           )}
           hideBlurOverlay={props.hideBlurOverlay ?? hideBlurOverlay}
           hidePageIndicators={props.hidePageIndicators ?? hidePageIndicators}
-          urls={urls?.map((url) => {
-            if (typeof url === 'string') {
-              return url
-            }
+          urls={urls?.map((item) => {
+            const source =
+              typeof item === 'object' && item !== null && 'source' in item
+                ? item.source
+                : item
 
-            if (typeof url === 'object' && url !== null && 'url' in url) {
-              return url.url
-            }
-
-            return Image.resolveAssetSource(url).uri
+            return typeof source === 'string'
+              ? source
+              : Image.resolveAssetSource(source).uri
           })}
           index={initialIndex}
           {...props}

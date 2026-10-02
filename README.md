@@ -91,8 +91,10 @@ export const MutliImage = ({ style }) => (
 ### Photos and Videos
 *iOS only*
 
-Pass `{ type: 'video', url }` entries alongside photos in `urls`. Existing image
-URLs and local image assets still work. `Galeria.Item` is an alias for
+Pass `{ type: 'video', source }` entries alongside photos in `urls`. Existing image
+URLs and local image assets still work. A typed entry's `source` accepts a URL
+string, a bundled asset such as `require('./video.mp4')`, or `{ uri: string }`
+for remote and local file URIs. `Galeria.Item` is an alias for
 `Galeria.Image` and accepts the same props.
 
 ```tsx
@@ -100,8 +102,8 @@ import { Galeria, type MediaSource } from '@nandorojo/galeria'
 import { Image } from 'react-native'
 
 const media: MediaSource[] = [
-  { type: 'photo', url: 'https://example.com/photo.jpg' },
-  { type: 'video', url: 'https://example.com/video.mp4' },
+  { type: 'photo', source: 'https://example.com/photo.jpg' },
+  { type: 'video', source: 'https://example.com/video.mp4' },
 ]
 const thumbnails = [
   'https://example.com/photo.jpg',

@@ -27,10 +27,14 @@ function Image({
 }: GaleriaViewProps) {
   const [isOpen, setIsOpen] = useState(false)
   const { urls, theme } = useContext(GaleriaContext)
-  const source = urls?.[index]
+  const item = urls?.[index]
+  const source =
+    typeof item === 'object' && item !== null && 'source' in item
+      ? item.source
+      : item
   const url =
-    typeof source === 'object' && source !== null && 'url' in source
-      ? source.url
+    typeof source === 'object' && source !== null && 'uri' in source
+      ? source.uri
       : source
   const [aspectRatio, setAspectRatio] = useState(1)
   const id = useId()

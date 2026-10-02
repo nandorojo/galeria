@@ -66,16 +66,15 @@ const GaleriaRoot = Object.assign(
           onIndexChange={props.onIndexChange}
           edgeToEdge={EDGE_TO_EDGE || (edgeToEdge ?? false)}
           theme={theme}
-          urls={urls?.map((url) => {
-            if (typeof url === 'string') {
-              return url
-            }
+          urls={urls?.map((item) => {
+            const source =
+              typeof item === 'object' && item !== null && 'source' in item
+                ? item.source
+                : item
 
-            if (typeof url === 'object' && url !== null && 'url' in url) {
-              return url.url
-            }
-
-            return Image.resolveAssetSource(url).uri
+            return typeof source === 'string'
+              ? source
+              : Image.resolveAssetSource(source).uri
           })}
           {...props}
         />

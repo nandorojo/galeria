@@ -7,7 +7,7 @@ import type { SFSymbol } from 'sf-symbols-typescript'
 export type MediaSource =
   | string
   | Parameters<typeof Image.resolveAssetSource>[0]
-  | { type: 'photo' | 'video'; url: string }
+  | { type: 'photo' | 'video'; source: string | number | { uri: string } }
 
 export type ChangeEventPayload = {
   value: string
