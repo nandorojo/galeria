@@ -30,13 +30,14 @@ class VideoViewerController: UIViewController, GalleryPage {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
+        view.backgroundColor = .clear
         view.addSubview(transitionImageView)
         playerController.player = player
         playerController.showsPlaybackControls = true
         playerController.allowsPictureInPicturePlayback = false
         playerController.videoGravity = .resizeAspect
         addChild(playerController)
+        playerController.view.backgroundColor = .clear
         view.insertSubview(playerController.view, belowSubview: transitionImageView)
         playerController.didMove(toParent: self)
         readyObservation = playerController.observe(\.isReadyForDisplay, options: [.initial, .new]) { [weak self] _, _ in
