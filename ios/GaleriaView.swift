@@ -103,14 +103,15 @@ class GaleriaView: ExpoView {
   ) {
     let options = buildImageViewerOptions()
 
-    let urlObjects: [URL] = urls.compactMap { string in
+    let items: [ImageItem] = urls.enumerated().compactMap { index, string in
+      let url: URL?
       if string.hasPrefix("http://") || string.hasPrefix("https://") || string.hasPrefix("file://") {
-        return URL(string: string)
+        url = URL(string: string)
+      } else {
+        url = URL(fileURLWithPath: string)
       }
-      return URL(fileURLWithPath: string)
-    }
+      guard let url else { return nil }
 
-    let items = urlObjects.enumerated().map { index, url -> ImageItem in
       if mediaTypes?.indices.contains(index) == true, mediaTypes?[index] == "video" {
         return .video(url)
       }
