@@ -290,8 +290,10 @@ extension ImageViewerRootView: MatchTransitionDelegate {
 
 extension ImageViewerRootView: UIGestureRecognizerDelegate {
     override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer is UITapGestureRecognizer {
+            return !(currentPage is VideoViewerController)
+        }
         if currentPage is VideoViewerController {
-            if gestureRecognizer is UITapGestureRecognizer { return false }
             if let pan = gestureRecognizer as? UIPanGestureRecognizer {
                 let velocity = pan.velocity(in: self)
                 let point = pan.location(in: self)
@@ -369,6 +371,7 @@ extension ImageViewerRootView: UIPageViewControllerDelegate {
                 (previous as? VideoViewerController)?.setActive(false, autoPlayVideo: autoPlayVideo)
             }
             currentIndex = currentVC.index
+            if currentVC is VideoViewerController { navBar.alpha = 1 }
             updatePlayback()
             onIndexChange?(currentIndex)
         }
