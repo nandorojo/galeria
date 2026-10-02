@@ -37,9 +37,8 @@ class VideoViewerController: UIViewController, GalleryPage {
         playerController.allowsPictureInPicturePlayback = false
         playerController.videoGravity = .resizeAspect
         addChild(playerController)
-        view.addSubview(playerController.view)
+        view.insertSubview(playerController.view, belowSubview: transitionImageView)
         playerController.didMove(toParent: self)
-        playerController.view.alpha = 0
         readyObservation = playerController.observe(\.isReadyForDisplay, options: [.initial, .new]) { [weak self] _, _ in
             DispatchQueue.main.async { self?.revealPlayer() }
         }
@@ -74,7 +73,7 @@ class VideoViewerController: UIViewController, GalleryPage {
     private func revealPlayer() {
         guard active, playerController.isReadyForDisplay else { return }
         view.setNeedsLayout()
-        playerController.view.alpha = 1
+        view.bringSubviewToFront(playerController.view)
     }
 
     deinit {
