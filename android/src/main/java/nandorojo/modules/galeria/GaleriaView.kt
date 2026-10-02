@@ -76,6 +76,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     }
 
     private fun imageViewAt(index: Long): ImageView? {
+        if (index == initialIndex.toLong() && isAttachedToWindow) return childImage(this)
         return mountedViews.firstOrNull {
             it.initialIndex.toLong() == index && it.urls.contentEquals(urls)
         }?.let { childImage(it) }
