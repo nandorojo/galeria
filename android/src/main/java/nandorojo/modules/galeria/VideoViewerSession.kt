@@ -11,6 +11,7 @@ import com.github.iielse.imageviewer.core.ImageLoader
 import com.github.iielse.imageviewer.core.Photo
 import com.github.iielse.imageviewer.core.VHCustomizer
 import com.github.iielse.imageviewer.core.ViewerCallback
+import com.github.iielse.imageviewer.utils.Config
 import com.github.iielse.imageviewer.viewholders.VideoViewHolder
 import com.github.iielse.imageviewer.widgets.video.ExoVideoView2
 import com.google.android.exoplayer2.Player
@@ -111,6 +112,11 @@ class VideoViewerSession(
     override fun onRelease(viewHolder: RecyclerView.ViewHolder, view: View) {
         pause()
         if (viewHolder is VideoViewHolder) controls[viewHolder]?.visibility = View.INVISIBLE
+        originalImage?.let { image ->
+            image.animate().cancel()
+            // Restore the thumbnail when the viewer fades its shared element out.
+            image.postDelayed({ if (!released) image.alpha = 1f }, maxOf(Config.DURATION_TRANSITION - 20, 0))
+        }
     }
 
     fun pause() {
