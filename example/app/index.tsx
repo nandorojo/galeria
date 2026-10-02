@@ -9,6 +9,7 @@ export default function HomeScreen() {
   return (
     <View style={{ gap: 12, paddingVertical: 16, paddingHorizontal: 16 }}>
       <LinkItem href="/photos">Photos</LinkItem>
+      <LinkItem href="/videos">Videos</LinkItem>
       <LinkItem href="/chat">Chat</LinkItem>
       <LinkItem href="/modal">Modal</LinkItem>
       <LinkItem href="/masonry">Masonry</LinkItem>
