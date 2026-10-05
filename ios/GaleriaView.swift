@@ -106,6 +106,9 @@ class GaleriaView: ExpoView {
       if string.hasPrefix("http://") || string.hasPrefix("https://") || string.hasPrefix("file://") {
         return URL(string: string)
       }
+      if string.hasPrefix("data:"), let url = URL(string: string) {
+        return url
+      }
       return URL(fileURLWithPath: string)
     }
 
