@@ -178,6 +178,21 @@ Hide the page indicator dots when viewing multiple images.
 </Galeria.Image>
 ```
 
+### Dynamic Aspect Ratio
+*iOS only*
+
+By default, the shared element transition assumes the thumbnail fills its container edge-to-edge (i.e. `resizeMode="cover"`). If your thumbnail uses `resizeMode="contain"` (or `contentFit="contain"` with expo-image), the image is letterboxed inside its container and the transition will look off — it animates to the container bounds rather than the visible image.
+
+Enable `dynamicAspectRatio` to fix this. When set, Galeria detects that the matched source view is an aspect-fit image and adjusts the transition scale accordingly.
+
+```tsx
+<Galeria urls={[url]} dynamicAspectRatio>
+  <Galeria.Image>
+    <Image source={{ uri: url }} style={style} resizeMode="contain" />
+  </Galeria.Image>
+</Galeria>
+```
+
 ### Plain Web Support
 
 Galeria does not use _any_ React Native code on the web. It is a pure React component library.

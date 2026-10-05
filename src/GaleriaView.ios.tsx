@@ -14,6 +14,7 @@ const NativeImage = requireNativeView<
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
     hideBlurOverlay?: boolean
     hidePageIndicators?: boolean
+    dynamicAspectRatio?: boolean
   }
 >('Galeria')
 
@@ -28,10 +29,11 @@ const Galeria = Object.assign(
     ids,
     hideBlurOverlay = false,
     hidePageIndicators = false,
+    dynamicAspectRatio = false,
   }: {
     children: React.ReactNode
   } & Partial<
-    Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName' | 'hideBlurOverlay' | 'hidePageIndicators'>
+    Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName' | 'hideBlurOverlay' | 'hidePageIndicators' | 'dynamicAspectRatio'>
   >) {
     return (
       <GaleriaContext.Provider
@@ -46,6 +48,7 @@ const Galeria = Object.assign(
           ids,
           hideBlurOverlay,
           hidePageIndicators,
+          dynamicAspectRatio,
         }}
       >
         {children}
@@ -54,7 +57,7 @@ const Galeria = Object.assign(
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme, urls, initialIndex, closeIconName, hideBlurOverlay, hidePageIndicators } =
+      const { theme, urls, initialIndex, closeIconName, hideBlurOverlay, hidePageIndicators, dynamicAspectRatio } =
         useContext(GaleriaContext)
       return (
         <NativeImage
@@ -63,6 +66,7 @@ const Galeria = Object.assign(
           theme={theme}
           hideBlurOverlay={props.hideBlurOverlay ?? hideBlurOverlay}
           hidePageIndicators={props.hidePageIndicators ?? hidePageIndicators}
+          dynamicAspectRatio={dynamicAspectRatio}
           urls={urls?.map((url) => {
             if (typeof url === 'string') {
               return url
