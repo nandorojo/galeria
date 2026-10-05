@@ -52,6 +52,7 @@ class GaleriaView: ExpoView {
   var rightNavItemIconName: String?
   var hideBlurOverlay: Bool = false
   var hidePageIndicators: Bool = false
+  var longPressEnabled: Bool = false
   let onPressRightNavItemIcon = EventDispatcher()
   let onIndexChange = EventDispatcher()
   let onLongPress = EventDispatcher()
@@ -77,7 +78,9 @@ class GaleriaView: ExpoView {
       setupImageViewerWithSingleImage(childImage, viewerTheme: viewerTheme)
     }
 
-    attachLongPressRecognizer(to: childImage)
+    if longPressEnabled {
+      attachLongPressRecognizer(to: childImage)
+    }
   }
 
   private func attachLongPressRecognizer(to imageView: UIImageView) {
