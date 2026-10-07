@@ -10,7 +10,6 @@ import {
   cloneElement,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { useWindowDimensions } from 'react-native' // TODO: remove this
 
 import { GaleriaViewProps } from './Galeria.types'
 import type Native from './GaleriaView.ios'
@@ -282,6 +281,32 @@ function Root({
       </LayoutGroup>
     </GaleriaContext.Provider>
   )
+}
+
+function getWindowDimensions() {
+  // same measurement as react-native-web's Dimensions, without depending on react-native
+  const { visualViewport } = window
+  if (visualViewport) {
+    return {
+      width: Math.round(visualViewport.width * visualViewport.scale),
+      height: Math.round(visualViewport.height * visualViewport.scale),
+    }
+  }
+  return {
+    width: document.documentElement.clientWidth,
+    height: document.documentElement.clientHeight,
+  }
+}
+
+function useWindowDimensions() {
+  const [dimensions, setDimensions] = useState(getWindowDimensions)
+  useEffect(() => {
+    const target = window.visualViewport ?? window
+    const onResize = () => setDimensions(getWindowDimensions())
+    target.addEventListener('resize', onResize)
+    return () => target.removeEventListener('resize', onResize)
+  }, [])
+  return dimensions
 }
 
 function WindowDimensions({
