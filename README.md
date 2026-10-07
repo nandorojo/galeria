@@ -122,7 +122,7 @@ export const MixedGallery = () => (
 ```
 
 Videos open paused by default. Set `autoPlayVideo` to start playback when a video
-page becomes active. Playback uses native AVKit controls on iOS, ExoPlayer controls on Android, and the browser's standard video controls on web.
+page becomes active. Playback uses native AVKit controls on iOS, Media3 controls on Android, and the browser's standard video controls on web.
 Tap the video to reveal the controls. Playback stops when dismissing the viewer.
 On iOS and Android, playback also pauses when leaving the page or putting the app
 in the background.

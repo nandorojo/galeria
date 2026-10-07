@@ -1,10 +1,16 @@
 package nandorojo.modules.galeria
 
+import android.content.ContentResolver
 import android.graphics.Bitmap
+import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.annotation.OptIn
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.PlayerControlView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.github.iielse.imageviewer.core.ImageLoader
@@ -14,25 +20,23 @@ import com.github.iielse.imageviewer.core.ViewerCallback
 import com.github.iielse.imageviewer.utils.Config
 import com.github.iielse.imageviewer.viewholders.VideoViewHolder
 import com.github.iielse.imageviewer.widgets.video.ExoVideoView2
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.upstream.RawResourceDataSource
-import com.google.android.exoplayer2.ui.StyledPlayerControlView
 
 /** Owns playback for one presentation of the native gallery. */
+@OptIn(UnstableApi::class)
 class VideoViewerSession(
     private val autoPlayVideo: Boolean,
     private val thumbnail: (Int) -> Bitmap?,
     private val onIndexChange: (Int) -> Unit,
     private val originalImage: ImageView?,
 ) : ImageLoader, VHCustomizer, ViewerCallback {
-    private val controls = mutableMapOf<VideoViewHolder, StyledPlayerControlView>()
+    private val controls = mutableMapOf<VideoViewHolder, PlayerControlView>()
     private var activeVideo: VideoViewHolder? = null
     private var released = false
     var isForeground = true
 
     override fun initialize(type: Int, viewHolder: RecyclerView.ViewHolder) {
         if (viewHolder !is VideoViewHolder) return
-        val control = StyledPlayerControlView(viewHolder.itemView.context)
+        val control = PlayerControlView(viewHolder.itemView.context)
         viewHolder.binding.videoView.setOnClickListener {
             if (control.isFullyVisible) control.hide() else control.show()
         }
@@ -63,7 +67,16 @@ class VideoViewerSession(
         // Metro serves bundled assets over HTTP; release builds resolve them to raw resource names.
         val resourceId = exoVideoView.resources.getIdentifier(source, "raw", exoVideoView.context.packageName)
         exoVideoView.prepare(
-            if (resourceId != 0) RawResourceDataSource.buildRawResourceUri(resourceId).toString() else source
+            if (resourceId != 0) {
+                Uri.Builder()
+                    .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                    .authority(exoVideoView.context.packageName)
+                    .path(resourceId.toString())
+                    .build()
+                    .toString()
+            } else {
+                source
+            }
         )
     }
 
