@@ -224,6 +224,11 @@ public class MatchTransition: InteractiveTransition {
         } else {
             presentFrame = container.bounds
         }
+        // Avoid invalid transition scales when an image has not loaded.
+        guard [dismissFrame.width, dismissFrame.height, presentFrame.width, presentFrame.height]
+            .allSatisfy({ $0.isFinite && $0 > 0 }) else {
+            return (container.bounds, container.bounds)
+        }
         return (dismissFrame, presentFrame)
     }
 
