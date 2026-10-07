@@ -15,6 +15,8 @@ const NativeImage = requireNativeView<
   GaleriaViewProps & {
     edgeToEdge: boolean
     urls?: string[]
+    mediaTypes?: ('photo' | 'video')[]
+    autoPlayVideo: boolean
     theme: 'dark' | 'light'
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
   }
@@ -22,18 +24,20 @@ const NativeImage = requireNativeView<
 
 const noop = () => {}
 
-const Galeria = Object.assign(
+const GaleriaRoot = Object.assign(
   function Galeria({
     children,
     urls,
     theme = 'dark',
+    autoPlayVideo = false,
     ids,
   }: {
     children: React.ReactNode
-  } & Partial<Pick<GaleriaContext, 'theme' | 'ids' | 'urls'>>) {
+  } & Partial<Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'autoPlayVideo'>>) {
     return (
       <GaleriaContext.Provider
         value={{
+          autoPlayVideo,
           hideBlurOverlay: false,
           hidePageIndicators: false,
           closeIconName: undefined,
@@ -52,7 +56,7 @@ const Galeria = Object.assign(
   },
   {
     Image({ edgeToEdge, ...props }: GaleriaViewProps) {
-      const { theme, urls } = useContext(GaleriaContext)
+      const { theme, urls, autoPlayVideo } = useContext(GaleriaContext)
 
       if (__DEV__) {
         // warn the user once about unnecessary defined prop
@@ -64,12 +68,21 @@ const Galeria = Object.assign(
           onIndexChange={props.onIndexChange}
           edgeToEdge={EDGE_TO_EDGE || (edgeToEdge ?? false)}
           theme={theme}
-          urls={urls?.map((url) => {
-            if (typeof url === 'string') {
-              return url
-            }
+          autoPlayVideo={autoPlayVideo}
+          mediaTypes={urls?.map((source) =>
+            typeof source === 'object' && source !== null && 'source' in source
+              ? source.type
+              : 'photo',
+          )}
+          urls={urls?.map((item) => {
+            const source =
+              typeof item === 'object' && item !== null && 'source' in item
+                ? item.source
+                : item
 
-            return Image.resolveAssetSource(url).uri
+            return typeof source === 'string'
+              ? source
+              : Image.resolveAssetSource(source).uri
           })}
           {...props}
         />
@@ -80,5 +93,7 @@ const Galeria = Object.assign(
     }>,
   },
 )
+
+const Galeria = Object.assign(GaleriaRoot, { Item: GaleriaRoot.Image })
 
 export default Galeria

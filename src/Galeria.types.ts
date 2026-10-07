@@ -1,8 +1,13 @@
 import type { motion } from 'framer-motion'
 import type { ComponentProps } from 'react'
-import type { NativeSyntheticEvent } from 'react-native'
+import type { Image, NativeSyntheticEvent } from 'react-native'
 import { ViewStyle } from 'react-native'
 import type { SFSymbol } from 'sf-symbols-typescript'
+
+export type MediaSource =
+  | string
+  | Parameters<typeof Image.resolveAssetSource>[0]
+  | { type: 'photo' | 'video'; source: string | number | { uri: string } }
 
 export type ChangeEventPayload = {
   value: string

@@ -9,6 +9,8 @@ import { GaleriaIndexChangedEvent, GaleriaViewProps } from './Galeria.types'
 const NativeImage = requireNativeView<
   GaleriaViewProps & {
     urls?: string[]
+    mediaTypes?: ('photo' | 'video')[]
+    autoPlayVideo: boolean
     closeIconName?: SFSymbol
     theme: 'dark' | 'light'
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
@@ -19,19 +21,29 @@ const NativeImage = requireNativeView<
 
 const noop = () => {}
 
-const Galeria = Object.assign(
+const GaleriaRoot = Object.assign(
   function Galeria({
     children,
     closeIconName,
     urls,
     theme = 'dark',
     ids,
+    autoPlayVideo = false,
     hideBlurOverlay = false,
     hidePageIndicators = false,
   }: {
     children: React.ReactNode
   } & Partial<
-    Pick<GaleriaContext, 'theme' | 'ids' | 'urls' | 'closeIconName' | 'hideBlurOverlay' | 'hidePageIndicators'>
+    Pick<
+      GaleriaContext,
+      | 'theme'
+      | 'ids'
+      | 'urls'
+      | 'closeIconName'
+      | 'hideBlurOverlay'
+      | 'hidePageIndicators'
+      | 'autoPlayVideo'
+    >
   >) {
     return (
       <GaleriaContext.Provider
@@ -44,6 +56,7 @@ const Galeria = Object.assign(
           src: '',
           setOpen: noop,
           ids,
+          autoPlayVideo,
           hideBlurOverlay,
           hidePageIndicators,
         }}
@@ -54,21 +67,37 @@ const Galeria = Object.assign(
   },
   {
     Image(props: GaleriaViewProps) {
-      const { theme, urls, initialIndex, closeIconName, hideBlurOverlay, hidePageIndicators } =
-        useContext(GaleriaContext)
+      const {
+        theme,
+        urls,
+        initialIndex,
+        closeIconName,
+        hideBlurOverlay,
+        hidePageIndicators,
+        autoPlayVideo,
+      } = useContext(GaleriaContext)
       return (
         <NativeImage
           onIndexChange={props.onIndexChange}
           closeIconName={closeIconName}
           theme={theme}
+          autoPlayVideo={autoPlayVideo}
+          mediaTypes={urls?.map((source) =>
+            typeof source === 'object' && source !== null && 'source' in source
+              ? source.type
+              : 'photo',
+          )}
           hideBlurOverlay={props.hideBlurOverlay ?? hideBlurOverlay}
           hidePageIndicators={props.hidePageIndicators ?? hidePageIndicators}
-          urls={urls?.map((url) => {
-            if (typeof url === 'string') {
-              return url
-            }
+          urls={urls?.map((item) => {
+            const source =
+              typeof item === 'object' && item !== null && 'source' in item
+                ? item.source
+                : item
 
-            return Image.resolveAssetSource(url).uri
+            return typeof source === 'string'
+              ? source
+              : Image.resolveAssetSource(source).uri
           })}
           index={initialIndex}
           {...props}
@@ -80,5 +109,7 @@ const Galeria = Object.assign(
     }>,
   },
 )
+
+const Galeria = Object.assign(GaleriaRoot, { Item: GaleriaRoot.Image })
 
 export default Galeria

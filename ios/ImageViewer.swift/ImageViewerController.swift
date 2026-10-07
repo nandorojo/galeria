@@ -211,3 +211,14 @@ extension ImageViewerController: UIScrollViewDelegate {
     }
 }
 
+
+protocol GalleryPage: AnyObject {
+    var index: Int { get }
+    var transitionImageView: UIImageView { get }
+    var zoomScrollView: UIScrollView? { get }
+}
+
+extension ImageViewerController: GalleryPage {
+    var transitionImageView: UIImageView { imageView }
+    var zoomScrollView: UIScrollView? { scrollView }
+}
