@@ -35,6 +35,7 @@
     },
     "plugins": [
       "expo-router",
+      "./plugins/withSceneDelegate",
       [
         "expo-screen-orientation",
         {
