@@ -46,7 +46,7 @@
         {
           "ios": {
             "useFrameworks": "static",
-            "deploymentTarget": "16.0",
+            "deploymentTarget": "16.4",
             "unstable_networkInspector": true
           },
           "android": {

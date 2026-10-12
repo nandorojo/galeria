@@ -12,6 +12,9 @@ config.resolver.blockList = [
   new RegExp(path.resolve('..', 'node_modules', 'react-native')),
 ]
 
+// Use the example's React instance for the linked library source too.
+config.resolver.disableHierarchicalLookup = true
+
 config.resolver.nodeModulesPaths = [
   path.resolve(__dirname, './node_modules'),
   path.resolve(__dirname, '../node_modules'),

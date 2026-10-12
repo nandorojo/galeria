@@ -17,6 +17,13 @@ public class GaleriaModule: Module {
         view.urls = urls
       }
 
+      Prop("mediaTypes") { (view, types: [String]?) in
+        view.mediaTypes = types
+      }
+      Prop("autoPlayVideo") { (view, autoPlayVideo: Bool?) in
+        view.autoPlayVideo = autoPlayVideo ?? false
+      }
+
       Prop("index") { (view, index: Int?) in
         view.initialIndex = index
       }

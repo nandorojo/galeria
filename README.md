@@ -37,7 +37,7 @@ https://github.com/user-attachments/assets/5062e949-b205-4260-830c-38041cec26db
 
 For iOS and Android, the implementation uses Swift (`ImageViewer.swift`) and Kotlin (`imageviewer`) respectively – see [credits](#credits).
 
-Web support is a simplified version of the native experience powered by Framer Motion. It currently supports a single image at a time.
+Web support is a simplified version of the native experience powered by Framer Motion. It opens one photo or video at a time.
 
 ## Resources
 
@@ -87,6 +87,57 @@ export const MutliImage = ({ style }) => (
   </Galeria>
 )
 ```
+
+### Photos and Videos
+*iOS, Android, and web*
+
+Pass `{ type: 'video', source }` entries alongside photos in `urls`. Existing image
+URLs and local image assets still work. A typed entry's `source` accepts a URL
+string, a bundled asset such as `require('./video.mp4')`, or `{ uri: string }`
+for remote and local file URIs. `Galeria.Item` is an alias for
+`Galeria.Image` and accepts the same props.
+
+```tsx
+import { Galeria, type MediaSource } from '@nandorojo/galeria'
+import { Image } from 'react-native'
+
+const media: MediaSource[] = [
+  { type: 'photo', source: 'https://example.com/photo.jpg' },
+  { type: 'video', source: 'https://example.com/video.mp4' },
+]
+const thumbnails = [
+  'https://example.com/photo.jpg',
+  'https://example.com/video-poster.jpg',
+]
+
+export const MixedGallery = () => (
+  <Galeria urls={media} autoPlayVideo={false}>
+    {thumbnails.map((uri, index) => (
+      <Galeria.Item index={index} key={uri}>
+        <Image source={{ uri }} style={{ width: 120, height: 120 }} />
+      </Galeria.Item>
+    ))}
+  </Galeria>
+)
+```
+
+Videos open paused by default. Set `autoPlayVideo` to start playback when a video
+page becomes active. Playback uses native AVKit controls on iOS, Media3 controls on Android, and the browser's standard video controls on web.
+Tap the video to reveal the controls. Playback stops when dismissing the viewer.
+On iOS and Android, playback also pauses when leaving the page or putting the app
+in the background.
+
+Provide your own thumbnail image, either from your server or generated in your
+app. Galeria reuses the loaded image from the mounted item as the video's poster
+and transition image. It does not extract video thumbnails. If the item is not
+mounted or its image has not loaded, the poster may be unavailable.
+
+Web retains the single-item viewer and its existing close and scroll behavior.
+Browser autoplay policies still apply; if playback is blocked, use the play button.
+Web uses URL strings or `{ uri }` sources directly, including bundled assets that
+your web bundler emits in those forms. Native numeric asset IDs and native file
+URIs must be resolved by the caller before passing them to web. Galeria reuses the
+caller's image URL as the poster.
 
 ### Dark Mode
 
