@@ -40,6 +40,7 @@ const GaleriaRoot = Object.assign(
           autoPlayVideo,
           hideBlurOverlay: false,
           hidePageIndicators: false,
+          dynamicAspectRatio: false,
           closeIconName: undefined,
           urls,
           theme,

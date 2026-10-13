@@ -46,6 +46,10 @@ public class GaleriaModule: Module {
         view.hidePageIndicators = hidePageIndicators ?? false
       }
 
+      Prop("dynamicAspectRatio") { (view, dynamicAspectRatio: Bool?) in
+        view.dynamicAspectRatio = dynamicAspectRatio ?? false
+      }
+
     }
   }
 

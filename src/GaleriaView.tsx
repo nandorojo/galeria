@@ -258,6 +258,7 @@ function Root({
         autoPlayVideo,
         hideBlurOverlay: false,
         hidePageIndicators: false,
+        dynamicAspectRatio: false,
         closeIconName: undefined,
         setOpen,
         urls,

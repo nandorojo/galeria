@@ -43,6 +43,7 @@ public class MatchTransition: InteractiveTransition {
     public private(set) var sourceViewSnapshot: UIView?
     public var defaultMatchFrame: CGRect?
     public var defaultMatchCornerRadius: CGFloat?
+    public var dynamicAspectRatio: Bool = false
     var scrollViewObservers: [Any] = []
     var isMatched: Bool {
         matchedSourceView != nil
@@ -119,7 +120,14 @@ public class MatchTransition: InteractiveTransition {
         let presentedCornerRadius = isFullScreen ? UIScreen.main.displayCornerRadius : container.parentViewController?.sheetPresentationController?.preferredCornerRadius ?? 0
         let dismissedCornerRadius = matchedSourceView?.cornerRadius ?? defaultMatchCornerRadius ?? presentedCornerRadius
 
-        let scaledSize = presentedFrame.size.size(fill: dismissedFrame.size)
+        let isContainMode = dynamicAspectRatio &&
+            (matchedSourceView as? UIImageView)?.contentMode == .scaleAspectFit
+        let scaledSize: CGSize
+        if isContainMode {
+            scaledSize = presentedFrame.size.size(fit: dismissedFrame.size)
+        } else {
+            scaledSize = presentedFrame.size.size(fill: dismissedFrame.size)
+        }
         let dismissedScale = scaledSize.width / presentedFrame.width
         let sizeOffset = CGPoint(-(scaledSize - dismissedFrame.size) / 2)
         let originOffset = -presentedFrame.origin * dismissedScale

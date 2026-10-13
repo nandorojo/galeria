@@ -16,6 +16,7 @@ const NativeImage = requireNativeView<
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
     hideBlurOverlay?: boolean
     hidePageIndicators?: boolean
+    dynamicAspectRatio?: boolean
   }
 >('Galeria')
 
@@ -31,6 +32,7 @@ const GaleriaRoot = Object.assign(
     autoPlayVideo = false,
     hideBlurOverlay = false,
     hidePageIndicators = false,
+    dynamicAspectRatio = false,
   }: {
     children: React.ReactNode
   } & Partial<
@@ -43,6 +45,7 @@ const GaleriaRoot = Object.assign(
       | 'hideBlurOverlay'
       | 'hidePageIndicators'
       | 'autoPlayVideo'
+      | 'dynamicAspectRatio'
     >
   >) {
     return (
@@ -59,6 +62,7 @@ const GaleriaRoot = Object.assign(
           autoPlayVideo,
           hideBlurOverlay,
           hidePageIndicators,
+          dynamicAspectRatio,
         }}
       >
         {children}
@@ -75,6 +79,7 @@ const GaleriaRoot = Object.assign(
         hideBlurOverlay,
         hidePageIndicators,
         autoPlayVideo,
+        dynamicAspectRatio,
       } = useContext(GaleriaContext)
       return (
         <NativeImage
@@ -89,6 +94,7 @@ const GaleriaRoot = Object.assign(
           )}
           hideBlurOverlay={props.hideBlurOverlay ?? hideBlurOverlay}
           hidePageIndicators={props.hidePageIndicators ?? hidePageIndicators}
+          dynamicAspectRatio={dynamicAspectRatio}
           urls={urls?.map((item) => {
             const source =
               typeof item === 'object' && item !== null && 'source' in item

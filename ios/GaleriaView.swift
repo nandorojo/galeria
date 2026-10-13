@@ -53,6 +53,7 @@ class GaleriaView: ExpoView {
   var rightNavItemIconName: String?
   var hideBlurOverlay: Bool = false
   var hidePageIndicators: Bool = false
+  var dynamicAspectRatio: Bool = false
   let onPressRightNavItemIcon = EventDispatcher()
   let onIndexChange = EventDispatcher()
   let onLongPress = EventDispatcher()
@@ -205,6 +206,8 @@ extension GaleriaView: MatchTransitionDelegate {
       imageView.layer.cornerRadius = parentCornerRadius
       imageView.clipsToBounds = true
     }
+
+    transition.dynamicAspectRatio = dynamicAspectRatio
 
     return imageView
   }
