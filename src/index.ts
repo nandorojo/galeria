@@ -1,2 +1,2 @@
 export { default as Galeria } from './GaleriaView'
-export { GaleriaViewProps } from './Galeria.types'
+export type { GaleriaViewProps, MediaSource } from './Galeria.types'
