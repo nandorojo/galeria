@@ -23,6 +23,7 @@ import com.github.iielse.imageviewer.adapter.ItemType
 import java.util.Collections
 import java.util.WeakHashMap
 import com.github.iielse.imageviewer.core.Photo
+import com.github.iielse.imageviewer.core.Components
 import com.github.iielse.imageviewer.core.SimpleDataProvider
 import com.github.iielse.imageviewer.core.Transformer
 import com.github.iielse.imageviewer.utils.Config
@@ -147,12 +148,19 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                     imageViewContext = activityContext
                 }
                 childView.setOnClickListener {
+                    if (Components.working) return@setOnClickListener
                     setupConfig()
+                    val corners = CornerRadiusCustomizer(
+                        radius = ThumbnailCornerRadius.read(childView),
+                        thumbnailWidth = childView.width,
+                        thumbnailHeight = childView.height,
+                    )
                     val session = VideoViewerSession(
                         autoPlayVideo = autoPlayVideo,
                         thumbnail = { index -> thumbnail(index) },
                         onIndexChange = { index -> onIndexChange(mapOf("currentIndex" to index)) },
                         originalImage = if (disableHiddenOriginalImage) null else childView,
+                        corners = corners,
                     )
                     val viewer = ImageViewerBuilder(
                         context = imageViewContext,
@@ -160,7 +168,10 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                         imageLoader = session,
                         transformer = object : Transformer {
                             override fun getView(key: Long): ImageView? {
-                                val target = imageViewAt(key) ?: return null
+                                val target = imageViewAt(key)
+                                session.transitionTarget = target
+                                if (target == null) return null
+                                corners.setThumbnail(target.width, target.height, ThumbnailCornerRadius.read(target))
                                 return fakeStartView(target)
                             }
                         }
@@ -177,6 +188,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                                 session.pause()
                             },
                             onDestroyCallback = { session.release() },
+                            onBeforeDismiss = { finishDismissal -> session.onBeforeDismiss(finishDismissal) },
                             onDismissCallback = {
                                 session.release()
                                 onDismiss(emptyMap<String, Any>())
