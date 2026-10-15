@@ -54,6 +54,8 @@ internal class CornerRadiusCustomizer(
     }
 
     fun onRelease(viewHolder: RecyclerView.ViewHolder) {
+        // A second close must not cancel the animation holding the dismissal callback.
+        if (afterClose != null) return
         if (viewHolder !is PhotoViewHolder) return
         val image = viewHolder.itemView.findViewById<ImageView>(R.id.photoView) ?: return
         (image.outlineProvider as? ImageOutline)?.captureClosingBounds(image)
