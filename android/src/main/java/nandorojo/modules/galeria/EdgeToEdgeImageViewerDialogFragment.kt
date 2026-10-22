@@ -18,6 +18,7 @@ import com.github.iielse.imageviewer.ImageViewerDialogFragment
  *      can be notified when the viewer is dismissed (any dismissal mechanism:
  *      swipe-to-dismiss, system back button, programmatic dismiss).
  *   3. Forward lifecycle events to the gallery playback session.
+ *   4. Prepare the thumbnail before removing the completed closing transition.
  */
 class EdgeToEdgeImageViewerDialogFragment(
     private val isAppearanceLightSystemBars: Boolean?,
@@ -25,7 +26,9 @@ class EdgeToEdgeImageViewerDialogFragment(
     private val onPauseCallback: () -> Unit,
     private val onDestroyCallback: () -> Unit,
     private val onDismissCallback: () -> Unit,
+    private val onBeforeDismiss: ((() -> Unit) -> Unit)? = null,
 ) : ImageViewerDialogFragment() {
+    private var dismissalRequested = false
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         if (isAppearanceLightSystemBars == null) {
@@ -60,7 +63,18 @@ class EdgeToEdgeImageViewerDialogFragment(
         super.onDestroyView()
     }
 
+    override fun dismissAllowingStateLoss() {
+        if (dismissalRequested) return
+        dismissalRequested = true
+
+        // imageviewer requests dismissal when its closing transition finishes.
+        val finishDismissal = { super.dismissAllowingStateLoss() }
+        val prepareDismissal = onBeforeDismiss
+        if (prepareDismissal != null) prepareDismissal(finishDismissal) else finishDismissal()
+    }
+
     override fun onDismiss(dialog: DialogInterface) {
+        dismissalRequested = true
         super.onDismiss(dialog)
         onDismissCallback()
     }

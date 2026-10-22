@@ -17,24 +17,40 @@ import com.github.iielse.imageviewer.core.ImageLoader
 import com.github.iielse.imageviewer.core.Photo
 import com.github.iielse.imageviewer.core.VHCustomizer
 import com.github.iielse.imageviewer.core.ViewerCallback
-import com.github.iielse.imageviewer.utils.Config
+import com.github.iielse.imageviewer.R
+import com.github.iielse.imageviewer.viewholders.PhotoViewHolder
 import com.github.iielse.imageviewer.viewholders.VideoViewHolder
 import com.github.iielse.imageviewer.widgets.video.ExoVideoView2
 
 /** Owns playback for one presentation of the native gallery. */
 @OptIn(UnstableApi::class)
-class VideoViewerSession(
+internal class VideoViewerSession(
     private val autoPlayVideo: Boolean,
     private val thumbnail: (Int) -> Bitmap?,
     private val onIndexChange: (Int) -> Unit,
     private val originalImage: ImageView?,
+    private val corners: CornerRadiusCustomizer,
 ) : ImageLoader, VHCustomizer, ViewerCallback {
     private val controls = mutableMapOf<VideoViewHolder, PlayerControlView>()
     private var activeVideo: VideoViewHolder? = null
     private var released = false
+    var transitionTarget: ImageView? = null
+    private var transitionPhoto: ImageView? = null
+    private var handoffFrame: Runnable? = null
+    private var pendingDismissal: Runnable? = null
+    private val keepPhotoVisible = Runnable {
+        transitionPhoto?.let { photo ->
+            if (!released && photo.isAttachedToWindow) {
+                // Cancel the early alpha fade, leaving the AndroidX transitions running.
+                photo.animate().cancel()
+                photo.alpha = 1f
+            }
+        }
+    }
     var isForeground = true
 
     override fun initialize(type: Int, viewHolder: RecyclerView.ViewHolder) {
+        corners.initialize(type, viewHolder)
         if (viewHolder !is VideoViewHolder) return
         val control = PlayerControlView(viewHolder.itemView.context)
         viewHolder.binding.videoView.setOnClickListener {
@@ -81,6 +97,7 @@ class VideoViewerSession(
     }
 
     override fun onInit(viewHolder: RecyclerView.ViewHolder, position: Int) {
+        corners.onInit(viewHolder)
         originalImage?.animate()?.alpha(0f)?.setDuration(180)?.start()
     }
 
@@ -125,11 +142,50 @@ class VideoViewerSession(
     override fun onRelease(viewHolder: RecyclerView.ViewHolder, view: View) {
         pause()
         if (viewHolder is VideoViewHolder) controls[viewHolder]?.visibility = View.INVISIBLE
-        originalImage?.let { image ->
-            image.animate().cancel()
-            // Restore the thumbnail when the viewer fades its shared element out.
-            image.postDelayed({ if (!released) image.alpha = 1f }, maxOf(Config.DURATION_TRANSITION - 20, 0))
+        originalImage?.animate()?.cancel()
+        if (released || transitionTarget == null) return
+        corners.onRelease(viewHolder)
+
+        val photo: ImageView = when (viewHolder) {
+            is PhotoViewHolder -> viewHolder.itemView.findViewById<ImageView>(R.id.photoView) ?: return
+            is VideoViewHolder -> viewHolder.binding.imageView
+            else -> return
         }
+        transitionPhoto?.removeCallbacks(keepPhotoVisible)
+        transitionPhoto = photo
+
+        // imageviewer posts its closing work before invoking onRelease.
+        photo.post(keepPhotoVisible)
+    }
+
+    fun onBeforeDismiss(finishDismissal: () -> Unit) {
+        corners.onBeforeDismiss { handoff(finishDismissal) }
+    }
+
+    private fun handoff(finishDismissal: () -> Unit) {
+        restoreOriginal()
+        val image = originalImage
+        if (
+            image == null || image !== transitionTarget || transitionPhoto == null ||
+            !image.isAttachedToWindow || !image.isShown || image.windowVisibility != View.VISIBLE
+        ) {
+            finishDismissal()
+            return
+        }
+
+        val finish = Runnable {
+            pendingDismissal = null
+            if (!released) finishDismissal()
+        }
+        pendingDismissal = finish
+        val frame = Runnable {
+            handoffFrame = null
+            // Run after the next traversal, with the completed preview covering the thumbnail.
+            if (image.isAttachedToWindow) image.post(finish) else finish.run()
+        }
+        handoffFrame = frame
+        image.postOnAnimation(frame)
+        image.invalidate()
     }
 
     fun pause() {
@@ -139,12 +195,24 @@ class VideoViewerSession(
     fun release() {
         if (released) return
         released = true
+        corners.release()
+        handoffFrame?.let { originalImage?.removeCallbacks(it) }
+        pendingDismissal?.let { originalImage?.removeCallbacks(it) }
+        handoffFrame = null
+        pendingDismissal = null
+        transitionPhoto?.removeCallbacks(keepPhotoVisible)
+        transitionPhoto = null
+        transitionTarget = null
         controls.forEach { (holder, control) ->
             control.player = null
             holder.binding.videoView.release()
         }
         controls.clear()
         activeVideo = null
+        restoreOriginal()
+    }
+
+    private fun restoreOriginal() {
         originalImage?.animate()?.cancel()
         originalImage?.alpha = 1f
     }
