@@ -37,7 +37,7 @@ https://github.com/user-attachments/assets/5062e949-b205-4260-830c-38041cec26db
 
 For iOS and Android, the implementation uses Swift (`ImageViewer.swift`) and Kotlin (`imageviewer`) respectively – see [credits](#credits).
 
-Web support is a simplified version of the native experience powered by Framer Motion. It opens one photo or video at a time.
+Web support is a simplified version of the native experience powered by Framer Motion. It goes through the gallery's photos and videos with the arrow buttons, the keyboard's arrow keys or a horizontal swipe (touch, mouse or trackpad).
 
 ## Resources
 
@@ -132,7 +132,7 @@ app. Galeria reuses the loaded image from the mounted item as the video's poster
 and transition image. It does not extract video thumbnails. If the item is not
 mounted or its image has not loaded, the poster may be unavailable.
 
-Web retains the single-item viewer and its existing close and scroll behavior.
+On web, swiping between items is off for videos (their controls are dragged), and the arrow keys seek a focused video rather than changing items.
 Browser autoplay policies still apply; if playback is blocked, use the play button.
 Web uses URL strings or `{ uri }` sources directly, including bundled assets that
 your web bundler emits in those forms. Native numeric asset IDs and native file
@@ -190,7 +190,7 @@ const src = (s) => (typeof s === 'string' ? { uri: s } : s) // 🤷‍♂️
 ```
 
 ### Get Index of Currently Shown Image
-*iOS & Android*
+*iOS, Android, and web*
 
 To get the index of the currently shown image in the image viewer use `onIndexChange`. It triggers on initial open of the image viewer and when the user scrolls through the images. 
 
