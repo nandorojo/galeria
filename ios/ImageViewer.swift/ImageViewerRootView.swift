@@ -121,6 +121,9 @@ class ImageViewerRootView: UIView, RootViewType {
         setupViews()
         applyOptions()
         setupGestures()
+
+        // Once applyOptions() has set onIndexChange, for the item it opens on.
+        onIndexChange?(initialIndex)
     }
 
     required init?(coder: NSCoder) {
@@ -151,8 +154,6 @@ class ImageViewerRootView: UIView, RootViewType {
 
             initialVC.view.setNeedsLayout()
             initialVC.view.layoutIfNeeded()
-
-            onIndexChange?(initialIndex)
         }
 
         let closeBarButton = UIBarButtonItem(
