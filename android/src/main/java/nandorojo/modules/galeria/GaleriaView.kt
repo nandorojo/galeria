@@ -26,6 +26,7 @@ import com.github.iielse.imageviewer.core.Photo
 import com.github.iielse.imageviewer.core.SimpleDataProvider
 import com.github.iielse.imageviewer.core.Transformer
 import com.github.iielse.imageviewer.utils.Config
+import expo.modules.kotlin.types.Enumerable
 import expo.modules.kotlin.viewevent.EventDispatcher
 
 
@@ -232,7 +233,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
 
 }
 
-enum class Theme(val value: String) {
+enum class Theme(val value: String) : Enumerable {
     Dark("dark"),
     Light("light");
 
