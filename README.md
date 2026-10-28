@@ -229,6 +229,36 @@ Hide the page indicator dots when viewing multiple images.
 </Galeria.Image>
 ```
 
+### Custom Overlay
+*iOS, Android & Web*
+
+Render your own views over the image viewer while it's open, e.g. a close button, a caption or actions for the image shown (with `onIndexChange`). They fade in once the image is in place, and out when the viewer closes (iOS and Android). Touches outside of your views still go to the viewer: on iOS and Android, swipe, zoom and drag to close, and a single tap hides or shows the overlay; on the web, a click closes the viewer. The viewer's own close button isn't shown when there's an overlay (iOS and web).
+
+`Galeria.dismiss()` closes the open viewer.
+
+```tsx
+<Galeria urls={urls} hidePageIndicators>
+  {urls.map((url, index) => (
+    <Galeria.Image
+      index={index}
+      key={url}
+      onIndexChange={(e) => setCurrentIndex(e.nativeEvent.currentIndex)}
+    >
+      <Image source={{ uri: url }} style={style} />
+    </Galeria.Image>
+  ))}
+
+  <Galeria.Overlay>
+    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+      <Pressable onPress={() => Galeria.dismiss()} style={styles.close}>
+        <Text>Close</Text>
+      </Pressable>
+      <Text style={styles.caption}>{captions[currentIndex]}</Text>
+    </View>
+  </Galeria.Overlay>
+</Galeria>
+```
+
 ### Plain Web Support
 
 Galeria does not use _any_ React Native code on the web. It is a pure React component library.

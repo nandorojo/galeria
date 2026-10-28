@@ -1,7 +1,7 @@
 import type { motion } from 'framer-motion'
 import type { ComponentProps } from 'react'
 import type { Image, NativeSyntheticEvent } from 'react-native'
-import { ViewStyle } from 'react-native'
+import { ViewProps, ViewStyle } from 'react-native'
 import type { SFSymbol } from 'sf-symbols-typescript'
 
 export type MediaSource =
@@ -33,6 +33,10 @@ export interface GaleriaViewProps {
   rightNavItemIconName?: SFSymbol
   __web?: ComponentProps<(typeof motion)['div']>
   style?: ViewStyle
+  /** The trigger's, for screen readers (e.g. `accessibilityRole="button"`): it opens the viewer. */
+  accessible?: ViewProps['accessible']
+  accessibilityRole?: ViewProps['accessibilityRole']
+  accessibilityLabel?: ViewProps['accessibilityLabel']
   dynamicAspectRatio?: boolean
   edgeToEdge?: boolean
   onIndexChange?: (event: GaleriaIndexChangedEvent) => void

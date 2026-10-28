@@ -20,6 +20,11 @@ import com.github.iielse.imageviewer.ImageViewerBuilder
 import com.github.iielse.imageviewer.ImageViewerDialogFragment
 import com.github.iielse.imageviewer.R
 import com.github.iielse.imageviewer.adapter.ItemType
+import com.github.iielse.imageviewer.core.OverlayCustomizer
+import com.github.iielse.imageviewer.core.VHCustomizer
+import com.github.iielse.imageviewer.core.ViewerCallback
+import com.github.iielse.imageviewer.viewholders.PhotoViewHolder
+import androidx.recyclerview.widget.RecyclerView
 import java.util.Collections
 import java.util.WeakHashMap
 import com.github.iielse.imageviewer.core.Photo
@@ -165,8 +170,46 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                             }
                         }
                     )
-                    viewer.setVHCustomizer(session)
-                    viewer.setViewerCallback(session)
+                    val overlay = GaleriaOverlayView.find(urls)
+                    if (overlay == null) {
+                        viewer.setVHCustomizer(session)
+                        viewer.setViewerCallback(session)
+                    } else {
+                        viewer.setOverlayCustomizer(object : OverlayCustomizer {
+                            override fun provideView(parent: ViewGroup) = overlay.attach()
+                        })
+                        viewer.setVHCustomizer(object : VHCustomizer by session {
+                            override fun initialize(type: Int, viewHolder: RecyclerView.ViewHolder) {
+                                session.initialize(type, viewHolder)
+                                // As on iOS: a tap on a photo (not the first of a double tap) shows or hides it.
+                                (viewHolder as? PhotoViewHolder)?.binding?.photoView?.setOnViewTapListener { _, _, _ ->
+                                    overlay.toggle()
+                                }
+                            }
+                        })
+                        viewer.setViewerCallback(object : ViewerCallback by session {
+                            override fun onInit(viewHolder: RecyclerView.ViewHolder, position: Int) {
+                                session.onInit(viewHolder, position)
+                                // Once the photo is in place (the transition starts 50 ms after this).
+                                overlay.fadeIn(Config.DURATION_TRANSITION + 50)
+                            }
+
+                            override fun onDrag(viewHolder: RecyclerView.ViewHolder, view: View, fraction: Float) {
+                                session.onDrag(viewHolder, view, fraction)
+                                overlay.drag()
+                            }
+
+                            override fun onRestore(viewHolder: RecyclerView.ViewHolder, view: View, fraction: Float) {
+                                session.onRestore(viewHolder, view, fraction)
+                                overlay.restore()
+                            }
+
+                            override fun onRelease(viewHolder: RecyclerView.ViewHolder, view: View) {
+                                session.onRelease(viewHolder, view)
+                                overlay.fadeOut()
+                            }
+                        })
+                    }
                     viewer.setViewerFactory(object : ImageViewerDialogFragment.Factory() {
                         override fun build() = EdgeToEdgeImageViewerDialogFragment(
                             isAppearanceLightSystemBars =
@@ -176,15 +219,23 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                                 session.isForeground = false
                                 session.pause()
                             },
-                            onDestroyCallback = { session.release() },
+                            onDestroyCallback = {
+                                session.release()
+                                overlay?.detach()
+                            },
                             onDismissCallback = {
                                 session.release()
+                                overlay?.detach()
                                 onDismiss(emptyMap<String, Any>())
                             },
                         )
                     })
+                    // The photo opened, before the overlay shows (the viewer's own comes once it's in place).
+                    onIndexChange(mapOf("currentIndex" to initialIndex))
                     viewer.show()
                 }
+                // A screen reader's click (on this view, its accessibility node) opens it as a tap on the image.
+                setOnClickListener { childView.performClick() }
                 childView.setOnLongClickListener {
                     onLongPress(emptyMap<String, Any>())
                     true

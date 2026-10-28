@@ -4,6 +4,10 @@ public class GaleriaModule: Module {
   public func definition() -> ModuleDefinition {
     Name("Galeria")
 
+    AsyncFunction("dismiss") {
+      dismissCurrentImageViewer()
+    }.runOnQueue(.main)
+
     View(GaleriaView.self) {
       Events("onIndexChange", "onLongPress")
       Events("onIndexChange", "onPressRightNavItemIcon")
@@ -46,6 +50,12 @@ public class GaleriaModule: Module {
         view.hidePageIndicators = hidePageIndicators ?? false
       }
 
+    }
+
+    View(GaleriaOverlayView.self) {
+      Prop("urls") { (view, urls: [String]?) in
+        view.urls = urls
+      }
     }
   }
 

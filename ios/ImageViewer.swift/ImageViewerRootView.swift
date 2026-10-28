@@ -16,6 +16,8 @@ class ImageViewerRootView: UIView, RootViewType {
     var hidePageIndicators: Bool = false
     private var autoPlayVideo = false
     private var isVisible = false
+    /// The group's `Galeria.Overlay`, if any: shown over the photos instead of the close button's bar.
+    private weak var overlayView: GaleriaOverlayView?
 
     private var pageViewController: UIPageViewController!
     private(set) lazy var backgroundView: UIView = {
@@ -70,15 +72,27 @@ class ImageViewerRootView: UIView, RootViewType {
     var prefersStatusBarHidden: Bool { false }
     var prefersHomeIndicatorAutoHidden: Bool { false }
 
+    /// The chrome: the overlay if there's one, else the close button's bar.
+    private var chromeAlpha: CGFloat {
+        get { overlayView?.host.alpha ?? navBar.alpha }
+        set {
+            navBar.alpha = newValue
+            overlayView?.host.alpha = newValue
+        }
+    }
+
     func willAppear(animated: Bool) {
-        navBar.alpha = 0
+        if let overlayView, !overlayView.isInViewer {
+            overlayView.attach(to: self)
+        }
+        chromeAlpha = 0
     }
 
     func didAppear(animated: Bool) {
         isVisible = true
         updatePlayback()
         UIView.animate(withDuration: 0.25) {
-            self.navBar.alpha = 1.0
+            self.chromeAlpha = 1.0
         }
     }
 
@@ -86,11 +100,12 @@ class ImageViewerRootView: UIView, RootViewType {
         isVisible = false
         updatePlayback()
         UIView.animate(withDuration: 0.25) {
-            self.navBar.alpha = 0
+            self.chromeAlpha = 0
         }
     }
 
     func didDisappear(animated: Bool) {
+        overlayView?.detach()
         onDismiss?()
     }
 
@@ -118,6 +133,7 @@ class ImageViewerRootView: UIView, RootViewType {
 
         super.init(frame: .zero)
         accessibilityViewIsModal = true
+        overlayView = groupId.flatMap { GaleriaOverlayView.find(groupId: $0) }
         setupViews()
         applyOptions()
         setupGestures()
@@ -164,6 +180,7 @@ class ImageViewerRootView: UIView, RootViewType {
         closeBarButton.tintColor = theme.tintColor
         navItem.rightBarButtonItem = closeBarButton
         navBar.items = [navItem]
+        navBar.isHidden = overlayView != nil
         addSubview(navBar)
     }
 
@@ -259,10 +276,15 @@ class ImageViewerRootView: UIView, RootViewType {
     }
 
     @objc private func didSingleTap() {
-        let currentAlpha = navBar.alpha
+        let currentAlpha = chromeAlpha
         UIView.animate(withDuration: 0.235) {
-            self.navBar.alpha = currentAlpha > 0.5 ? 0.0 : 1.0
+            self.chromeAlpha = currentAlpha > 0.5 ? 0.0 : 1.0
         }
+    }
+
+    /// Closes the viewer, as its close button (`Galeria.dismiss()`).
+    func dismiss() {
+        dismissViewer()
     }
 
     @objc private func didTapRightNavItem() {
@@ -283,7 +305,7 @@ extension ImageViewerRootView: MatchTransitionDelegate {
     }
 
     func matchTransitionWillBegin(transition: MatchTransition) {
-        navBar.alpha = 0
+        chromeAlpha = 0
         transition.overlayView?.isHidden = hideBlurOverlay
     }
 }
@@ -305,6 +327,21 @@ extension ImageViewerRootView: UIGestureRecognizerDelegate {
             return scrollView.zoomScale <= scrollView.minimumZoomScale + 0.01
         }
         return true
+    }
+
+    // The overlay's own views handle their touches: no toggling of the chrome nor closing from them.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard let host = overlayView?.host, let view = touch.view, view !== host else { return true }
+        return !view.isDescendant(of: host)
+    }
+
+    // A tap showing or hiding the chrome waits for the photo's double tap (its zoom) to fail.
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        return (gestureRecognizer as? UITapGestureRecognizer)?.numberOfTapsRequired == 1
+            && (otherGestureRecognizer as? UITapGestureRecognizer)?.numberOfTapsRequired == 2
     }
 
     func gestureRecognizer(
@@ -371,7 +408,7 @@ extension ImageViewerRootView: UIPageViewControllerDelegate {
                 (previous as? VideoViewerController)?.setActive(false, autoPlayVideo: autoPlayVideo)
             }
             currentIndex = currentVC.index
-            if currentVC is VideoViewerController { navBar.alpha = 1 }
+            if currentVC is VideoViewerController { chromeAlpha = 1 }
             updatePlayback()
             onIndexChange?(currentIndex)
         }

@@ -2,6 +2,11 @@ import UIKit
 
 private var currentNavigationView: NavigationView?
 
+/// Closes the open viewer, if any (`Galeria.dismiss()`).
+func dismissCurrentImageViewer() {
+    (currentNavigationView?.views.last as? ImageViewerRootView)?.dismiss()
+}
+
 extension UIImageView {
 
     private class TapWithDataRecognizer:UITapGestureRecognizer {

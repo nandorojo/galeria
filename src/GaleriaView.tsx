@@ -8,6 +8,7 @@ import {
   useContext,
   isValidElement,
   cloneElement,
+  createContext,
 } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -17,15 +18,37 @@ import type Native from './GaleriaView.ios'
 import { LayoutGroup, motion, useDomEvent } from 'framer-motion'
 import { GaleriaContext } from './context'
 
+// Galeria.Overlay's: where the open viewer shows it (its children are
+// portaled there), and whether there's one.
+const OverlayContext = createContext({
+  host: null as HTMLElement | null,
+  setHost: (_host: HTMLElement | null) => {},
+  hasOverlay: false,
+  setHasOverlay: (_hasOverlay: boolean) => {},
+})
+
+// The open viewer's close, for Galeria.dismiss().
+let closeOpenViewer: (() => void) | null = null
+
 function Image({
   __web,
   index = 0,
   children,
   style,
   dynamicAspectRatio = false,
+  onIndexChange,
 }: GaleriaViewProps) {
   const [isOpen, setIsOpen] = useState(false)
   const { urls, theme, autoPlayVideo } = useContext(GaleriaContext)
+  const { setHost, hasOverlay } = useContext(OverlayContext)
+  useEffect(() => {
+    if (!isOpen) return
+    const close = () => setIsOpen(false)
+    closeOpenViewer = close
+    return () => {
+      if (closeOpenViewer === close) closeOpenViewer = null
+    }
+  }, [isOpen])
   const item = urls?.[index]
   const isVideo =
     typeof item === 'object' &&
@@ -77,6 +100,10 @@ function Image({
     if (imageNode) {
       setPoster(imageNode.currentSrc || imageNode.src)
       setIsOpen(true)
+      // The image opened, as on iOS and Android (e.g. for Galeria.Overlay).
+      onIndexChange?.({
+        nativeEvent: { currentIndex: index },
+      } as Parameters<NonNullable<typeof onIndexChange>>[0])
       const ratio = getNodeAspectRatio(imageNode)
       setAspectRatio(ratio)
       if (
@@ -198,31 +225,48 @@ Or, you might need something like alignItems: 'flex-start' to the parent element
           }}
         </WindowDimensions>
 
-        <motion.div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            padding: 16,
-            cursor: 'pointer',
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        {hasOverlay ? (
+          // Galeria.Overlay's views, over the image: clicks on nothing of
+          // theirs go through to it (and close the viewer).
+          <motion.div
+            ref={setHost}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              pointerEvents: 'none',
+              zIndex: 3000,
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          />
+        ) : (
+          <motion.div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              padding: 16,
+              cursor: 'pointer',
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-            <path
-              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
-              fill={foreground}
-            />
-          </svg>
-        </motion.div>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+                fill={foreground}
+              />
+            </svg>
+          </motion.div>
+        )}
 
         <OnScrollOnce
           onScroll={() => {
@@ -241,6 +285,8 @@ function Root({
   autoPlayVideo = false,
   ids,
 }: ComponentProps<typeof Native>) {
+  const [overlayHost, setOverlayHost] = useState<HTMLElement | null>(null)
+  const [hasOverlay, setHasOverlay] = useState(false)
   const [openState, setOpen] = useState({
     open: false,
   } as
@@ -276,9 +322,18 @@ function Root({
         ids,
       }}
     >
-      <LayoutGroup inherit={false} id={useId()}>
-        {children}
-      </LayoutGroup>
+      <OverlayContext.Provider
+        value={{
+          host: overlayHost,
+          setHost: setOverlayHost,
+          hasOverlay,
+          setHasOverlay,
+        }}
+      >
+        <LayoutGroup inherit={false} id={useId()}>
+          {children}
+        </LayoutGroup>
+      </OverlayContext.Provider>
     </GaleriaContext.Provider>
   )
 }
@@ -376,10 +431,34 @@ function PopupModal({
   return elementRef.current ? createPortal(node, elementRef.current) : null
 }
 
+/**
+ * Rendered in the open viewer, over its image, through a portal: still in
+ * this tree, for its context and events. Its views take their own clicks;
+ * clicks on nothing of theirs go through, and close the viewer.
+ */
+function Overlay({ children }: { children?: React.ReactNode }) {
+  const { host, setHasOverlay } = useContext(OverlayContext)
+  useEffect(() => {
+    setHasOverlay(true)
+    return () => setHasOverlay(false)
+  }, [setHasOverlay])
+
+  return host
+    ? createPortal(
+        <div style={{ display: 'contents', pointerEvents: 'auto' }}>
+          {children}
+        </div>,
+        host,
+      )
+    : null
+}
+
 const Galeria: typeof Native = Object.assign(Root, {
   Image,
   Item: Image,
   Popup: () => null,
+  Overlay,
+  dismiss: async () => closeOpenViewer?.(),
 })
 
 export default Galeria

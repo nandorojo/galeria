@@ -1,5 +1,9 @@
 package nandorojo.modules.galeria
 
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import com.github.iielse.imageviewer.ImageViewerActionViewModel
+import expo.modules.kotlin.functions.Queues
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
@@ -12,6 +16,19 @@ class GaleriaModule : Module() {
         // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
         // The module will be accessible from `requireNativeModule('Galeria')` in JavaScript.
         Name("Galeria")
+
+        // Closes the open viewer, as the back button (`Galeria.dismiss()`).
+        AsyncFunction("dismiss") {
+            (appContext.currentActivity as? ViewModelStoreOwner)?.let {
+                ViewModelProvider(it).get(ImageViewerActionViewModel::class.java).dismiss()
+            }
+        }.runOnQueue(Queues.MAIN)
+
+        View(GaleriaOverlayView::class) {
+            Prop("urls") { view: GaleriaOverlayView, urls: Array<String>? ->
+                view.urls = urls
+            }
+        }
 
         // Enables the module to be used as a native view. Definition components that are accepted as part of
         // the view definition: Prop, Events.
