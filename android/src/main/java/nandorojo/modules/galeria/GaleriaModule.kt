@@ -19,6 +19,7 @@ class GaleriaModule : Module() {
             Events(
                 "onIndexChange",
                 "onLongPress",
+                "onDoubleTap",
                 "onDismiss"
             )
             // Defines a setter for the `name` prop.
@@ -33,6 +34,9 @@ class GaleriaModule : Module() {
             }
             Prop("autoPlayVideo") { view: GaleriaView, autoPlayVideo: Boolean ->
                 view.autoPlayVideo = autoPlayVideo
+            }
+            Prop("doubleTapEnabled") { view: GaleriaView, doubleTapEnabled: Boolean ->
+                view.doubleTapEnabled = doubleTapEnabled
             }
             Prop("index") { view: GaleriaView, index: Int ->
                 view.initialIndex = index

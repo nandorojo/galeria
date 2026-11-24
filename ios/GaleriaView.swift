@@ -53,9 +53,11 @@ class GaleriaView: ExpoView {
   var rightNavItemIconName: String?
   var hideBlurOverlay: Bool = false
   var hidePageIndicators: Bool = false
+  var doubleTapEnabled = false
   let onPressRightNavItemIcon = EventDispatcher()
   let onIndexChange = EventDispatcher()
   let onLongPress = EventDispatcher()
+  let onDoubleTap = EventDispatcher()
   let onDismiss = EventDispatcher()
 
   public func setupImageView() {
@@ -79,6 +81,9 @@ class GaleriaView: ExpoView {
     }
 
     attachLongPressRecognizer(to: childImage)
+    if doubleTapEnabled {
+      attachDoubleTapRecognizer(to: childImage)
+    }
   }
 
   private func attachLongPressRecognizer(to imageView: UIImageView) {
@@ -93,6 +98,21 @@ class GaleriaView: ExpoView {
     if recognizer.state == .began {
       onLongPress()
     }
+  }
+
+  // The single tap that opens the viewer waits for this one to fail, so a double tap never opens it.
+  private func attachDoubleTapRecognizer(to imageView: UIImageView) {
+    let doubleTap = UITapGestureRecognizer(
+      target: self, action: #selector(handleDoubleTap(_:)))
+    doubleTap.numberOfTapsRequired = 2
+    imageView.gestureRecognizers?
+      .compactMap { $0 as? UITapGestureRecognizer }
+      .forEach { $0.require(toFail: doubleTap) }
+    imageView.addGestureRecognizer(doubleTap)
+  }
+
+  @objc private func handleDoubleTap(_ recognizer: UITapGestureRecognizer) {
+    onDoubleTap()
   }
 
   private func setupImageViewerWithUrls(

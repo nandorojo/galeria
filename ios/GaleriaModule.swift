@@ -5,7 +5,7 @@ public class GaleriaModule: Module {
     Name("Galeria")
 
     View(GaleriaView.self) {
-      Events("onIndexChange", "onLongPress")
+      Events("onIndexChange", "onLongPress", "onDoubleTap")
       Events("onIndexChange", "onPressRightNavItemIcon")
       Events("onIndexChange", "onDismiss")
 
@@ -22,6 +22,10 @@ public class GaleriaModule: Module {
       }
       Prop("autoPlayVideo") { (view, autoPlayVideo: Bool?) in
         view.autoPlayVideo = autoPlayVideo ?? false
+      }
+
+      Prop("doubleTapEnabled") { (view, doubleTapEnabled: Bool?) in
+        view.doubleTapEnabled = doubleTapEnabled ?? false
       }
 
       Prop("index") { (view, index: Int?) in

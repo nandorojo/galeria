@@ -17,6 +17,7 @@ const NativeImage = requireNativeView<
     urls?: string[]
     mediaTypes?: ('photo' | 'video')[]
     autoPlayVideo: boolean
+    doubleTapEnabled: boolean
     theme: 'dark' | 'light'
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
   }
@@ -69,6 +70,7 @@ const GaleriaRoot = Object.assign(
           edgeToEdge={EDGE_TO_EDGE || (edgeToEdge ?? false)}
           theme={theme}
           autoPlayVideo={autoPlayVideo}
+          doubleTapEnabled={props.onDoubleTap !== undefined}
           mediaTypes={urls?.map((source) =>
             typeof source === 'object' && source !== null && 'source' in source
               ? source.type

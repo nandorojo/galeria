@@ -11,6 +11,7 @@ const NativeImage = requireNativeView<
     urls?: string[]
     mediaTypes?: ('photo' | 'video')[]
     autoPlayVideo: boolean
+    doubleTapEnabled: boolean
     closeIconName?: SFSymbol
     theme: 'dark' | 'light'
     onIndexChange?: (event: GaleriaIndexChangedEvent) => void
@@ -82,6 +83,7 @@ const GaleriaRoot = Object.assign(
           closeIconName={closeIconName}
           theme={theme}
           autoPlayVideo={autoPlayVideo}
+          doubleTapEnabled={props.onDoubleTap !== undefined}
           mediaTypes={urls?.map((source) =>
             typeof source === 'object' && source !== null && 'source' in source
               ? source.type

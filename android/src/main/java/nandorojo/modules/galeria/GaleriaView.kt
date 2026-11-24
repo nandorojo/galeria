@@ -8,6 +8,8 @@ import android.content.ContextWrapper
 import android.graphics.Color
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -49,6 +51,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     lateinit var urls: Array<String>
     var mediaTypes: Array<String> = emptyArray()
     var autoPlayVideo = false
+    var doubleTapEnabled = false
 
     companion object {
         private val mountedViews: MutableSet<GaleriaView> =
@@ -92,6 +95,7 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     }
     val onIndexChange by EventDispatcher()
     val onLongPress by EventDispatcher()
+    val onDoubleTap by EventDispatcher()
     val onDismiss by EventDispatcher()
     var theme: Theme = Theme.Dark
     var initialIndex: Int = 0
@@ -101,6 +105,28 @@ class GaleriaView(context: Context) : ViewGroup(context) {
     var transitionOffsetX: Int? = 0
     val viewModel: ImageViewerActionViewModel by lazy {
         ViewModelProvider(getViewModelOwner(context)).get(ImageViewerActionViewModel::class.java)
+    }
+
+    private var tappedImage: View? = null
+
+    // One detector for the view's life, since onLayout sets the listeners up again and a new
+    // detector would forget a first tap. It routes taps to the image's own click and long click.
+    private val tapDetector by lazy {
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDown(e: MotionEvent) = true
+
+            override fun onSingleTapConfirmed(e: MotionEvent) =
+                tappedImage?.performClick() ?: false
+
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                this@GaleriaView.onDoubleTap(emptyMap<String, Any>())
+                return true
+            }
+
+            override fun onLongPress(e: MotionEvent) {
+                tappedImage?.performLongClick()
+            }
+        })
     }
 
     fun dismiss()  {
@@ -188,6 +214,15 @@ class GaleriaView(context: Context) : ViewGroup(context) {
                 childView.setOnLongClickListener {
                     onLongPress(emptyMap<String, Any>())
                     true
+                }
+                if (doubleTapEnabled) {
+                    childView.setOnTouchListener { view, event ->
+                        tappedImage = view
+                        tapDetector.onTouchEvent(event)
+                        true
+                    }
+                } else {
+                    childView.setOnTouchListener(null)
                 }
             } else if (childView is ViewGroup) {
                 setupImageViewer(childView)

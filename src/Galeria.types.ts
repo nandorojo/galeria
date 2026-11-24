@@ -21,6 +21,7 @@ export type GaleriaIndexChangedEvent =
   NativeSyntheticEvent<GaleriaIndexChangedPayload>
 
 export type GaleriaLongPressEvent = NativeSyntheticEvent<Record<string, never>>
+export type GaleriaDoubleTapEvent = NativeSyntheticEvent<Record<string, never>>
 export type GaleriaRightNavItemPressedEvent =
   NativeSyntheticEvent<{ index: number }>
 export type GaleriaDismissEvent = NativeSyntheticEvent<Record<string, never>>
@@ -38,6 +39,11 @@ export interface GaleriaViewProps {
   onIndexChange?: (event: GaleriaIndexChangedEvent) => void
   /** Fired on long-press of the inline trigger image, before the viewer opens. */
   onLongPress?: (event: GaleriaLongPressEvent) => void
+  /**
+   * Fired on double-tap of the inline trigger image. Opt-in: once set, a single tap opens the
+   * viewer only after a second tap is ruled out, which takes the platform's double-tap timeout.
+   */
+  onDoubleTap?: (event: GaleriaDoubleTapEvent) => void
   onPressRightNavItemIcon?: (event: GaleriaRightNavItemPressedEvent) => void
   onDismiss?: (event: GaleriaDismissEvent) => void
   hideBlurOverlay?: boolean

@@ -229,6 +229,17 @@ Hide the page indicator dots when viewing multiple images.
 </Galeria.Image>
 ```
 
+### Double Tap
+*iOS & Android*
+
+Pass `onDoubleTap` to act on a double tap of the image, such as liking it. It is opt-in: once set, a single tap opens the viewer only after a second tap is ruled out, which takes the platform's double-tap timeout. Without it, a single tap opens the viewer at once, as before.
+
+```tsx
+<Galeria.Image onDoubleTap={() => like(id)}>
+  <Image source={{ uri: url }} style={style} />
+</Galeria.Image>
+```
+
 ### Plain Web Support
 
 Galeria does not use _any_ React Native code on the web. It is a pure React component library.
