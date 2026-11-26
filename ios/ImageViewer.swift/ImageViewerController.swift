@@ -152,21 +152,36 @@ extension ImageViewerController {
             availableWidth/imageSize.width,   
             availableHeight/imageSize.height)  
         
-        let maxScale = max(
+        let fillScale = max(
             (availableWidth + 1.0) / imageSize.width,
             (availableHeight + 1.0) / imageSize.height)
-        
+
+        // Double-tap target: fill the screen, but always zoom in meaningfully.
+        let doubleTapScale = max(fillScale, minScale * 2.5)
+
+        // Pinch limit: well past the double-tap target, and at least 2x the
+        // image's native pixel resolution so high-res photos can be inspected.
+        let screenScale = view.window?.screen.scale ?? UIScreen.main.scale
+        let nativePixelScale = image.scale / screenScale
+        let pinchMaxScale = max(doubleTapScale * 3, nativePixelScale * 2, minScale * 6)
+
+        let wasAtMinimum = scrollView.zoomScale <= scrollView.minimumZoomScale + 0.01
 
         scrollView.minimumZoomScale = minScale
-        scrollView.zoomScale = minScale
-        maxZoomScale = maxScale
-     
-        scrollView.maximumZoomScale =  maxZoomScale * 1.1
+        scrollView.maximumZoomScale = pinchMaxScale
+        maxZoomScale = doubleTapScale
+
+        // Only snap back to fit when the user wasn't zoomed in, so layout passes
+        // (rotation, image load, safe area changes) don't discard their zoom.
+        if wasAtMinimum || scrollView.zoomScale < minScale {
+            scrollView.zoomScale = minScale
+        }
     }
     
     
     func zoomInOrOut(at point:CGPoint) {
-        let newZoomScale = scrollView.zoomScale == scrollView.minimumZoomScale
+        let isAtMinimum = scrollView.zoomScale <= scrollView.minimumZoomScale + 0.01
+        let newZoomScale = isAtMinimum
             ? maxZoomScale : scrollView.minimumZoomScale
         let size = scrollView.bounds.size
         let w = size.width / newZoomScale
